@@ -6,6 +6,8 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
+@keyframes spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
+.star-marker{animation:spin 8s linear infinite;display:inline-block}
 *{margin:0;padding:0;box-sizing:border-box}
 html,body{height:100%;overflow:hidden}
 body{font-family:"IBM Plex Sans",sans-serif;background:#F5F0E3;color:#141210;display:flex;flex-direction:column}
@@ -580,7 +582,7 @@ const precincts = {"type": "FeatureCollection", "crs": {"type": "name", "propert
 const map=L.map("map").setView([40.75,-73.94],11);
 L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}@2x.png",{maxZoom:19,attribution:"\u00a9 OSM \u00a9 CARTO"}).addTo(map);
 L.geoJSON(precincts,{style:function(f){return{fillColor:f.properties.fill,fillOpacity:0.3,color:f.properties.border,weight:1.5,opacity:0.4,dashArray:"4 3"}},onEachFeature:function(f,l){const p=f.properties;l.bindTooltip('<div style="font-family:IBM Plex Sans;font-size:11px"><b>Pct '+p.pct+'</b><br><span style="color:'+p.border+';font-weight:600">'+p.label+'</span><br>Rob: '+p.rob_rate+'/1K &middot; Burg: '+p.burg_rate+'/1K</div>',{sticky:true,opacity:0.95})}}).addTo(map);
-L.marker([40.7534,-73.9898],{icon:L.divIcon({className:"",html:'<div style="background:#141210;color:#F4C300;font-weight:bold;font-size:10px;padding:4px 9px;border-radius:4px;white-space:nowrap;box-shadow:0 2px 4px rgba(0,0,0,0.3)">1 MW</div>',iconAnchor:[20,10]}),zIndexOffset:2000}).addTo(map);
+L.marker([40.7534,-73.9898],{icon:L.divIcon({className:"",html:'<div style="display:flex;align-items:center;gap:4px;white-space:nowrap"><span class="star-marker" style="font-size:22px">⭐</span><span style="background:#141210;color:#F4C300;font-weight:bold;font-size:10px;padding:3px 8px;border-radius:4px;box-shadow:0 2px 6px rgba(0,0,0,0.4)">1 MW</span></div>',iconAnchor:[20,10]}),zIndexOffset:2000}).addTo(map);
 
 function sc(s){if(s>=65)return"#2C5F3F";if(s>=55)return"#4A9D6E";if(s>=50)return"#9C6A0C";if(s>=40)return"#D4930D";return"#A6271E"}
 const markers={};const dots=L.layerGroup().addTo(map);
