@@ -7,8 +7,18 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:"IBM Plex Sans",sans-serif;background:#F5F0E3;color:#141210}
-#map{height:38vh;width:100%;border-bottom:2px solid #141210}
+html,body{height:100%;overflow:hidden}
+body{font-family:"IBM Plex Sans",sans-serif;background:#F5F0E3;color:#141210;display:flex;flex-direction:column}
+#map{height:45vh;width:100%;flex-shrink:0;min-height:20vh;transition:none}
+
+/* Drag handle */
+#drag{height:14px;background:#EDE6D3;border-top:2px solid #141210;border-bottom:1px solid #C9BF9F;cursor:ns-resize;display:flex;align-items:center;justify-content:center;flex-shrink:0;user-select:none;-webkit-user-select:none;touch-action:none;z-index:100}
+#drag:hover{background:#E2D9BF}
+#drag:active{background:#D4CDB8}
+#drag .grip{width:36px;height:4px;border-radius:2px;background:#8C836F;opacity:0.6}
+#drag:hover .grip{opacity:1}
+
+#bottom{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch}
 .p{max-width:1400px;margin:0 auto;padding:12px 20px 40px}
 .m{font-family:"JetBrains Mono",monospace}
 h1{font-size:18px;font-weight:700;margin-bottom:4px}
@@ -36,7 +46,7 @@ h1{font-size:18px;font-weight:700;margin-bottom:4px}
 .tip .dismiss:hover{opacity:1}
 
 /* Table */
-.tbl-wrap{max-height:52vh;overflow-y:auto;border:1px solid #DED4B8;border-radius:6px}
+.tbl-wrap{border:1px solid #DED4B8;border-radius:6px;overflow-x:auto;-webkit-overflow-scrolling:touch}
 table{width:100%;border-collapse:collapse;font-size:12px}
 th{text-align:left;padding:6px 8px;border-bottom:2px solid #141210;font-size:10px;text-transform:uppercase;letter-spacing:0.05em;color:#8C836F;font-weight:600;position:sticky;top:0;background:#F5F0E3;cursor:pointer;user-select:none;white-space:nowrap;z-index:10}
 th:hover{color:#141210;text-decoration:underline}
@@ -73,18 +83,30 @@ tr.c:first-child{animation:nudge 1.5s ease 1.5s 2}
 
 /* Mobile */
 @media(max-width:768px){
-  #map{height:35vh}
-  .p{padding:10px 10px 32px}
-  .tbl-wrap{max-height:none;overflow-x:auto;-webkit-overflow-scrolling:touch}
-  table{min-width:900px}
-  th,td{padding:5px 6px;font-size:11px}
-  h1{font-size:15px}
+  #map{height:40vh}
+  #drag{height:18px}
+  #drag .grip{width:48px;height:5px}
+  .p{padding:10px 12px 32px}
+  table{min-width:850px}
+  th,td{padding:6px 7px;font-size:11px}
+  h1{font-size:16px}
   .sub{font-size:11px}
-  .filters{gap:6px}.pill{padding:5px 12px;font-size:11px}
-  .foot{grid-template-columns:1fr 1fr}
+  .filters{gap:5px}
+  .pill{padding:6px 14px;font-size:12px;border-radius:20px}
+  .tip{font-size:12px;padding:10px 14px}
+  .foot{grid-template-columns:1fr 1fr;font-size:10px}
+  .lg{font-size:10px;padding:8px 10px}
+}
+@media(max-width:480px){
+  #map{height:35vh}
+  h1{font-size:14px}
+  .pill{padding:5px 10px;font-size:11px}
+  .foot{grid-template-columns:1fr;gap:8px}
 }
 </style></head><body>
 <div id="map"></div>
+<div id="drag"><div class="grip"></div></div>
+<div id="bottom">
 <div class="p">
 <h1>NYC Apartment Hunt &mdash; 22 Neighborhoods Ranked</h1>
 <div class="sub">
@@ -632,4 +654,40 @@ window.st=function(col){
 const lg=L.control({position:"bottomright"});
 lg.onAdd=function(){const d=L.DomUtil.create("div","lg");d.innerHTML='<b>Zones = Street crime</b><div><span class="sq" style="background:#b8dfc8;border:1px solid #2C5F3F"></span>Low <span class="sq" style="background:#c8e6cf;border:1px solid #4A9D6E"></span>Below avg</div><div><span class="sq" style="background:#f5e6b8;border:1px solid #9C6A0C"></span>Moderate <span class="sq" style="background:#f0c4c0;border:1px solid #A6271E"></span>Elevated</div><b>Dots = Score</b><div><span class="d" style="background:#2C5F3F"></span>65+ <span class="d" style="background:#4A9D6E"></span>55+ <span class="d" style="background:#9C6A0C"></span>45+</div><div><span class="d" style="background:#D4930D"></span>38+ <span class="d" style="background:#A6271E"></span>&lt;38</div>';return d};
 lg.addTo(map);
-</script></body></html>
+
+// ===== DRAG HANDLE =====
+const drag = document.getElementById("drag");
+const mapEl = document.getElementById("map");
+let dragging = false;
+let startY, startH;
+
+function onDragStart(e) {
+  dragging = true;
+  startY = e.touches ? e.touches[0].clientY : e.clientY;
+  startH = mapEl.offsetHeight;
+  document.body.style.cursor = "ns-resize";
+  e.preventDefault();
+}
+function onDragMove(e) {
+  if (!dragging) return;
+  const y = e.touches ? e.touches[0].clientY : e.clientY;
+  const delta = y - startY;
+  const newH = Math.max(window.innerHeight * 0.15, Math.min(window.innerHeight * 0.75, startH + delta));
+  mapEl.style.height = newH + "px";
+  map.invalidateSize();
+  e.preventDefault();
+}
+function onDragEnd() {
+  if (!dragging) return;
+  dragging = false;
+  document.body.style.cursor = "";
+  map.invalidateSize();
+}
+
+drag.addEventListener("mousedown", onDragStart);
+document.addEventListener("mousemove", onDragMove);
+document.addEventListener("mouseup", onDragEnd);
+drag.addEventListener("touchstart", onDragStart, {passive: false});
+document.addEventListener("touchmove", onDragMove, {passive: false});
+document.addEventListener("touchend", onDragEnd);
+</script></div></body></html>
