@@ -60,11 +60,11 @@ tr.c:first-child{animation:nudge 1.5s ease 1.5s 2}
 <div id="map"></div>
 <div id="drag"><div class="grip"></div></div>
 <div id="bottom"><div class="p">
-<h1>v7 — StreetEasy Verified Rents × 21 Crime Zones × Station Safety</h1>
+<h1>v7.1 — Census-Verified Crime Rates × 21 Crime Zones × Station Safety</h1>
 <div class="sub">Scored on 6 factors: price, safety, commute, laundry, late-night transit, building age.
 <details><summary>See formula</summary><div style="margin-top:4px;padding:6px 10px;background:#EDE6D3;border-radius:4px;font-family:JetBrains Mono,monospace;font-size:10px">
 0.32 Price (cliff $2,600, NJ-adj) + 0.25 Safety (70% robbery + 30% burglary/1K) + 0.28 Commute (t<sup>1.6</sup>) + 0.08 Laundry + 0.04 Late-night (API 11PM) + 0.03 Bldg age</div></details></div>
-<div class="tip" id="tip"><span>Click any row to fly to that neighborhood. Sort by clicking headers. Rents verified from live StreetEasy listings (Apr 16, 2026).</span><span class="x" onclick="document.getElementById('tip').style.display='none'">✕</span></div>
+<div class="tip" id="tip"><span>Click any row to fly to that neighborhood. Sort by clicking headers. Crime rates corrected with 2020 Census precinct populations. Rents from StreetEasy Apr 16, 2026.</span><span class="x" onclick="document.getElementById('tip').style.display='none'">✕</span></div>
 <div class="filters"><span>Filter:</span>
 <button class="pill" data-f="safe" onclick="tf('safe')">Low robbery</button>
 <button class="pill" data-f="burg" onclick="tf('burg')">Low burglary</button>
