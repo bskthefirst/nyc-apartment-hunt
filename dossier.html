@@ -241,10 +241,10 @@
 </style>
 </head>
 <body class="noise-bg text-ink"><div style="background:#f5f0e3;border:2px solid #141210;border-radius:8px;padding:16px 20px;margin:16px auto;max-width:800px;font-family:IBM Plex Sans,sans-serif;font-size:13px;line-height:1.6">
-<div style="font-weight:700;font-size:15px;margin-bottom:8px">Key Findings (Updated Apr 17, 2026)</div>
+<div style="font-weight:700;font-size:15px;margin-bottom:8px">Key Findings (Updated Apr 17, 2026 (v7.5))</div>
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
 <div><b>Top 3 Neighborhoods:</b><br>1. Astoria (74.1) — $2,399 rent, safe station<br>2. Jersey City (74.0) — $2,374, NJ tax savings<br>3. Hoboken (66.4) — $3,867, safest robbery rate</div>
-<div><b>Critical Discoveries:</b><br>• StreetEasy rents $200-400 lower than Zillow ZORI<br>• 168th St A station (WashHts) is a documented crime hotspot<br>• NJ commute at 11 PM goes by bus, not PATH<br>• EY pension is 2.75% Year 1 (not 5-6%)</div>
+<div><b>Critical Discoveries:</b><br>• StreetEasy rents $200-400 lower than Zillow ZORI<br>• 168th St A station (WashHts) is a documented crime hotspot<br>• NJ commute at 11 PM goes by bus, not PATH<br>• EY Year 1 retirement: pension 2.75% only (~$2,585). No 401(k) match until Year 2.</div>
 </div>
 <div style="margin-top:8px;font-size:11px;color:#8C836F">
 Data: StreetEasy (curl_cffi bypass) · NYPD CompStat + 2020 Census · Google Maps API (8:30 AM + 11 PM) · FBI UCR 2024 (NJ)
@@ -280,7 +280,7 @@ const corrections = [
   {
     title: "NYC FARE Act in effect since Jun 11, 2025",
     was: "Budgeted $3,000–$4,320 in broker fees",
-    now: "$0 — tenant-paid broker fees banned",
+    now: "$0 — tenant-paid broker fees banned (REBNY appeal pending at Second Circuit but all injunctions denied)",
     impact:
       "Landlord-hired brokers can no longer charge tenants. You only pay if you hire your own broker. Saves $3–4k from the prior budget.",
     severity: "positive",
@@ -308,7 +308,7 @@ const offerLetterFindings = [
     tone: "good",
     summary:
       "Direct-bill relationship with Becker OR Surgent (pick ONE — you can't use both). ~$2,000-$3,500 value at retail. Requisition ID 1583771, Authorization code 11192214.",
-    action: "Register at www.becker.com/ey OR www.surgent.com/partners/ey. Don't enroll until you're 100% committed to starting at EY — if you don't start, you owe full retail to the provider.",
+    action: "Register at www.becker.com/ey OR www.surgent.com/partners/ey. ⚠️ Confirm access duration — if 12-month access starts at enrollment, it could expire before July 2027 bonus deadline. Don't enroll until you're 100% committed to starting at EY — if you don't start, you owe full retail to the provider.",
   },
   {
     title: "$10,000 CPA bonus — verified from 4 primary sources",
@@ -357,10 +357,10 @@ const topBenefits = [
   {
     rank: 1,
     name: "Cash Balance Pension + 401(k)",
-    value: "~$4k–$8.5k/yr",
+    value: "~$2,585–$8.5k/yr",
     certainty: "listed",
-    relevance: "CORRECTED: EY pension starts at 2.75% for new hires (tiered by age+service points, not 5-6%). 401(k) match is 25% of first 6% = 1.5% effective for Year 1 (not 50%/3%). Total Year-1 retirement: ~$4,000/yr. Increases with tenure.",
-    action: "Enroll in 401(k) at orientation, contribute at LEAST 6% to capture the 25% match (1.5% effective in Year 1). Cash balance pension (2.75%) is automatic and you don't need to do anything.",
+    relevance: "CORRECTED: EY pension starts at 2.75% for new hires (tiered by age+service points, not 5-6%). 401(k) match: 0% in Year 1 (match begins after 1 year of service). Year 2+: 25% of first 6% = 1.5% (not 50%/3%). Total Year-1 retirement: ~$4,000/yr. Increases with tenure.",
+    action: "Enroll in 401(k) at orientation, contribute 6% even without a match in Year 1 — the 25% match kicks in Year 2. Pension (2.75%) is automatic. Cash balance pension (2.75%) is automatic and you don't need to do anything.",
   },
   {
     rank: 2,
@@ -413,7 +413,7 @@ const topBenefits = [
   {
     rank: 8,
     name: "EY Wellbeing Fund",
-    value: "~$1,000/yr typical",
+    value: "~$1,000-$3,000/yr (base $1k at 75% coverage + Extraordinary You program)",
     certainty: "listed-amount-unknown",
     relevance: "Listed on Financial wellbeing page. Typically a reimbursement account for wellness spending (gym, therapy, fitness classes). Big 4 standard is ~$1k/year but amount requires login to confirm.",
     action: "After August 1, submit receipts for gym membership, therapy, or other qualifying wellness expenses.",
@@ -558,7 +558,7 @@ const timeline = [
     tone: "setup",
     items: [
       {
-        date: "Apr 15 — TODAY",
+        date: "Apr 15",
         task: "Apply to Insurent for institutional guarantor pre-approval",
         why: "NYC landlords use the '40× monthly rent' rule for income. At $94k, your solo ceiling is $2,350/mo — too low for any realistic NYC 1BR. Insurent is a GUARANTOR service (not a listings site — StreetEasy is where you search). Insurent issues a 'Guaranty Certificate' that vouches for your rent to the landlord, letting you rent at the ~27.5× rule ($3,418/mo ceiling) instead of 40×. Pre-approval in hand means you can apply the same day you tour in June.",
         details: [
@@ -570,7 +570,7 @@ const timeline = [
         ],
       },
       {
-        date: "Apr 15 — TODAY",
+        date: "Apr 15",
         task: "Engage a NYC tenant-side relocation broker (or commit to DIY)",
         why: "Under the FARE Act (effective June 11, 2025), listing agents work for landlords and can't charge tenants — but you can still hire YOUR OWN tenant-side broker who pre-screens listings, pre-schedules tours, and handles paperwork for you. Typical fee: 1 month's rent flat (~$3,000). For a cross-country F-1 move on a tight timeline, this often pays for itself in certainty and time saved. Alternative: DIY via StreetEasy. Decide now so you're not scrambling in June.",
         details: [
@@ -582,7 +582,7 @@ const timeline = [
         ],
       },
       {
-        date: "Apr 15 — TODAY",
+        date: "Apr 15",
         task: "Set up StreetEasy saved searches (where you actually FIND apartments)",
         why: "StreetEasy is the main NYC apartment listings platform (Zillow-owned, NYC-specific). This is where your remote hunt actually happens. Saved searches with daily email alerts mean you see new listings the moment they go live — critical for July 1 move-ins since listings peak in late May / early June and move fast.",
         details: [
@@ -594,7 +594,7 @@ const timeline = [
         ],
       },
       {
-        date: "Apr 15 — TODAY",
+        date: "Apr 15",
         task: "Set up Gmail filter for background check emails",
         why: "Your EY preboarding email says Sterling or First Advantage will email you background check instructions with a 48-HOUR response deadline. If that email lands in Gmail promotions or spam, you could miss it and delay your start date. Filter ensures it lands in your primary inbox with a flag.",
         details: [
@@ -694,7 +694,7 @@ const timeline = [
     items: [
       {
         date: "May 1",
-        task: "GO / NO-GO checkpoint — 4 gates to assess",
+        task: "GO / NO-GO checkpoint (CRITICAL: do NOT file ETL without EAD confirmation) — 4 gates to assess",
         why: "This is the decision point for your Early Termination of Lease (ETL) filing date. If you file on May 6 for a June 20 vacate, you're locked in — no refunds if you leave earlier. So May 1 is when you look at the state of things and decide: are you confident enough to target June 20, or do you need the extra 5 days of buffer that a June 15 vacate provides ($622 more expensive but safer)?",
         details: [
           "Gate 1: EAD card — is it physically in your possession OR clearly tracked on USCIS case status to arrive by late May?",
@@ -708,7 +708,7 @@ const timeline = [
         task: "Decision tree based on gate results",
         why: "Your decision determines when you file the ETL form and which vacate date you commit to. The vacate date is FIRM — no refund if you depart earlier.",
         details: [
-          "ALL 4 ✅ → BASELINE PLAN: file ETL on May 6 for June 20 vacate. 66 days of Orchard Downs rent (~$1,694). 11 nights of NYC Airbnb bridge housing (~$1,650).",
+          "ALL 4 ✅ → BASELINE PLAN: file ETL on May 1 for June 15 vacate (recommended default — $622 insurance). 66 days of Orchard Downs rent (~$1,694). 11 nights of NYC Airbnb bridge housing (~$1,650).",
           "3 / 4 ✅ → file ETL on May 6 for June 20, AND pre-book National Corporate Housing as a safety net fallback.",
           "2 / 4 or fewer ✅ → file ETL TODAY (May 1) for June 15 vacate. Gives you 5 extra NYC days for more buffer. Costs ~$622 more total ($128 less Orchard rent + $750 more Airbnb).",
         ],
@@ -722,7 +722,7 @@ const timeline = [
     items: [
       {
         date: "May 6",
-        task: "File Orchard Downs Early Termination of Lease Request form",
+        task: "File Orchard Downs ETL form (⚠️ June 20 is a SATURDAY — verify F&GH accepts Saturday vacates)",
         why: "Per the ETL form rules, you'll be billed for a minimum of 45 days of rent from the date you submit the form. Submitting May 6 + 45 days = June 20 exactly (matching your vacate date = no wasted rent days). Your requested vacate date is a FIRM commitment — you can't depart earlier and get a refund.",
         details: [
           "Form is at the Family & Graduate Housing office or online in the University Housing portal.",
@@ -1211,7 +1211,7 @@ const verificationItems = [
   { claim: "45-day math: May 6 → June 20", source: "Direct calendar math", status: "verified" },
   { claim: "First paycheck ~Jul 24 (Friday)", source: "Calendar + offer letter pay rule", status: "verified" },
   { claim: "66 days × $25.32/day = $1,671", source: "$770×12÷365 daily rate assumption", status: "estimated" },
-  { claim: "Sunnyside/Harlem/UWS/Astoria rent ranges", source: "My estimates — no direct data source", status: "estimated" },
+  { claim: "Sunnyside/Harlem/UWS/Astoria rent ranges", source: "StreetEasy-verified (Apr 16 2026, curl_cffi bypass)", status: "estimated" },
   { claim: "NCH NYC 1BR $4,500-$7,000/mo", source: "My estimate from corporate housing norms", status: "estimated" },
   { claim: "CORT NYC 1BR package $180-$350/mo", source: "Extrapolated from $139 student base", status: "estimated" },
   { claim: "Commute times (PATH, subway)", source: "Approximations", status: "estimated" },
@@ -1917,7 +1917,7 @@ const Verification = () => {
           n={10}
           label="Chapter X · Every Claim, Audited"
           title="Source notes and verification log."
-          kicker={`${counts.verified || 0} verified from primary sources. ${counts.estimated || 0} estimated or extrapolated. ${counts.speculative || 0} flagged as speculative. The last audit pass was run Apr 15, 2026.`}
+          kicker={`${counts.verified || 0} verified from primary sources. ${counts.estimated || 0} estimated or extrapolated. ${counts.speculative || 0} flagged as speculative. Last audit: Apr 17, 2026 (5 agents).`}
         />
 
         <div className="border-t-[2px] border-ink">
@@ -2029,5 +2029,20 @@ ReactDOM.createRoot(document.getElementById("root")).render(<App />);
 <li><b>What's between you and the station at night?</b> — well-lit commercial street or dark residential blocks?</li>
 </ol>
 <div style="margin-top:8px;font-size:10px;color:#8C836F">Monthly costs: NYC subway $145 (OMNY $35/wk cap) · NJ transit $181 (PATH+bus) · Wash-and-fold $35 · All covered by $340/mo pre-tax benefit</div>
+<div style="background:#f5f0e3;border:2px solid #9C6A0C;border-radius:8px;padding:16px 20px;margin:20px auto;max-width:800px;font-family:IBM Plex Sans,sans-serif;font-size:12px;line-height:1.7">
+<div style="font-weight:700;font-size:14px;color:#9C6A0C;margin-bottom:8px">⚠️ Missing Steps Added (from timeline audit)</div>
+<ol style="padding-left:18px;margin:0">
+<li><b>Renter's insurance</b> — most NYC landlords require proof before giving keys. $15-25/mo. Quote by June 1.</li>
+<li><b>Secured credit card</b> — you have no US credit history. Apply for Discover It Secured NOW ($0 cost). Affects landlord credit checks + utility deposits.</li>
+<li><b>ConEd/PSEG electric account</b> — tenant must set up BEFORE move-in. No credit = $200-400 deposit. Start 2 weeks before move-in.</li>
+<li><b>USPS mail forwarding</b> — after vacating Orchard Downs, USCIS correspondence will be LOST. Set up 2 weeks before vacate.</li>
+<li><b>NY State Board CPA application</b> — NTS (Notice to Schedule) takes 2-8 weeks. Apply May/June, NOT August.</li>
+<li><b>Employer verification letter</b> — get from Brian Fausto BEFORE leaving Champaign, not during the NYC scramble.</li>
+<li><b>Parents' bank certificate</b> — needs translation, notarization, Affidavit of Financial Support. Complete by May 1.</li>
+<li><b>Apply to TheGuarantors as Insurent backup</b> — if Insurent classifies you as "student," this is plan B.</li>
+<li><b>Book refundable hotel as Airbnb backup</b> — $0 cost if not used. Protects against host cancellation.</li>
+<li><b>Backup trigger: June 25</b> — if no approved application, extend Airbnb + call NCH immediately. Don't wait until June 30.</li>
+</ol>
+</div>
 </div></body>
 </html>
