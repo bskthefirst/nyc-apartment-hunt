@@ -240,7 +240,7 @@
   }
 </style>
 </head>
-<body class="noise-bg text-ink"><div style="background:#f5f0e3;border:2px solid #141210;border-radius:8px;padding:16px 20px;margin:16px auto;max-width:800px;font-family:IBM Plex Sans,sans-serif;font-size:13px;line-height:1.6">
+<body class="noise-bg text-ink"><div style="background:#F5EFE0;border-top:3px solid #141210;border-bottom:1px solid #C9BF9F;padding:20px 24px;margin:0 auto;max-width:1280px;font-family:'IBM Plex Sans',sans-serif;font-size:13px;line-height:1.6">
 <div style="font-weight:700;font-size:15px;margin-bottom:8px">Key Findings (Updated Apr 17, 2026 (v7.5))</div>
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
 <div><b>Top 3 Neighborhoods:</b><br>1. Astoria (74.1) — $2,399 rent, safe station<br>2. Jersey City (74.0) — $2,374, NJ tax savings<br>3. Hoboken (66.4) — $3,867, safest robbery rate</div>
@@ -292,6 +292,14 @@ const corrections = [
     impact:
       "The brochure oversold it. Free tier is just an e-book and general market info. Actual rental-finding services are login-gated and paid. Average savings claim of $2,227/renter is ROI marketing, not a credit.",
     severity: "medium",
+  },
+  {
+    title: "Rent data was Zillow ZORI, not StreetEasy actual",
+    was: "Neighborhood rents based on Zillow ZORI index estimates",
+    now: "StreetEasy median listings — $200-$400 lower per neighborhood",
+    impact:
+      "StreetEasy reflects real asking rents. ZORI is a smoothed index that inflates estimates. Astoria: $2,706 ZORI vs $2,399 StreetEasy. WashHts: $2,797 vs $2,450. More neighborhoods fit your budget than ZORI suggested.",
+    severity: "positive",
   },
 ];
 
@@ -1121,7 +1129,7 @@ const timeline = [
 ];
 
 const budget = {
-  scenario: "Solo 1BR ~$3,000/mo in Jersey City / Astoria / Harlem / Sunnyside",
+  scenario: "Solo 1BR at StreetEasy median — see interactive map for verified rents by neighborhood",
   rows: [
     { label: "Orchard Downs rent 4/15 → 6/20 (ETL)", low: 1671, high: 1671 },
     { label: "NYC broker fee (FARE Act — banned)", low: 0, high: 0 },
@@ -1278,14 +1286,14 @@ const Masthead = () => (
   <section className="relative border-b-[3px] border-ink">
     <div className="page-frame px-10 pt-10 pb-16">
       <div className="folio flex items-center justify-between pb-6 border-b border-rule">
-        <span>Volume I · Issue 1 · Apr 15, 2026</span>
+        <span>Volume I · Issue 2 · Apr 17, 2026</span>
         <span>Private · For B. Kim, Addressee</span>
         <span>Prepared by Claude · Opus 4.6</span>
       </div>
 
       <div className="mt-12 grid grid-cols-12 gap-8">
         <div className="col-span-12 md:col-span-8">
-          <div className="smallcaps text-[12px] text-ink-3 mb-6">A relocation dossier in ten parts</div>
+          <div className="smallcaps text-[12px] text-ink-3 mb-6">A relocation dossier in nine parts</div>
           <h1 className="display-wonk text-[90px] md:text-[140px] leading-[0.82] text-ink tracking-tight3" style={{ fontVariationSettings: "'SOFT' 0, 'WONK' 1, 'opsz' 144" }}>
             From<br/>
             <span className="italic">Champaign,</span><br/>
@@ -1441,7 +1449,7 @@ const Corrections = () => (
       <SectionTitle
         n={2}
         label="Chapter II · The Record, Amended"
-        title="Three premises that were wrong, now corrected."
+        title="Four premises that were wrong, now corrected."
         kicker="Earlier drafts of this plan carried assumptions I've since had to discard. The first was a budget too low, the second a fee structure the law no longer permits, the third a vendor mischaracterized as free."
       />
 
@@ -2004,7 +2012,7 @@ function App() {
       <OfferLetter />
       <Benefits />
       <Vendors />
-      <Neighborhoods />
+      <!-- Neighborhoods removed: see interactive map -->
       <Budget />
       <OpenQuestions />
       <ActionPlan />
@@ -2016,8 +2024,8 @@ function App() {
 
 ReactDOM.createRoot(document.getElementById("root")).render(<App />);
 </script>
-<div style="background:#141210;color:#f5f0e3;border-radius:8px;padding:16px 20px;margin:20px auto;max-width:800px;font-family:IBM Plex Sans,sans-serif;font-size:12px;line-height:1.7">
-<div style="font-weight:700;font-size:14px;color:#F4C300;margin-bottom:8px">🔍 Apartment Hunting Checklist (8 things to check per listing)</div>
+<div style="background:#141210;color:#F5EFE0;padding:24px;margin:0 auto;max-width:1280px;font-family:'IBM Plex Sans',sans-serif;font-size:13px;line-height:1.7">
+<div style="font-family:Fraunces,Georgia,serif;font-size:22px;font-weight:500;color:#F4C300;margin-bottom:12px">Per-Listing Checklist</div><div style="font-size:10px;color:#F5EFE0;opacity:0.6;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:14px">Eight things to verify before touring any apartment</div>
 <ol style="padding-left:18px;margin:0">
 <li><b>Walk time to YOUR subway station</b> — over 8 min = skip. This matters more than rent.</li>
 <li><b>11 PM commute</b> — check Google Maps at 11 PM, not just morning. Trains go local at night.</li>
@@ -2029,8 +2037,8 @@ ReactDOM.createRoot(document.getElementById("root")).render(<App />);
 <li><b>What's between you and the station at night?</b> — well-lit commercial street or dark residential blocks?</li>
 </ol>
 <div style="margin-top:8px;font-size:10px;color:#8C836F">Monthly costs: NYC subway $145 (OMNY $35/wk cap) · NJ transit $181 (PATH+bus) · Wash-and-fold $35 · All covered by $340/mo pre-tax benefit</div>
-<div style="background:#f5f0e3;border:2px solid #9C6A0C;border-radius:8px;padding:16px 20px;margin:20px auto;max-width:800px;font-family:IBM Plex Sans,sans-serif;font-size:12px;line-height:1.7">
-<div style="font-weight:700;font-size:14px;color:#9C6A0C;margin-bottom:8px">⚠️ Missing Steps Added (from timeline audit)</div>
+<div style="background:#F5EFE0;border-top:3px solid #9C6A0C;border-bottom:1px solid #C9BF9F;padding:20px 24px;margin:0 auto;max-width:1280px;font-family:'IBM Plex Sans',sans-serif;font-size:12px;line-height:1.7">
+<div style="font-family:Fraunces,Georgia,serif;font-size:20px;font-weight:500;color:#9C6A0C;margin-bottom:12px">Missing Steps Added</div><div style="font-size:10px;color:#8C836F;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:10px">From 5-agent timeline audit · Apr 17, 2026</div>
 <ol style="padding-left:18px;margin:0">
 <li><b>Renter's insurance</b> — most NYC landlords require proof before giving keys. $15-25/mo. Quote by June 1.</li>
 <li><b>Secured credit card</b> — you have no US credit history, but you CANNOT apply until you have an SSN (which requires OPT EAD, arriving ~June 1). After getting SSN in late June, apply for Discover It Secured or Capital One Secured. Credit won't help your June apartment hunt — that's what Insurent/parents' certificate is for.</li>
