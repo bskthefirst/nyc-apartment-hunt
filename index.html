@@ -120,7 +120,7 @@ tr.c:first-child{animation:nudge 1.5s ease 1.5s 2}
 <div><b>강도 범죄 지수</b> = 연간 1,000명당 길거리 소매치기/강도 비율<br><span style="color:#2C5F3F">매우 낮음</span> ≤0.8 · <span style="color:#4A9D6E">낮음</span> ≤1.2 · <span style="color:#9C6A0C">보통</span> ≤1.8<br><span style="color:#D4930D">상승</span> ≤2.5 · <span style="color:#A6271E">높음</span> &gt;2.5<br><b>절도</b> = 아파트 침입 절도, 같은 기준</div>
 <div><b>저녁 퇴근</b> = 월요일 밤 11시 기준 보수적 대중교통 추정치<br>괄호 안은 아침 출근 7시 대비 변화량<br>통근 시간은 Google Routes API 실제 점검값 사용<br>A train / PATH 배차는 늦은 밤에 더 불규칙할 수 있음</div>
 <div><b>교통</b> = 역 주변 안전 점수 (0-100, 공식에서 0.08 가중치)<br>NYPD 대중교통 범죄 리포트 + CBS/Gothamist 조사<br>168th St A: 2024-25 stabbing, pushing, shooting<br>125th St 2/3: 2024년 치명적 pushing<br>* BK Heights: 관할 구역에 Downtown BK 허브 포함</div>
-<div><b>교통비</b> = 월 통근비<br>NYC: 평균 $152/월 (OMNY $35 롤링 7일 상한)<br>JC: $175/월 NJ Transit 3존 버스 패스<br>Hoboken: $121/월 PATH 30일 SmartLink<br>모두 세전 혜택 $340/월로 커버 가능<br><br><b>데이터 (2026년 5월 2일)</b><br>월세: StreetEasy 매물 기준(curl_cffi, 동네 중간값)<br>통근: Google Routes API 아침 출근 7시 / 저녁 퇴근 11시 실제 점검값<br>범죄: NYPD CompStat YTD 4월 26일까지 + NJ 공개/모델 기준<br>관할: NYC ArcGIS (21개 구역)<br>NJ는 현재 NYC처럼 관할 폴리곤이 없어 점/원으로 표시됩니다.</div>
+<div><b>교통비</b> = 월 통근비<br>NYC: 평균 $152/월 (OMNY $35 롤링 7일 상한)<br>JC: $175/월 NJ Transit 3존 버스 패스<br>Hoboken: $121/월 PATH 30일 SmartLink<br>모두 세전 혜택 $340/월로 커버 가능<br><br><b>데이터 (2026년 5월 2일)</b><br>월세: StreetEasy 매물 기준(curl_cffi, 동네 중간값)<br>통근: Google Routes API 아침 출근 7시 / 저녁 퇴근 11시 실제 점검값<br>범죄: NYPD CompStat YTD 4월 26일까지 + NJ 공개/모델 기준<br>관할: NYC ArcGIS (21개 구역)<br>NJ는 Hudson County 경계 폴리곤으로 표시됩니다.</div>
 </div></div></div>
 
 <script>
@@ -130,6 +130,8 @@ const map=L.map("map").setView([40.75,-73.94],11);
 L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}@2x.png",{maxZoom:19,attribution:"\u00a9 OSM \u00a9 CARTO"}).addTo(map);
 
 L.geoJSON(precincts,{style:function(f){return{fillColor:f.properties.fill,fillOpacity:0.3,color:f.properties.border,weight:1.5,opacity:0.4,dashArray:"4 3"}},onEachFeature:function(f,l){const p=f.properties;l.bindTooltip('<div style="font-family:IBM Plex Sans;font-size:11px"><b>Pct '+p.pct+'</b> \u2014 '+p.name+'<br><span style="color:'+p.border+';font-weight:600">Robbery: '+p.grade+' ('+p.rob_rate+'/1K)</span><br>Burglary: '+p.burg_rate+'/1K \u00b7 Total: '+p.total_rate+'/1K</div>',{sticky:true,opacity:0.95})}}).addTo(map);
+const hudsonCounty = {"type":"FeatureCollection","features":[{"type":"Feature","geometry":{"type":"Polygon","coordinates":[[[-74.165995,40.747969],[-74.147529,40.786491],[-74.127193,40.771574],[-74.100886,40.7759],[-74.096086,40.762801],[-74.090694,40.762114],[-74.090086,40.7786],[-74.077,40.796379],[-74.060685,40.8057],[-74.036148,40.807963],[-74.017204,40.823541],[-73.984883,40.7975],[-74.013784,40.756601],[-74.026284,40.699902],[-74.055739,40.65176],[-74.161374,40.644285],[-74.112787,40.703102],[-74.121387,40.721001],[-74.117605,40.739638],[-74.137492,40.741398],[-74.155687,40.733501],[-74.162093,40.736109],[-74.166069,40.747495],[-74.165995,40.747969]]]},"properties":{"name":"Hudson","state":"NJ","source":"Jersey City Open Data","geoid":"34017","namelsad":"Hudson County"}}]};
+L.geoJSON(hudsonCounty,{style:function(){return{fillColor:"#D4930D",fillOpacity:0.14,color:"#9C6A0C",weight:2.2,opacity:0.75,dashArray:"4 3"}},onEachFeature:function(f,l){l.bindTooltip('<div style="font-family:IBM Plex Sans;font-size:11px"><b>Hudson County, NJ</b><br><span style="color:#9C6A0C;font-weight:600">Jersey City / Hoboken area overlay</span></div>',{sticky:true,opacity:0.95})}}).addTo(map);
 
 L.marker([40.7534,-73.9898],{icon:L.divIcon({className:"",html:'<div style="display:flex;align-items:center;gap:4px;white-space:nowrap"><span class="star-marker" style="font-size:22px">\u2b50</span><span style="background:#141210;color:#F4C300;font-weight:bold;font-size:10px;padding:3px 8px;border-radius:4px;box-shadow:0 2px 6px rgba(0,0,0,0.4)">1 MW</span></div>',iconAnchor:[40,12]}),zIndexOffset:2000}).addTo(map);
 
@@ -161,6 +163,7 @@ const streetEasyPaths={
 };
 function streetEasyUrl(r){const slug=streetEasyPaths[r.name]||slugifyName(r.name);return "https://streeteasy.com/1-bedroom-apartments-for-rent/"+slug}
 function effectiveCost(r){return r.rent+(r.transit_cost||0)-(r.tax==="NJ"?246:0)}
+function priceBasis(r){return r.tax==="NJ"?effectiveCost(r):r.rent}
 function laundryPass(r){return r.ltxt!=="Rare"}
 function hardAvoid(r){return r.name==="Washington Heights"}
 function laundryLabel(v){return{Rare:"드묾",Mixed:"혼합",Common:"흔함"}[v]||v}
@@ -209,7 +212,7 @@ function popupHtml(r){
     '<div style="background:'+c+';color:#fff;border-radius:6px;width:54px;height:54px;display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0">'+
     '<span style="font-size:20px;font-weight:bold;line-height:1">'+r.composite.toFixed(1)+'</span><span style="font-size:8px;opacity:0.8">/100</span></div>'+
     '<div style="min-width:0"><div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap"><div style="font-size:14px;font-weight:700">'+r.name+'</div><span class="tier '+fitClass(fit.status)+'">'+fitLabel(fit.status)+'</span></div>'+
-    '<div style="font-size:10px;color:#666">StreetEasy 동네 중간값 $'+r.rent.toLocaleString()+' · 실질비용 $'+eff.toLocaleString()+'/월 · '+r.min+'m 아침 / '+r.min_11pm+'m 밤</div></div></div>'+
+    '<div style="font-size:10px;color:#666">'+(r.tax==="NJ"?'가격 기준: 실질 월비용 $'+priceBasis(r).toLocaleString():'StreetEasy 동네 중간값 $'+priceBasis(r).toLocaleString()+' · 실질비용 $'+eff.toLocaleString()+'/월')+' · '+r.min+'m 아침 / '+r.min_11pm+'m 밤</div></div></div>'+
     '<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:10px 0">'+
     '<div style="background:#f5f0e3;border-radius:5px;padding:6px;text-align:center"><div style="font-size:9px;color:#8C836F;font-weight:600">강도</div><div style="font-size:16px;font-weight:700;color:'+r.rob_color+'">'+r.rob_rate+'<span style="font-size:9px;color:#8C836F">/1K</span></div><div style="font-size:10px;font-weight:600;color:'+r.rob_color+'">'+riskLabel(r.rob_label)+'</div></div>'+
     '<div style="background:#f5f0e3;border-radius:5px;padding:6px;text-align:center"><div style="font-size:9px;color:#8C836F;font-weight:600">절도</div><div style="font-size:16px;font-weight:700;color:'+r.burg_color+'">'+r.burg_rate+'<span style="font-size:9px;color:#8C836F">/1K</span></div><div style="font-size:10px;font-weight:600;color:'+r.burg_color+'">'+riskLabel(r.burg_label)+'</div></div></div>'+
@@ -227,9 +230,6 @@ function popupHtml(r){
 results.forEach(function(r){
   const c=sc(r.composite), m=L.circleMarker([r.lat,r.lng],{radius:9,fillColor:c,color:"#141210",weight:2,opacity:1,fillOpacity:0.9});
   const fit=fitInfo(r);
-  if(r.tax==="NJ"){
-    L.circle([r.lat,r.lng],{radius:r.name==="Hoboken"?1800:2200,fillColor:c,color:c,weight:2,opacity:0.35,fillOpacity:0.18,interactive:false,dashArray:"5 4"}).addTo(map);
-  }
   m.bindPopup(popupHtml(r),{maxWidth:320});
   dots.addLayer(m);
   markers[r.name]={marker:m,lat:r.lat,lng:r.lng,fit:fit};
