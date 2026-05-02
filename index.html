@@ -174,8 +174,8 @@ function fitInfo(r){
   if(hardAvoid(r))return{status:"Hard Avoid",reason:"강력 제외: 168th St A 역 사건의 영향이 큽니다"};
   if(!laundry)return{status:"Laundry Gate",reason:"세탁 미충족: 세탁 옵션이 거의 없습니다"};
   if(eff<=2900&&commute&&safeNight&&r.composite>=48)return{status:"Shortlist",reason:"실질비용과 통근, 역 주변 체감 안전의 균형이 좋습니다"};
-  if(eff<=3000&&commute)return{status:"Viable",reason:"비용과 통근 기준을 충족하고 세탁도 괜찮습니다"};
-  if(eff<=3200&&commute)return{status:"Watch",reason:"통근은 괜찮지만 선호하는 실질비용보다 높습니다"};
+  if(eff<=3200&&commute<=52)return{status:"Viable",reason:"비용과 통근 기준을 대체로 충족하고 세탁도 괜찮습니다"};
+  if(eff<=3450&&commute<=60)return{status:"Watch",reason:"통근은 괜찮지만 선호하는 실질비용보다 조금 높습니다"};
   return{status:"Avoid",reason:"너무 비싸거나 핵심 조건이 약합니다"};
 }
 function confidence(r){return{rent:"보통",crime:"높음",commute:"낮음",transit:"높음",laundry:laundryPass(r)?"보통":"높음"}}
