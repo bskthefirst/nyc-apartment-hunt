@@ -90,7 +90,7 @@ tr.c:first-child{animation:nudge 1.5s ease 1.5s 2}
 <div class="sub">7개의 가중 신호로 평가합니다: 가격, 동네 안전, 대중교통 안전, 통근, 세탁, 늦은 밤 이동, 건물 연식.
 <details><summary>공식 보기</summary><div style="margin-top:4px;padding:6px 10px;background:#EDE6D3;border-radius:4px;font-family:JetBrains Mono,monospace;font-size:10px">
 0.32 가격 + 0.17 동네 안전 + <b>0.08 대중교통 안전 (NEW)</b> + 0.28 통근 (t<sup>1.6</sup>) + 0.08 세탁 + 0.04 늦은 밤 이동 + 0.03 건물</div></details></div>
-<div class="tip" id="tip"><span>행을 클릭하면 해당 동네로 이동합니다. 열 제목을 클릭하면 정렬됩니다. 2026년 5월 갱신: StreetEasy 월세, NYPD CompStat(4월 26일까지), 그리고 아침 출근 7:00 / 저녁 퇴근 11:00 Google Routes API 통근 점검.</span><span class="x" onclick="document.getElementById('tip').style.display='none'">✕</span></div>
+<div class="tip" id="tip"><span>행을 클릭하면 해당 동네로 이동합니다. 열 제목을 클릭하면 정렬됩니다. 기본 정렬은 종합 점수 내림차순입니다. 2026년 5월 갱신: StreetEasy 월세, NYPD CompStat(4월 26일까지), 그리고 아침 출근 7:00 / 저녁 퇴근 11:00 Google Routes API 통근 점검.</span><span class="x" onclick="document.getElementById('tip').style.display='none'">✕</span></div>
 <div id="overview" class="panel"></div>
 <div class="modebar"><span class="label">모드:</span>
 <button class="pill on" id="mode-neighborhood" onclick="setMode('neighborhood')">동네</button>
@@ -110,7 +110,7 @@ tr.c:first-child{animation:nudge 1.5s ease 1.5s 2}
 <button class="pill" data-f="shortlistOnly" onclick="tf('shortlistOnly')">추천만 보기</button>
 </div><div class="fc" id="fc"></div>
 <div class="tw"><table id="tbl"><thead><tr>
-<th onclick="st(0)">#</th><th onclick="st(1)">동네</th><th onclick="st(2)">적합도</th><th onclick="st(3)">점수 ▼</th>
+<th onclick="st(0)">#</th><th onclick="st(1)">동네</th><th onclick="st(2)">적합도</th><th onclick="st(3)">종합 점수 ▼</th>
 <th onclick="st(4)">월세 (StreetEasy)</th><th onclick="st(5)">실제 부담액</th><th onclick="st(6)">아침 출근</th><th onclick="st(7)">저녁 퇴근</th>
 <th onclick="st(8)">강도</th><th onclick="st(9)">절도</th>
 <th onclick="st(10)">교통</th><th onclick="st(11)">세탁</th>
