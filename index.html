@@ -1,7 +1,7 @@
 <!doctype html>
 <html><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>NYC Apartment Hunt v7.4 — May 2026 Verified</title>
+<title>NYC Apartment Hunt v7.5 — May 2026 Verified</title>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -44,42 +44,75 @@ tr.c:hover{background:#EDE6D3}
 tr.c.active{background:#E2D9BF;box-shadow:inset 3px 0 0 #141210}
 tr.c:hover td:nth-child(2)::after{content:" ↗";font-size:9px;color:#9C6A0C}
 tr.dim{opacity:0.2;pointer-events:none}
+#tbl{visibility:hidden}
 #es{display:none}#es td{text-align:center;padding:24px;color:#A6271E;font-size:13px;font-weight:600}
 .tier{display:inline-block;font-size:8px;padding:2px 6px;border-radius:3px;font-weight:700;margin-left:3px}
 .t-t{background:#2C5F3F;color:#fff}.t-s{background:#4A9D6E;color:#fff}.t-f{background:#f5e6b8;color:#9C6A0C}.t-w{background:#f0c4c0;color:#A6271E}.t-l{background:#d4d4d4;color:#666}
+.t-a{background:#f0c4c0;color:#A6271E}
+.tier.fit-shortlist{background:#2C5F3F;color:#fff}
+.tier.fit-viable{background:#4A9D6E;color:#fff}
+.tier.fit-watch{background:#D4930D;color:#fff}
+.tier.fit-avoid{background:#A6271E;color:#fff}
+.tier.fit-blocked{background:#666;color:#fff}
 .rb{display:inline-block;height:8px;border-radius:4px;vertical-align:middle;margin-right:4px;max-width:50px;min-width:3px}
 .rl{font-size:9px;font-weight:600}
 .nt{font-size:9px;color:#A6271E;font-style:italic}
 .foot{margin-top:14px;display:grid;grid-template-columns:repeat(4,1fr);gap:10px;font-size:10px}
 .foot>div{border-top:2px solid #141210;padding-top:6px}.foot b{margin:0;display:block}
+.panel{border:1px solid #DED4B8;border-radius:8px;background:#fff;padding:10px 12px;margin:10px 0 12px;box-shadow:0 1px 0 rgba(0,0,0,0.02)}
+.panel h2{font-size:12px;margin-bottom:6px}
+.panel-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.card{border:1px solid #E5DCC0;border-radius:8px;padding:8px;background:#FDFBF4}
+.card .name{font-weight:700;font-size:12px;margin-bottom:2px}
+.card .meta{font-size:10px;color:#666;line-height:1.4}
+.card .actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.chip{display:inline-block;padding:2px 7px;border-radius:999px;font-size:10px;font-weight:700;border:1px solid transparent}
+.chip.shortlist{background:#E3F0E7;color:#2C5F3F;border-color:#2C5F3F}
+.chip.viable{background:#E8F3EA;color:#4A9D6E;border-color:#4A9D6E}
+.chip.watch{background:#FFF2D7;color:#9C6A0C;border-color:#9C6A0C}
+.chip.avoid{background:#F7DCDC;color:#A6271E;border-color:#A6271E}
+.chip.blocked{background:#ECECEC;color:#666;border-color:#888}
+.smallbtn{display:inline-block;padding:3px 8px;border-radius:6px;border:1px solid #8C836F;color:#141210;text-decoration:none;font-size:10px;background:#fff}
+.smallbtn:hover{background:#141210;color:#F5F0E3;border-color:#141210}
+.modebar{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:8px}
+.modebar .label{font-size:10px;color:#8C836F}
 @keyframes nudge{0%,100%{background:transparent}50%{background:#EDE6D3}}
 tr.c:first-child{animation:nudge 1.5s ease 1.5s 2}
-@media(max-width:768px){#map{height:40vh}#drag{height:18px}#drag .grip{width:48px;height:5px}.p{padding:10px 12px 32px}table{min-width:950px}th,td{padding:6px 7px;font-size:11px}h1{font-size:16px}.pill{padding:6px 14px;font-size:12px;border-radius:20px}.tip{font-size:12px;padding:10px 14px}.foot{grid-template-columns:1fr 1fr}}
+@media(max-width:768px){#map{height:40vh}#drag{height:18px}#drag .grip{width:48px;height:5px}.p{padding:10px 12px 32px}table{min-width:1150px}th,td{padding:6px 7px;font-size:11px}h1{font-size:16px}.pill{padding:6px 14px;font-size:12px;border-radius:20px}.tip{font-size:12px;padding:10px 14px}.foot{grid-template-columns:1fr 1fr}.panel-grid{grid-template-columns:1fr}}
 @media(max-width:480px){#map{height:35vh}h1{font-size:14px}.pill{padding:5px 10px;font-size:11px}.foot{grid-template-columns:1fr;gap:8px}}
 </style></head><body>
 <div id="map"></div>
 <div id="drag"><div class="grip"></div></div>
 <div id="bottom"><div class="p">
-<h1>v7.4 — May 2026 Verified Rents + Crime + Transit Costs</h1>
-<div class="sub">Scored on 6 factors: price, safety, commute, laundry, late-night transit, building age.
+<h1>v7.5 — May 2026 Verified Rents + Crime + Transit Costs</h1>
+<div class="sub">Scored on 7 weighted signals: price, neighborhood safety, transit safety, commute, laundry, late-night transit, building age.
 <details><summary>See formula</summary><div style="margin-top:4px;padding:6px 10px;background:#EDE6D3;border-radius:4px;font-family:JetBrains Mono,monospace;font-size:10px">
 0.32 Price + 0.17 Neighborhood Safety + <b>0.08 Transit Safety (NEW)</b> + 0.28 Commute (t<sup>1.6</sup>) + 0.08 Laundry + 0.04 Late-night + 0.03 Bldg</div></details></div>
 <div class="tip" id="tip"><span>Click any row to fly to that neighborhood. Sort by clicking headers. May 2026 refresh: StreetEasy rents, NYPD CompStat through Apr 26, and current OMNY/NJ/PATH fares. Commutes use conservative public transit estimates because no Maps-enabled Directions key is available.</span><span class="x" onclick="document.getElementById('tip').style.display='none'">✕</span></div>
+<div id="overview" class="panel"></div>
+<div class="modebar"><span class="label">Mode:</span>
+<button class="pill on" id="mode-neighborhood" onclick="setMode('neighborhood')">Neighborhood</button>
+<button class="pill" id="mode-apartment" onclick="setMode('apartment')">Apartment</button>
+</div>
 <div class="filters"><span>Filter:</span>
 <button class="pill" data-f="safe" onclick="tf('safe')">Low robbery</button>
 <button class="pill" data-f="burg" onclick="tf('burg')">Low burglary</button>
 <button class="pill" data-f="laundry" onclick="tf('laundry')">Has laundry</button>
 <button class="pill" data-f="nj" onclick="tf('nj')">NJ tax</button>
-<button class="pill" data-f="budget" onclick="tf('budget')">Under $2,600</button>
+<button class="pill" data-f="budget" onclick="tf('budget')">Rent <= $2,600</button>
 <button class="pill" data-f="fast" onclick="tf('fast')">Commute &lt;35m</button>
 <button class="pill" data-f="stn" onclick="tf('stn')">Safe station</button>
+<button class="pill" data-f="eff2900" onclick="tf('eff2900')">Eff <= $2,900</button>
+<button class="pill" data-f="requireLaundry" onclick="tf('requireLaundry')">Require laundry</button>
+<button class="pill" data-f="hideAvoid" onclick="tf('hideAvoid')">Hide hard avoids</button>
+<button class="pill" data-f="shortlistOnly" onclick="tf('shortlistOnly')">Shortlist only</button>
 </div><div class="fc" id="fc"></div>
 <div class="tw"><table id="tbl"><thead><tr>
-<th onclick="st(0)">#</th><th onclick="st(1)">Neighborhood</th><th onclick="st(2)">Score ▼</th>
-<th onclick="st(3)">Rent (SE)</th><th onclick="st(4)">AM</th><th onclick="st(11)">11PM</th>
-<th onclick="st(5)">Robbery</th><th onclick="st(6)">Burglary</th>
-<th onclick="st(12)">Transit</th><th onclick="st(7)">Laundry</th>
-<th onclick="st(8)">Tax</th><th onclick="st(9)">Late</th><th onclick="st(10)">Bldg</th><th onclick="st(13)">Transit $</th>
+<th onclick="st(0)">#</th><th onclick="st(1)">Neighborhood</th><th onclick="st(2)">Fit</th><th onclick="st(3)">Score ▼</th>
+<th onclick="st(4)">Rent (SE)</th><th onclick="st(5)">Eff $</th><th onclick="st(6)">AM</th><th onclick="st(7)">11PM</th>
+<th onclick="st(8)">Robbery</th><th onclick="st(9)">Burglary</th>
+<th onclick="st(10)">Transit</th><th onclick="st(11)">Laundry</th>
+<th onclick="st(12)">Tax</th><th onclick="st(13)">Late</th><th onclick="st(14)">Bldg</th><th onclick="st(15)">Transit $</th>
 </tr></thead><tbody><tr class="c" data-hood="Elmhurst" data-lat="40.737" data-lng="-73.878"
   data-safe="0" data-burg="1"
   data-laundry="0" data-nj="0"
@@ -540,36 +573,209 @@ L.geoJSON(precincts,{style:function(f){return{fillColor:f.properties.fill,fillOp
 L.marker([40.7534,-73.9898],{icon:L.divIcon({className:"",html:'<div style="display:flex;align-items:center;gap:4px;white-space:nowrap"><span class="star-marker" style="font-size:22px">\u2b50</span><span style="background:#141210;color:#F4C300;font-weight:bold;font-size:10px;padding:3px 8px;border-radius:4px;box-shadow:0 2px 6px rgba(0,0,0,0.4)">1 MW</span></div>',iconAnchor:[40,12]}),zIndexOffset:2000}).addTo(map);
 
 function sc(s){if(s>=65)return"#2C5F3F";if(s>=55)return"#4A9D6E";if(s>=50)return"#9C6A0C";if(s>=40)return"#D4930D";return"#A6271E"}
+function slugifyName(name){return name.toLowerCase().replace(/\(.*?\)/g,"").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")}
+const streetEasyPaths={
+  "Astoria":"astoria",
+  "Jersey City (Journal Sq)":"journal_square-jersey_city",
+  "Hoboken":"hoboken",
+  "Jackson Heights":"jackson_heights",
+  "Sunnyside":"sunnyside",
+  "Washington Heights":"washington_heights",
+  "Elmhurst":"elmhurst",
+  "Flushing":"flushing",
+  "Hamilton Heights":"hamilton_heights",
+  "Central Harlem":"central_harlem",
+  "UWS (86-110)":"upper_west_side",
+  "Upper East Side":"upper_east_side",
+  "Forest Hills":"forest_hills",
+  "Inwood":"inwood",
+  "Harlem (127-155)":"harlem",
+  "Morningside Heights":"morningside_heights",
+  "Clinton Hill":"clinton_hill",
+  "Greenpoint":"greenpoint",
+  "Williamsburg":"williamsburg",
+  "Park Slope":"park_slope",
+  "East Harlem":"east_harlem",
+  "Brooklyn Heights":"brooklyn_heights"
+};
+function streetEasyUrl(r){const slug=streetEasyPaths[r.name]||slugifyName(r.name);return "https://streeteasy.com/1-bedroom-apartments-for-rent/"+slug}
+function effectiveCost(r){return r.rent+(r.transit_cost||0)-(r.tax==="NJ"?246:0)}
+function laundryPass(r){return r.ltxt!=="Rare"}
+function hardAvoid(r){return r.name==="Washington Heights"}
+function fitInfo(r){
+  const eff=effectiveCost(r), laundry=laundryPass(r), commute=r.min<=45, safeNight=r.station_col!=="#A6271E";
+  if(hardAvoid(r))return{status:"Blocked",reason:"Hard avoid: 168th St A station incidents remain material"};
+  if(!laundry)return{status:"Blocked",reason:"Fails laundry gate: only rare laundry access"};
+  if(eff<=2900&&commute&&safeNight&&r.composite>=48)return{status:"Shortlist",reason:"Best balance of effective cost, commute, and searchability"};
+  if(eff<=3000&&commute)return{status:"Viable",reason:"Fits cost and commute target with workable laundry"};
+  if(eff<=3200&&commute)return{status:"Watch",reason:"Within commute window but above preferred effective cost"};
+  return{status:"Avoid",reason:"Too expensive or too weak on the core constraints"};
+}
+function confidence(r){return{rent:"Medium",crime:"High",commute:"Low",transit:"High",laundry:laundryPass(r)?"Medium":"High"}}
+function fitClass(status){return"fit-"+status.toLowerCase()}
+function reasonList(r,fit){
+  const reasons=[fit.reason];
+  const eff=effectiveCost(r);
+  if(r.tax==="NJ")reasons.push("NJ tax savings lowers effective monthly cost to $"+eff.toLocaleString());
+  else if(eff>2900)reasons.push("Effective cost is $"+eff.toLocaleString()+" after transit");
+  if(r.ltxt==="Rare")reasons.push("Laundry availability is rare");
+  if(r.min<=35)reasons.push("Commute is comfortably under 45 minutes");
+  if(r.station_col==="#A6271E")reasons.push("Station safety is the weakest part of the package");
+  return reasons.slice(0,3);
+}
+function rankOrder(status){return{Shortlist:0,Viable:1,Watch:2,Avoid:3,Blocked:4}[status]??9}
+function compareRows(a,b,key,asc){
+  const dir=asc?1:-1;
+  if(key==="rank")return dir*(results.indexOf(a)-results.indexOf(b));
+  if(key==="name")return dir*a.name.localeCompare(b.name);
+  if(key==="fit")return dir*(rankOrder(fitInfo(a).status)-rankOrder(fitInfo(b).status));
+  if(key==="effective")return dir*(effectiveCost(a)-effectiveCost(b));
+  return dir*((a[key]??0)-(b[key]??0));
+}
+const columns=["rank","name","fit","composite","rent","effective","min","min_11pm","rob_rate","burg_rate","transit_score","ltxt","tax","late","bldg","transit_cost"];
+let sortState={key:"composite",asc:false};
+const filters=new Set();
+let mode="neighborhood";
 const markers={};const dots=L.layerGroup().addTo(map);
-results.forEach(function(r){
-  const c=sc(r.composite);const pen=r.night_penalty;const penStr=pen>0?"+"+pen+"m":pen+"m";
-  const m=L.circleMarker([r.lat,r.lng],{radius:9,fillColor:c,color:"#141210",weight:2,opacity:1,fillOpacity:0.9});
-  const tx=r.tax==="NJ"?"NJ (saves $246/mo)":"NYC";
-  m.bindPopup('<div style="font-family:IBM Plex Sans;min-width:270px">'+
+function popupHtml(r){
+  const c=sc(r.composite), pen=r.night_penalty, penStr=pen>0?"+"+pen+"m":pen+"m", eff=effectiveCost(r), fit=fitInfo(r), conf=confidence(r);
+  return '<div style="font-family:IBM Plex Sans;min-width:300px">'+
     '<div style="display:flex;align-items:center;gap:10px;padding-bottom:8px;border-bottom:2px solid '+c+'">'+
-    '<div style="background:'+c+';color:#fff;border-radius:6px;width:48px;height:48px;display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0">'+
+    '<div style="background:'+c+';color:#fff;border-radius:6px;width:54px;height:54px;display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0">'+
     '<span style="font-size:20px;font-weight:bold;line-height:1">'+r.composite.toFixed(1)+'</span><span style="font-size:8px;opacity:0.8">/100</span></div>'+
-    '<div><div style="font-size:14px;font-weight:600">'+r.name+'</div>'+
-    '<div style="font-size:10px;color:#666">$'+r.rent.toLocaleString()+'/mo (StreetEasy) \u00b7 '+r.min+'m AM / '+r.min_11pm+'m PM \u00b7 $'+(r.transit_cost||145)+'/mo transit \u00b7 '+tx+'</div></div></div>'+
+    '<div style="min-width:0"><div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap"><div style="font-size:14px;font-weight:700">'+r.name+'</div><span class="tier '+fitClass(fit.status)+'">'+fit.status+'</span></div>'+
+    '<div style="font-size:10px;color:#666">$'+r.rent.toLocaleString()+'/mo street-level median \u00b7 eff. $'+eff.toLocaleString()+'/mo \u00b7 '+r.min+'m AM / '+r.min_11pm+'m PM</div></div></div>'+
     '<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:10px 0">'+
     '<div style="background:#f5f0e3;border-radius:5px;padding:6px;text-align:center"><div style="font-size:9px;color:#8C836F;font-weight:600">ROBBERY</div><div style="font-size:16px;font-weight:700;color:'+r.rob_color+'">'+r.rob_rate+'<span style="font-size:9px;color:#8C836F">/1K</span></div><div style="font-size:10px;font-weight:600;color:'+r.rob_color+'">'+r.rob_label+'</div></div>'+
     '<div style="background:#f5f0e3;border-radius:5px;padding:6px;text-align:center"><div style="font-size:9px;color:#8C836F;font-weight:600">BURGLARY</div><div style="font-size:16px;font-weight:700;color:'+r.burg_color+'">'+r.burg_rate+'<span style="font-size:9px;color:#8C836F">/1K</span></div><div style="font-size:10px;font-weight:600;color:'+r.burg_color+'">'+r.burg_label+'</div></div></div>'+
     '<div style="font-size:10px;margin:6px 0;padding:6px 0;border-top:1px solid #eee">'+
     '<b>Station:</b> <span style="color:'+r.station_col+'">'+r.station+' — '+r.station_safety+'</span><br>'+
-    '<b>11 PM:</b> '+r.min_11pm+'m ('+penStr+') via '+r.route_11pm+'</div>'+
+    '<b>11 PM:</b> '+r.min_11pm+'m ('+penStr+') via '+r.route_11pm+'<br>'+
+    '<b>Effective cost:</b> $'+r.rent.toLocaleString()+' + $'+(r.transit_cost||0).toLocaleString()+(r.tax==="NJ"?' - $246 NJ tax savings':'')+' = <b>$'+eff.toLocaleString()+'</b></div>'+
     (r.note?'<div style="font-size:9px;color:#A6271E;font-style:italic">'+r.note+'</div>':'')+
     '<details style="border-top:1px solid #eee;padding-top:4px;margin-top:4px"><summary style="font-size:10px;color:#8C836F;cursor:pointer">Score breakdown</summary>'+
-    '<div style="margin-top:4px;font-size:10px;color:#555">Price: '+Math.round(r.scores.price)+' | Safety: '+Math.round(r.scores.hood_safety)+' | Commute: '+Math.round(r.scores.commute)+' | Laundry: '+Math.round(r.scores.laundry)+' | Late: '+Math.round(r.scores.late)+' | Bldg: '+Math.round(r.scores.bldg)+'</div></details></div>',{maxWidth:290});
-  dots.addLayer(m);markers[r.name]={marker:m,lat:r.lat,lng:r.lng};
+    '<div style="margin-top:4px;font-size:10px;color:#555">Price: '+Math.round(r.scores.price)+' | Safety: '+Math.round(r.scores.hood_safety)+' | Transit safety: '+Math.round(r.scores.transit_safety)+' | Commute: '+Math.round(r.scores.commute)+' | Laundry: '+Math.round(r.scores.laundry)+' | Late: '+Math.round(r.scores.late)+' | Bldg: '+Math.round(r.scores.bldg)+'</div></details>'+
+    '<details style="border-top:1px solid #eee;padding-top:4px;margin-top:4px"><summary style="font-size:10px;color:#8C836F;cursor:pointer">Confidence + links</summary>'+
+    '<div style="margin-top:4px;font-size:10px;color:#555">Rent: '+conf.rent+' · Crime: '+conf.crime+' · Commute: '+conf.commute+' · Transit: '+conf.transit+' · Laundry: '+conf.laundry+'</div>'+
+    '<div style="margin-top:6px;display:flex;gap:6px;flex-wrap:wrap"><a class="smallbtn" target="_blank" rel="noopener" href="'+streetEasyUrl(r)+'">Open StreetEasy 1BR</a></div></details></div>';
+}
+results.forEach(function(r){
+  const c=sc(r.composite), m=L.circleMarker([r.lat,r.lng],{radius:9,fillColor:c,color:"#141210",weight:2,opacity:1,fillOpacity:0.9});
+  const fit=fitInfo(r);
+  m.bindPopup(popupHtml(r),{maxWidth:320});
+  dots.addLayer(m);
+  markers[r.name]={marker:m,lat:r.lat,lng:r.lng,fit:fit};
 });
 
-document.querySelectorAll("tr.c").forEach(function(row){row.addEventListener("click",function(){const h=this.dataset.hood;if(markers[h]){map.flyTo([markers[h].lat,markers[h].lng],14,{duration:0.7});setTimeout(function(){markers[h].marker.openPopup()},700)}document.querySelectorAll("tr.c").forEach(r=>r.classList.remove("active"));this.classList.add("active")})});
+function renderOverview(){
+  const list=results.slice().sort(function(a,b){
+    const fa=fitInfo(a), fb=fitInfo(b);
+    const rank=rankOrder(fa.status)-rankOrder(fb.status);
+    if(rank!==0)return rank;
+    return b.composite-a.composite;
+  }).filter(function(r){const s=fitInfo(r).status;return s==="Shortlist"||s==="Viable"||s==="Watch"});
+  const take=mode==="apartment"?5:3;
+  const cards=list.slice(0,take).map(function(r){
+    const fit=fitInfo(r), eff=effectiveCost(r), reasons=reasonList(r,fit), url=streetEasyUrl(r);
+    return '<div class="card"><div class="name">'+r.name+' <span class="chip '+fit.status.toLowerCase()+'">'+fit.status+'</span></div>'+
+      '<div class="meta">Score '+r.composite.toFixed(1)+' · Rent $'+r.rent.toLocaleString()+' · Eff. $'+eff.toLocaleString()+' · Commute '+r.min+'m</div>'+
+      '<div class="meta">'+reasons.join('<br>')+'</div>'+
+      '<div class="actions"><a class="smallbtn" target="_blank" rel="noopener" href="'+url+'">StreetEasy 1BR</a><a class="smallbtn" href="#" onclick="focusNeighborhood(\''+r.name.replace(/'/g,"\\'")+'\');return false;">Fly to map</a></div></div>';
+  }).join('');
+  document.getElementById("overview").innerHTML='<h2>Best search targets</h2><div class="panel-grid">'+(cards||'<div class="card">No shortlist candidates currently match the active filters.</div>')+'</div>';
+}
 
-const af=new Set();
-window.tf=function(f){const b=document.querySelector('[data-f="'+f+'"]');if(af.has(f)){af.delete(f);b.classList.remove("on")}else{af.add(f);b.classList.add("on")}document.querySelectorAll("tr.c").forEach(function(r){let s=true;af.forEach(function(fi){if(r.dataset[fi]==="0")s=false});r.classList.toggle("dim",!s)});const v=document.querySelectorAll("tr.c:not(.dim)").length;document.getElementById("es").style.display=v===0?"":"none";document.getElementById("fc").textContent=af.size>0?v+" of 22 shown":""};
+function passesFilters(r){
+  const fit=fitInfo(r), eff=effectiveCost(r);
+  if(filters.has("safe")&&r.rob_rate>1.2)return false;
+  if(filters.has("burg")&&r.burg_rate>1.0)return false;
+  if(filters.has("laundry")&&!laundryPass(r))return false;
+  if(filters.has("nj")&&r.tax!=="NJ")return false;
+  if(filters.has("budget")&&r.rent>2600)return false;
+  if(filters.has("fast")&&r.min>35)return false;
+  if(filters.has("stn")&&r.station_col==="#A6271E")return false;
+  if(filters.has("eff2900")&&eff>2900)return false;
+  if(filters.has("requireLaundry")&&!laundryPass(r))return false;
+  if(filters.has("hideAvoid")&&(fit.status==="Avoid"||fit.status==="Blocked"))return false;
+  if(filters.has("shortlistOnly")&&fit.status!=="Shortlist")return false;
+  return true;
+}
 
-let ss={col:2,asc:false};
-window.st=function(col){const tb=document.querySelector("#tbl tbody");const rows=Array.from(tb.querySelectorAll("tr.c"));const keys=["","hood","score","rent","commute","rob","burgr","ltval","njval","late","bldga","pm","transit","tcost"];const k=keys[col];if(!k)return;if(ss.col===col){ss.asc=!ss.asc}else{ss.col=col;ss.asc=(col===2||col===9||col===10)?false:true}const dir=ss.asc?1:-1;rows.sort(function(a,b){if(k==="hood")return dir*a.dataset[k].localeCompare(b.dataset[k]);return dir*(parseFloat(a.dataset[k])-parseFloat(b.dataset[k]))});rows.forEach(function(r,i){r.querySelector("td").textContent=i+1;tb.appendChild(r)});document.querySelectorAll("#tbl th").forEach(function(th,idx){let t=th.textContent.replace(/ [▲▼]/g,"");if(idx===col)t+=(ss.asc?" ▲":" ▼");th.textContent=t})};
+function renderTable(){
+  const tb=document.querySelector("#tbl tbody");
+  const sorted=results.slice().sort(function(a,b){return compareRows(a,b,sortState.key,sortState.asc)}).filter(passesFilters);
+  if(!sorted.length){
+    tb.innerHTML='<tr id="es"><td colspan="16">No neighborhoods match all filters. Try removing one.</td></tr>';
+  }else{
+    tb.innerHTML=sorted.map(function(r,i){
+      const fit=fitInfo(r), eff=effectiveCost(r), tx=r.tax==="NJ"?'NJ <span class="m" style="font-size:9px">-$246</span>':'NYC';
+      const latePen=r.night_penalty||0, lateStr=latePen>0?('+'+latePen+'m'):(latePen+'m');
+      return '<tr class="c" data-hood="'+r.name+'" data-lat="'+r.lat+'" data-lng="'+r.lng+'" data-fit="'+fit.status+'" data-effective="'+eff+'" data-rent="'+r.rent+'" data-score="'+r.composite+'" data-commute="'+r.min+'" data-rob="'+r.rob_rate+'" data-burgr="'+r.burg_rate+'" data-late="'+r.late+'" data-bldga="'+r.bldg+'" data-pm="'+r.min_11pm+'" data-transit="'+r.transit_score+'" data-tcost="'+(r.transit_cost||0)+'">'+
+        '<td class="m" style="font-weight:700;color:'+sc(r.composite)+'">'+(i+1)+'</td>'+
+        '<td style="font-weight:600">'+r.name+(r.note?'<div class="nt">'+r.note+'</div>':'')+'</td>'+
+        '<td><span class="tier '+fitClass(fit.status)+'">'+fit.status+'</span></td>'+
+        '<td class="m" style="font-size:14px;font-weight:700;color:'+sc(r.composite)+'">'+r.composite.toFixed(1)+'<span class="tier '+(r.composite>=55?'t-s':r.composite>=45?'t-f':'t-a')+'">'+(r.composite>=55?'Strong':r.composite>=45?'Fair':'Weak')+'</span></td>'+
+        '<td class="m" style="font-size:11px">$'+r.rent.toLocaleString()+'</td>'+
+        '<td class="m" style="font-size:11px">$'+eff.toLocaleString()+'</td>'+
+        '<td class="m" style="font-size:11px">'+r.min+'m</td>'+
+        '<td class="m" style="font-size:10px;color:'+(r.min_11pm<=r.min?'#2C5F3F':'#A6271E')+'">'+r.min_11pm+'m <span style="font-size:8px">('+lateStr+')</span></td>'+
+        '<td title="1 in '+r.rob_1inX.toLocaleString()+'/yr"><span class="rb" style="width:'+Math.min(50,Math.max(3,Math.round(r.rob_rate*20)))+'px;background:'+r.rob_color+'"></span><span class="m" style="font-size:10px">'+r.rob_rate+' </span><span class="rl" style="color:'+r.rob_color+'">'+r.rob_label+'</span></td>'+
+        '<td><span class="rb" style="width:'+Math.min(50,Math.max(3,Math.round(r.burg_rate*20)))+'px;background:'+r.burg_color+'"></span><span class="m" style="font-size:10px">'+r.burg_rate+' </span><span class="rl" style="color:'+r.burg_color+'">'+r.burg_label+'</span></td>'+
+        '<td style="text-align:center"><span class="rb" style="width:'+Math.max(3,Math.round(r.transit_score/3))+'px;background:'+r.transit_col+'"></span><span class="m" style="font-size:10px;color:'+r.transit_col+'">'+r.transit_score+'</span></td>'+
+        '<td style="text-align:center;font-size:10px;font-weight:600;color:'+(r.ltxt==="Common"?'#2C5F3F':r.ltxt==="Mixed"?'#D4930D':'#A6271E')+'">'+r.ltxt+'</td>'+
+        '<td>'+tx+'</td>'+
+        '<td><span class="rb" style="width:'+Math.max(3,Math.round(r.late/3))+'px;background:'+(r.late>=75?'#2C5F3F':r.late>=55?'#9C6A0C':'#A6271E')+'"></span><span class="m" style="font-size:10px">'+r.late+'</span></td>'+
+        '<td><span class="rb" style="width:'+Math.max(3,Math.round(r.bldg/3))+'px;background:'+(r.bldg>=70?'#2C5F3F':r.bldg>=40?'#9C6A0C':'#A6271E')+'"></span><span class="m" style="font-size:10px">'+r.bldg+'</span></td>'+
+        '<td class="m" style="font-size:10px;color:'+(r.transit_col||'#4A9D6E')+'" title="'+r.transit_detail+'">$'+(r.transit_cost||0)+'</td>'+
+      '</tr>';
+    }).join('');
+  }
+  tb.closest("table").style.visibility="visible";
+  document.getElementById("fc").textContent=sorted.length+" of "+results.length+" shown"+(shortlistCount()?" · "+shortlistCount()+" shortlist candidates":"");
+  bindRows();
+  updateHeaderArrows();
+  renderOverview();
+}
+
+function shortlistCount(){return results.filter(function(r){return fitInfo(r).status==="Shortlist"}).length}
+function bindRows(){
+  document.querySelectorAll("#tbl tbody tr.c").forEach(function(row){
+    row.onclick=function(){
+      const h=this.dataset.hood;
+      if(markers[h]){map.flyTo([markers[h].lat,markers[h].lng],14,{duration:0.7});setTimeout(function(){markers[h].marker.openPopup()},700)}
+      document.querySelectorAll("#tbl tbody tr.c").forEach(function(r){r.classList.remove("active")});
+      this.classList.add("active");
+    };
+  });
+}
+function updateHeaderArrows(){
+  document.querySelectorAll("#tbl th").forEach(function(th,idx){const base=th.textContent.replace(/ [▲▼]/g,"");th.textContent=base+(idx===currentHeader?" "+(sortState.asc?"▲":"▼"):"")});
+}
+let currentHeader=3;
+window.st=function(col){
+  currentHeader=col;
+  const key=columns[col];
+  if(!key)return;
+  if(sortState.key===key)sortState.asc=!sortState.asc;else{sortState.key=key;sortState.asc=!(key==="composite"||key==="rent"||key==="effective"||key==="min"||key==="min_11pm"||key==="rob_rate"||key==="burg_rate"||key==="transit_score"||key==="late"||key==="bldg"||key==="transit_cost")}
+  renderTable();
+};
+window.tf=function(f){
+  const b=document.querySelector('[data-f="'+f+'"]');
+  if(filters.has(f)){filters.delete(f);if(b)b.classList.remove("on")}else{filters.add(f);if(b)b.classList.add("on")}
+  renderTable();
+};
+window.setMode=function(next){
+  mode=next;
+  document.getElementById("mode-neighborhood").classList.toggle("on",mode==="neighborhood");
+  document.getElementById("mode-apartment").classList.toggle("on",mode==="apartment");
+  renderTable();
+};
+window.focusNeighborhood=function(name){
+  const m=markers[name];
+  if(!m)return;
+  map.flyTo([m.lat,m.lng],14,{duration:0.7});
+  setTimeout(function(){m.marker.openPopup()},700);
+};
 
 const drag=document.getElementById("drag");const mapEl=document.getElementById("map");let dragging=false;let startY,startH;
 function onDS(e){dragging=true;startY=e.touches?e.touches[0].clientY:e.clientY;startH=mapEl.offsetHeight;document.body.style.cursor="ns-resize";e.preventDefault()}
@@ -579,4 +785,6 @@ drag.addEventListener("mousedown",onDS);document.addEventListener("mousemove",on
 drag.addEventListener("touchstart",onDS,{passive:false});document.addEventListener("touchmove",onDM,{passive:false});document.addEventListener("touchend",onDE);
 
 const lg=L.control({position:"bottomright"});lg.onAdd=function(){const d=L.DomUtil.create("div","lg");d.innerHTML='<b>Zones = Robbery rate (21 precincts)</b><div><span class="sq" style="background:#b8dfc8;border:1px solid #2C5F3F"></span>Very Low <span class="sq" style="background:#c8e6cf;border:1px solid #4A9D6E"></span>Low</div><div><span class="sq" style="background:#dae8c8;border:1px solid #6B8E23"></span>Below avg <span class="sq" style="background:#f5e6b8;border:1px solid #9C6A0C"></span>Moderate</div><div><span class="sq" style="background:#f5d6b0;border:1px solid #C96A00"></span>Elevated <span class="sq" style="background:#f0c4c0;border:1px solid #A6271E"></span>High</div><b>Dots = Composite score</b><div><span class="d" style="background:#2C5F3F"></span>65+ <span class="d" style="background:#4A9D6E"></span>55+ <span class="d" style="background:#9C6A0C"></span>45+</div><div><span class="d" style="background:#D4930D"></span>38+ <span class="d" style="background:#A6271E"></span>&lt;38</div>';return d};lg.addTo(map);
+
+window.addEventListener("load",function(){renderTable()});
 </script></div></body></html>
