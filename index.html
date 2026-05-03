@@ -291,7 +291,9 @@ function renderOverview(){
   const take=mode==="apartment"?5:3;
   const cards=list.slice(0,take).map(function(r){
     const fit=fitInfo(r), eff=effectiveCost(r), reasons=reasonList(r,fit), url=streetEasyUrl(r);
-    return '<div class="card"><div class="name">'+r.name+' <span class="chip '+fitClass(fit.status).replace(/^fit-/,"")+'">'+fitLabel(fit.status)+'</span></div>'+
+    const nameArg=JSON.stringify(r.name);
+    const nameClick='onclick="focusNeighborhood('+nameArg+');return false;" style="cursor:pointer"';
+    return '<div class="card"><div class="name" '+nameClick+'>'+r.name+' <span class="chip '+fitClass(fit.status).replace(/^fit-/,"")+'">'+fitLabel(fit.status)+'</span></div>'+
       '<div class="meta">점수 '+r.composite.toFixed(1)+' · 월세 $'+r.rent.toLocaleString()+' · 실질비용 $'+eff.toLocaleString()+' · 통근 '+r.min+'m</div>'+
       '<div class="meta">'+reasons.join('<br>')+'</div>'+
       '<div class="actions"><a class="smallbtn" target="_blank" rel="noopener" href="'+url+'">StreetEasy 1BR</a><a class="smallbtn" href="#" onclick="focusNeighborhood(\''+r.name.replace(/'/g,"\\'")+'\');return false;">지도에서 보기</a></div></div>';
