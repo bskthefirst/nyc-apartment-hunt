@@ -352,14 +352,32 @@ results.forEach(function(r){
 
 function renderOverview(){
   const shortlistRows=results.filter(passesFilters);
-  const targetRows=shortlistRows.slice().sort(function(a,b){
-    return b.composite-a.composite;
-  }).filter(function(r){return soloRentStatus(r).status==="Target"});
-  const stretchRows=shortlistRows.slice().sort(function(a,b){
-    return b.composite-a.composite;
-  }).filter(function(r){return soloRentStatus(r).status==="Stretch"});
+  const rankRows=function(rows){
+    return rows.slice().sort(function(a,b){
+      const ra=soloRentStatus(a).status, rb=soloRentStatus(b).status;
+      const pa=ra==="Target"?0:ra==="Stretch"?1:2;
+      const pb=rb==="Target"?0:rb==="Stretch"?1:2;
+      if(pa!==pb)return pa-pb;
+      return b.composite-a.composite;
+    });
+  };
+  const rankedRows=rankRows(shortlistRows);
   const take=mode==="apartment"?5:3;
-  const list=targetRows.concat(stretchRows).slice(0,take);
+  const seen={};
+  const list=[];
+  rankedRows.forEach(function(r){
+    if(list.length>=take)return;
+    seen[r.name]=true;
+    list.push(r);
+  });
+  if(list.length<take){
+    rankRows(results.filter(function(r){return fitInfo(r).status!=="Hard Avoid";})).forEach(function(r){
+      if(list.length>=take)return;
+      if(seen[r.name])return;
+      seen[r.name]=true;
+      list.push(r);
+    });
+  }
   const cards=list.map(function(r){
     const fit=fitInfo(r), eff=effectiveCost(r), solo=soloRentStatus(r), reasons=reasonList(r,fit);
     const nameArg=JSON.stringify(r.name);
