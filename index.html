@@ -38,6 +38,8 @@ h1{font-size:18px;font-weight:700;margin-bottom:4px}
 table{width:100%;border-collapse:collapse;font-size:12px}
 th{text-align:left;padding:6px 8px;border-bottom:2px solid #141210;font-size:10px;text-transform:uppercase;letter-spacing:0.05em;color:#8C836F;font-weight:600;position:sticky;top:0;background:#F5F0E3;cursor:pointer;user-select:none;white-space:nowrap;z-index:10}
 th:hover{color:#141210;text-decoration:underline}
+.hover-tip{position:fixed;z-index:99999;display:none;max-width:min(340px,calc(100vw - 24px));padding:8px 10px;border-radius:6px;background:#141210;color:#F5F0E3;font-size:11px;line-height:1.45;box-shadow:0 8px 24px rgba(0,0,0,0.22);pointer-events:none;white-space:normal}
+.hover-tip.show{display:block}
 td{padding:6px 8px;border-bottom:1px solid #DED4B8;vertical-align:middle}
 tr.c{cursor:pointer;transition:all 0.12s}
 tr.c:hover{background:#EDE6D3}
@@ -110,11 +112,11 @@ tr.c:first-child{animation:nudge 1.5s ease 1.5s 2}
 <button class="pill" data-f="shortlistOnly" onclick="tf('shortlistOnly')">추천만 보기</button>
 </div><div class="fc" id="fc"></div>
 <div class="tw"><table id="tbl"><thead><tr>
-<th onclick="st(0)" title="순위 번호입니다.">#</th><th onclick="st(1)" title="동네 이름입니다.">동네</th><th onclick="st(2)" title="당신의 조건에 얼마나 잘 맞는지 보여줍니다.">적합도</th><th onclick="st(3)" title="가중치로 계산한 전체 점수입니다.">종합 점수 ▼</th>
-<th onclick="st(4)" title="StreetEasy에서 본 1베드룸 월세 중간값입니다.">월세 (StreetEasy)</th><th onclick="st(5)" title="월세에 교통비를 더하고 NJ는 세금 절감분을 뺀 실질 부담액입니다.">실제 부담액</th><th onclick="st(6)" title="1 Manhattan West까지 아침 7시 기준 예상 통근 시간입니다.">아침 출근</th><th onclick="st(7)" title="1 Manhattan West까지 밤 11시 기준 예상 통근 시간입니다.">저녁 퇴근</th>
-<th onclick="st(8)" title="동네 범죄 강도 지수입니다.">강도</th><th onclick="st(9)" title="아파트 침입 절도 지수입니다.">절도</th>
-<th onclick="st(10)" title="역 주변 안전 점수입니다.">교통</th><th onclick="st(11)" title="인유닛 또는 건물 내 세탁 가능 여부입니다.">세탁</th>
-<th onclick="st(12)" title="뉴욕시인지 뉴저지인지, 그리고 NJ 세금 혜택이 있는지 보여줍니다.">세금</th><th onclick="st(13)" title="밤 11시 기준 통근 시간입니다.">심야</th><th onclick="st(14)" title="건물 연식과 상태 점수입니다.">건물</th><th onclick="st(15)" title="월 통근비입니다. 예: OMNY, PATH, NJ Transit를 기준으로 계산합니다.">교통비</th>
+<th onclick="st(0)" data-tip="순위 번호입니다.">#</th><th onclick="st(1)" data-tip="동네 이름입니다.">동네</th><th onclick="st(2)" data-tip="당신의 조건에 얼마나 잘 맞는지 보여줍니다.">적합도</th><th onclick="st(3)" data-tip="가중치로 계산한 전체 점수입니다.">종합 점수 ▼</th>
+<th onclick="st(4)" data-tip="StreetEasy에서 본 1베드룸 월세 중간값입니다.">월세 (StreetEasy)</th><th onclick="st(5)" data-tip="월세에 교통비를 더하고 NJ는 세금 절감분을 뺀 실질 부담액입니다.">실제 부담액</th><th onclick="st(6)" data-tip="1 Manhattan West까지 아침 7시 기준 예상 통근 시간입니다.">아침 출근</th><th onclick="st(7)" data-tip="1 Manhattan West까지 밤 11시 기준 예상 통근 시간입니다.">저녁 퇴근</th>
+<th onclick="st(8)" data-tip="동네 범죄 강도 지수입니다.">강도</th><th onclick="st(9)" data-tip="아파트 침입 절도 지수입니다.">절도</th>
+<th onclick="st(10)" data-tip="역 주변 안전 점수입니다.">교통</th><th onclick="st(11)" data-tip="인유닛 또는 건물 내 세탁 가능 여부입니다.">세탁</th>
+<th onclick="st(12)" data-tip="뉴욕시인지 뉴저지인지, 그리고 NJ 세금 혜택이 있는지 보여줍니다.">세금</th><th onclick="st(13)" data-tip="밤 11시 기준 통근 시간입니다.">심야</th><th onclick="st(14)" data-tip="건물 연식과 상태 점수입니다.">건물</th><th onclick="st(15)" data-tip="월 통근비입니다. 예: OMNY, PATH, NJ Transit를 기준으로 계산합니다.">교통비</th>
 </tr></thead><tbody></tbody></table></div>
 <div class="foot">
 <div><b>강도 범죄 지수</b> = 연간 1,000명당 길거리 소매치기/강도 비율<br><span style="color:#2C5F3F">매우 낮음</span> ≤0.8 · <span style="color:#4A9D6E">낮음</span> ≤1.2 · <span style="color:#9C6A0C">보통</span> ≤1.8<br><span style="color:#D4930D">상승</span> ≤2.5 · <span style="color:#A6271E">높음</span> &gt;2.5<br><b>절도</b> = 아파트 침입 절도, 같은 기준</div>
@@ -134,6 +136,49 @@ const njMunicipalities = {"type":"FeatureCollection","features":[{"type":"Featur
 L.geoJSON(njMunicipalities,{interactive:false,style:function(f){return{fillColor:f.properties.fill,fillOpacity:f.properties.name==="Jersey City"?0.18:0.22,color:f.properties.border,weight:f.properties.name==="Jersey City"?2.2:2,opacity:0.8,dashArray:"4 3"}},onEachFeature:function(f,l){if(f.properties&&f.properties.name==="Jersey City"){l.bindTooltip('<div style="font-family:IBM Plex Sans;font-size:11px"><b>Jersey City</b><br><span style="color:#9C6A0C;font-weight:600">Journal Square / west side focus area</span></div>',{sticky:true,opacity:0.95})}else if(f.properties&&f.properties.name==="Hoboken"){l.bindTooltip('<div style="font-family:IBM Plex Sans;font-size:11px"><b>Hoboken</b><br><span style="color:#4A9D6E;font-weight:600">PATH / waterfront focus area</span></div>',{sticky:true,opacity:0.95})}}}).addTo(map);
 
 L.marker([40.7534,-73.9898],{icon:L.divIcon({className:"",html:'<div style="display:flex;align-items:center;gap:4px;white-space:nowrap"><span class="star-marker" style="font-size:22px">\u2b50</span><span style="background:#141210;color:#F4C300;font-weight:bold;font-size:10px;padding:3px 8px;border-radius:4px;box-shadow:0 2px 6px rgba(0,0,0,0.4)">1 MW</span></div>',iconAnchor:[40,12]}),zIndexOffset:2000}).addTo(map);
+
+const hoverTip=document.createElement("div");
+hoverTip.className="hover-tip";
+document.body.appendChild(hoverTip);
+let hoverTipTarget=null;
+function hideHoverTip(){hoverTip.classList.remove("show");hoverTipTarget=null}
+function showHoverTip(el,x,y){
+  const text=el&&el.dataset?el.dataset.tip:"";
+  if(!text)return hideHoverTip();
+  hoverTip.textContent=text;
+  hoverTip.classList.add("show");
+  hoverTipTarget=el;
+  const pad=12;
+  const rect=hoverTip.getBoundingClientRect();
+  let left=x+12;
+  let top=y+14;
+  if(left+rect.width>window.innerWidth-pad)left=Math.max(pad,x-rect.width-12);
+  if(top+rect.height>window.innerHeight-pad)top=Math.max(pad,y-rect.height-18);
+  hoverTip.style.left=left+"px";
+  hoverTip.style.top=top+"px";
+}
+document.addEventListener("pointerover",function(e){
+  const el=e.target.closest("[data-tip]");
+  if(!el)return;
+  showHoverTip(el,e.clientX,e.clientY);
+});
+document.addEventListener("pointermove",function(e){
+  if(!hoverTip.classList.contains("show"))return;
+  const el=e.target.closest("[data-tip]");
+  if(!el)return hideHoverTip();
+  if(el!==hoverTipTarget)return showHoverTip(el,e.clientX,e.clientY);
+  showHoverTip(el,e.clientX,e.clientY);
+});
+document.addEventListener("pointerout",function(e){
+  if(!hoverTip.classList.contains("show"))return;
+  const rel=e.relatedTarget;
+  if(rel&&(rel===hoverTip||hoverTip.contains(rel)))return;
+  const el=e.target.closest?e.target.closest("[data-tip]"):null;
+  if(el&&hoverTipTarget===el)hideHoverTip();
+});
+window.addEventListener("scroll",hideHoverTip,true);
+window.addEventListener("resize",hideHoverTip);
+document.addEventListener("keydown",function(e){if(e.key==="Escape")hideHoverTip()});
 
 function sc(s){if(s>=65)return"#2C5F3F";if(s>=55)return"#4A9D6E";if(s>=50)return"#9C6A0C";if(s>=40)return"#D4930D";return"#A6271E"}
 function slugifyName(name){return name.toLowerCase().replace(/\(.*?\)/g,"").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")}
