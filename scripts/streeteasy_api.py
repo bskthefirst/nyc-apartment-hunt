@@ -24,7 +24,7 @@ MAPS_DESTINATION = "1 Manhattan West, 395 9th Ave, New York, NY 10001"
 
 TARGET_RENT = 2350
 STRETCH_RENT = 2800
-OUTPUT_COUNT = 5
+OUTPUT_COUNT = 10
 REQUEST_HEADERS = {
     "User-Agent": (
         "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
@@ -450,9 +450,10 @@ class StreetEasyAPI:
                     return int(match.group(1).replace(",", ""))
         return None
 
-    def _search_urls(self, slug: str, max_rent: int) -> list[str]:
+    def _search_urls(self, slug: str, max_rent: int, laundry_required: bool = True) -> list[str]:
         base = f"https://streeteasy.com/for-rent/{slug}"
-        urls = [f"{base}?beds={beds}&price=-{max_rent}&laundry_in_building=1" for beds in SEARCH_MODES]
+        laundry_q = "&laundry_in_building=1" if laundry_required else ""
+        urls = [f"{base}?beds={beds}&price=-{max_rent}{laundry_q}" for beds in SEARCH_MODES]
         # Preserve ordering but avoid duplicate entries if a slug ever maps oddly.
         return list(dict.fromkeys(urls))
 
@@ -589,14 +590,19 @@ class StreetEasyAPI:
                 unique.append(rec)
         return unique
 
-    def fetch_search_candidates(self, neighborhood: dict[str, Any], min_candidates: int = 2) -> list[Candidate]:
+    def fetch_search_candidates(
+        self,
+        neighborhood: dict[str, Any],
+        min_candidates: int = 2,
+        laundry_required: bool = True,
+    ) -> list[Candidate]:
         slug = STREETEASY_PATHS.get(neighborhood["name"])
         if not slug:
             return []
 
         candidates: list[Candidate] = []
         for max_rent in (self.target_rent, self.stretch_rent):
-            for idx, search_url in enumerate(self._search_urls(slug, max_rent)):
+            for idx, search_url in enumerate(self._search_urls(slug, max_rent, laundry_required=laundry_required)):
                 try:
                     search_html = self.fetch_text(search_url)
                 except Exception:
@@ -665,9 +671,6 @@ class StreetEasyAPI:
         hood = by_name[candidate.neighborhood]
         if is_hard_avoid_neighborhood(hood):
             return None
-        if not laundry_info:
-            return None
-
         hood_fit = fit_info(hood)
         hood_solo = solo_rent_status(hood)
         hood_tier = recommendation_tier(hood)
@@ -686,7 +689,12 @@ class StreetEasyAPI:
         )
         confidence = (hood.get("data_confidence") or "medium").lower()
         fit_status = "target" if price <= self.target_rent else "stretch"
-        laundry_text, laundry_kind = laundry_info
+        if laundry_info:
+            laundry_text, laundry_kind = laundry_info
+            laundry_confirmed = True
+        else:
+            laundry_text, laundry_kind = "세탁기 있음 여부 확인", "unknown"
+            laundry_confirmed = False
 
         summary_parts = [
             f"{candidate.beds} in {candidate.neighborhood}",
@@ -696,7 +704,7 @@ class StreetEasyAPI:
         ]
         listing_score = (
             float(hood.get("composite") or 0)
-            + 18
+            + (18 if laundry_confirmed else -4)
             + (12 if price <= self.target_rent else 5)
             + (4 if no_fee else 0)
             - max(0, commute - 45) * 2.5
@@ -718,7 +726,7 @@ class StreetEasyAPI:
             "rent_status": fit_status,
             "laundry": laundry_text,
             "laundry_kind": laundry_kind,
-            "laundry_confirmed": True,
+            "laundry_confirmed": laundry_confirmed,
             "no_fee": no_fee,
             "commute_minutes": commute,
             "effective_cost": effective_cost,
@@ -775,12 +783,12 @@ class StreetEasyAPI:
                 "stretch_rent": self.stretch_rent,
                 "beds": ["Studio", "1BR"],
                 "ranking_note": (
-                    "세탁기 있음이 확인된 매물만 남기고 강력 제외 동네를 배제한 뒤, "
+                    "세탁기 있음이 확인된 매물을 우선으로 두고, 세탁기 정보가 없는 차차순위 매물은 뒤로 보낸 뒤 "
                     "웹사이트와 같은 동네 tier 순서로 40x 기준($2,350) 충족 여부, 통근 시간, 신뢰도를 함께 반영합니다."
                 ),
                 "fallback_note": (
-                    "매일 공급이 적을 수 있어 $2,800까지의 차순위 매물도 확인하지만, "
-                    "검증되지 않은 매물로 5개를 억지로 채우지는 않습니다."
+                    "매일 공급이 적을 수 있어 세탁기 정보가 없는 차차순위 매물도 확인하지만, "
+                    "검증되지 않은 매물로 개수를 억지로 채우지는 않습니다."
                 ),
             },
             "apartments": top,
@@ -800,7 +808,7 @@ class StreetEasyAPI:
                 "note": "hard_avoid_neighborhood",
             }
 
-        candidates = self.fetch_search_candidates(hood, min_candidates=max(count, 2))
+        candidates = self.fetch_search_candidates(hood, min_candidates=max(count, 2), laundry_required=True)
         by_name = {item["name"]: item for item in neighborhoods}
         enriched: list[dict[str, Any]] = []
         with ThreadPoolExecutor(max_workers=self.max_workers) as pool:
@@ -826,7 +834,7 @@ class StreetEasyAPI:
         by_name = {item["name"]: item for item in neighborhoods}
         all_candidates: list[Candidate] = []
         for hood in neighborhoods:
-            all_candidates.extend(self.fetch_search_candidates(hood))
+            all_candidates.extend(self.fetch_search_candidates(hood, laundry_required=False))
             if len(all_candidates) >= self.output_count * 6:
                 break
         enriched: list[dict[str, Any]] = []
