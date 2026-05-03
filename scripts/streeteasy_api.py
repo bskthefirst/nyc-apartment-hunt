@@ -47,6 +47,9 @@ BLOCKED_PAGE_RE = re.compile(
 HARD_AVOID_NEIGHBORHOODS = {"Washington Heights"}
 HARD_AVOID_ROB_RATE = 2.0
 SEARCH_MODES = ("0,1", "0", "1")
+MAX_SHORTLIST_EFFECTIVE = 2900
+MAX_VIABLE_EFFECTIVE = 3200
+MAX_WATCH_EFFECTIVE = 3450
 
 STREETEASY_PATHS = {
     "Astoria": "astoria",
@@ -123,6 +126,227 @@ def is_hard_avoid_neighborhood(hood: dict[str, Any]) -> bool:
         or "강력 제외" in station_safety
         or "Hard Avoid" in station_safety
     )
+
+
+def normalize_confidence(value: Any) -> str:
+    raw = str(value or "").lower()
+    return raw if raw in {"high", "medium", "low"} else "medium"
+
+
+def station_risk_level(hood: dict[str, Any]) -> str:
+    if hood.get("station_risk"):
+        raw = str(hood.get("station_risk")).lower()
+        return raw if raw in {"low", "moderate", "high"} else "moderate"
+    text = str(hood.get("station_safety") or "").lower()
+    if hood.get("tax") == "NJ" or text == "n/a":
+        return "moderate"
+    if "elevated" in text or "높음" in text:
+        return "high"
+    if "moderate" in text or "보통" in text:
+        return "moderate"
+    if "low" in text or "낮음" in text:
+        return "low"
+    return "moderate"
+
+
+def safe_station(hood: dict[str, Any]) -> bool:
+    return station_risk_level(hood) != "high"
+
+
+def calc_price_score(rent: int) -> int:
+    if rent <= 2400:
+        return 100
+    if rent <= 2600:
+        return 80
+    if rent <= 2800:
+        return 55
+    if rent <= 3000:
+        return 30
+    if rent <= 3200:
+        return 10
+    return 0
+
+
+def calc_commute_score(mins: int) -> float:
+    penalty = max(0, mins - 18) * 2.35
+    rush_penalty = (mins - 45) * 2 if mins > 45 else 0
+    return max(0.0, min(100.0, 100.0 - penalty - rush_penalty))
+
+
+def calc_hood_safety_score(hood: dict[str, Any]) -> float:
+    return max(0.0, min(100.0, 100.0 - (float(hood.get("rob_rate") or 0) * 18) - (float(hood.get("burg_rate") or 0) * 6)))
+
+
+def calc_transit_safety_score(hood: dict[str, Any]) -> int:
+    risk = station_risk_level(hood)
+    if risk == "low":
+        return 85
+    if risk == "high":
+        return 20
+    return 60
+
+
+def calc_laundry_score(value: str) -> int:
+    if value == "Common":
+        return 100
+    if value == "Mixed":
+        return 60
+    return 10
+
+
+def calc_late_score(value: Any) -> int:
+    return max(0, min(100, int(value or 0)))
+
+
+def calc_building_score(value: Any) -> int:
+    return max(0, min(100, int(value or 0)))
+
+
+def derive_scores(hood: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "price": calc_price_score(int(rent_basis(hood))),
+        "hood_safety": calc_hood_safety_score(hood),
+        "transit_safety": calc_transit_safety_score(hood),
+        "commute": calc_commute_score(int(hood.get("min") or 0)),
+        "laundry": calc_laundry_score(str(hood.get("ltxt") or "")),
+        "late": calc_late_score(hood.get("late")),
+        "bldg": calc_building_score(hood.get("bldg")),
+    }
+
+
+def rent_basis(hood: dict[str, Any]) -> int:
+    studio = int(hood.get("studio") or 0)
+    if studio > 0:
+        return studio
+    return int(hood.get("rent") or 0)
+
+
+def effective_cost_for_hood(hood: dict[str, Any]) -> int:
+    transit_cost = int(hood.get("transit_cost") or 0)
+    tax_credit = 246 if hood.get("tax") == "NJ" else 0
+    return rent_basis(hood) + transit_cost - tax_credit
+
+
+def laundry_pass(hood: dict[str, Any]) -> bool:
+    return str(hood.get("ltxt") or "") != "Rare"
+
+
+def solo_rent_fit(hood: dict[str, Any]) -> dict[str, bool]:
+    studio = int(hood.get("studio") or 0)
+    one_br = int(hood.get("one_br") or 0)
+    return {
+        "studio": studio <= TARGET_RENT,
+        "onebr": one_br <= TARGET_RENT,
+        "studioStretch": studio <= STRETCH_RENT,
+        "onebrStretch": one_br <= STRETCH_RENT,
+    }
+
+
+def fit_info(hood: dict[str, Any]) -> dict[str, str]:
+    eff = effective_cost_for_hood(hood)
+    laundry = laundry_pass(hood)
+    commute = int(hood.get("min") or 0) <= 45
+    safe_night = safe_station(hood)
+    composite = float(hood.get("composite") or 0)
+    if is_hard_avoid_neighborhood(hood):
+        return {
+            "status": "Hard Avoid",
+            "reason": "강력 제외: 168th St A 역 관련 위험이 여전히 큽니다",
+        }
+    if not laundry:
+        return {
+            "status": "Laundry Gate",
+            "reason": "세탁 미충족: 건물 내 세탁 선택지가 거의 없습니다",
+        }
+    if eff <= MAX_SHORTLIST_EFFECTIVE and commute and safe_night and composite >= 48:
+        return {
+            "status": "Shortlist",
+            "reason": "실질비용, 통근, 역 주변 체감 안전의 균형이 좋습니다",
+        }
+    if eff <= MAX_VIABLE_EFFECTIVE and int(hood.get("min") or 0) <= 52:
+        return {
+            "status": "Viable",
+            "reason": "비용과 통근은 대체로 괜찮고 세탁 조건도 무난합니다",
+        }
+    if eff <= MAX_WATCH_EFFECTIVE and int(hood.get("min") or 0) <= 60:
+        return {
+            "status": "Watch",
+            "reason": "검토는 가능하지만 실질비용이나 통근이 조금 아쉽습니다",
+        }
+    return {
+        "status": "Avoid",
+        "reason": "가격이나 핵심 조건이 기준에 많이 못 미칩니다",
+    }
+
+
+def solo_rent_status(hood: dict[str, Any]) -> dict[str, str]:
+    fit = solo_rent_fit(hood)
+    eff = effective_cost_for_hood(hood)
+    laundry = laundry_pass(hood)
+    commute = int(hood.get("min") or 0) <= 45
+    safe_night = safe_station(hood)
+    composite = float(hood.get("composite") or 0)
+    if is_hard_avoid_neighborhood(hood):
+        return {
+            "status": "Hard Avoid",
+            "reason": "강력 제외: 168th St A 역 관련 위험이 여전히 큽니다",
+        }
+    if not laundry:
+        return {
+            "status": "Laundry Gate",
+            "reason": "세탁 미충족: 건물 내 세탁 선택지가 거의 없습니다",
+        }
+    if (fit["studio"] or fit["onebr"]) and commute and safe_night and composite >= 48:
+        if fit["studio"] and fit["onebr"]:
+            reason = "스튜디오와 1BR 모두 $2,350 이내입니다"
+        elif fit["studio"]:
+            reason = "스튜디오가 $2,350 이내입니다"
+        else:
+            reason = "1BR이 $2,350 이내입니다"
+        return {"status": "Target", "reason": reason}
+    if (fit["studioStretch"] or fit["onebrStretch"]) and commute and safe_night and eff <= MAX_SHORTLIST_EFFECTIVE:
+        return {
+            "status": "Stretch",
+            "reason": "예산은 조금 넘지만 통근과 전체 조건은 아직 괜찮습니다",
+        }
+    if fit["studio"] or fit["onebr"]:
+        return {
+            "status": "Watch",
+            "reason": "월세는 맞지만 통근이나 역 주변 체감 안전이 아쉽습니다",
+        }
+    return {
+        "status": "No 40x Solo",
+        "reason": "Studio와 1BR 모두 $2,350을 넘습니다",
+    }
+
+
+def recommendation_tier(hood: dict[str, Any]) -> int:
+    fit = fit_info(hood)["status"]
+    solo = solo_rent_status(hood)["status"]
+    reliable = normalize_confidence(hood.get("data_confidence")) != "low"
+    if reliable and fit == "Shortlist" and solo == "Target":
+        return 0
+    if reliable and fit == "Viable" and solo in {"Target", "Stretch"}:
+        return 1
+    if reliable and fit == "Shortlist" and solo == "Stretch":
+        return 2
+    if reliable and fit == "Watch" and solo in {"Target", "Stretch"}:
+        return 3
+    if reliable and fit == "Viable":
+        return 4
+    if fit == "Laundry Gate":
+        return 7
+    if fit == "Hard Avoid":
+        return 9
+    return 6
+
+
+def recommendation_label(tier: int) -> str:
+    if tier <= 1:
+        return "우선 검토"
+    if tier <= 3:
+        return "다음 후보"
+    return "조건 재검토"
 
 
 class StreetEasyAPI:
@@ -290,6 +514,26 @@ class StreetEasyAPI:
     def _canonical_search_url(self, slug: str, beds: str, max_rent: int) -> str:
         bed_code = "0" if beds == "Studio" else "1"
         return f"https://streeteasy.com/for-rent/{slug}?beds={bed_code}&price=-{max_rent}"
+
+    def neighborhood_priority_key(self, hood: dict[str, Any]) -> tuple[Any, ...]:
+        fit = fit_info(hood)["status"]
+        solo = solo_rent_status(hood)["status"]
+        reliable = normalize_confidence(hood.get("data_confidence")) != "low"
+        tier = recommendation_tier(hood)
+        fit_rank = {"Shortlist": 0, "Viable": 1, "Watch": 2, "Avoid": 3, "Laundry Gate": 4, "Hard Avoid": 5}.get(fit, 9)
+        solo_rank = {"Target": 0, "Stretch": 1, "Watch": 2, "No 40x Solo": 3, "Laundry Gate": 4, "Hard Avoid": 5}.get(solo, 9)
+        confidence_rank = {"high": 0, "medium": 1, "low": 2}.get(normalize_confidence(hood.get("data_confidence")), 1)
+        return (
+            tier,
+            fit_rank,
+            solo_rank,
+            0 if reliable else 1,
+            confidence_rank,
+            -float(hood.get("composite") or 0),
+            effective_cost_for_hood(hood),
+            int(hood.get("min") or 0),
+            str(hood.get("name") or ""),
+        )
 
     def _parse_search_html(self, neighborhood: dict[str, Any], search_url: str, search_html: str) -> list[Candidate]:
         slug = STREETEASY_PATHS.get(neighborhood["name"])
@@ -480,6 +724,10 @@ class StreetEasyAPI:
         if not laundry_match:
             return None
 
+        hood_fit = fit_info(hood)
+        hood_solo = solo_rent_status(hood)
+        hood_tier = recommendation_tier(hood)
+
         commute = int(hood["min"])
         transit_cost = int(hood.get("transit_cost") or 0)
         tax_credit = 246 if hood.get("tax") == "NJ" else 0
@@ -514,6 +762,12 @@ class StreetEasyAPI:
 
         return {
             "neighborhood": candidate.neighborhood,
+            "neighborhood_fit_status": hood_fit["status"],
+            "neighborhood_fit_reason": hood_fit["reason"],
+            "neighborhood_solo_status": hood_solo["status"],
+            "neighborhood_solo_reason": hood_solo["reason"],
+            "neighborhood_tier": hood_tier,
+            "neighborhood_tier_label": recommendation_label(hood_tier),
             "address": candidate.address,
             "locality": candidate.locality,
             "beds": candidate.beds,
@@ -540,6 +794,7 @@ class StreetEasyAPI:
     def rank_key(item: dict[str, Any]) -> tuple[Any, ...]:
         confidence_rank = {"high": 0, "medium": 1, "low": 2}.get(item["source_confidence"], 1)
         return (
+            int(item.get("neighborhood_tier") or 9),
             0 if item["laundry_confirmed"] else 1,
             0 if item["rent_status"] == "target" else 1,
             0 if item["commute_minutes"] <= 45 else 1,
@@ -577,7 +832,7 @@ class StreetEasyAPI:
                 "beds": ["Studio", "1BR"],
                 "ranking_note": (
                     "세탁이 확인된 매물만 남기고 강력 제외 동네를 배제한 뒤, "
-                    "40x 기준($2,350) 충족 여부와 통근 시간, 동네 점수를 함께 반영합니다."
+                    "웹사이트와 같은 동네 tier 순서로 40x 기준($2,350) 충족 여부, 통근 시간, 신뢰도를 함께 반영합니다."
                 ),
                 "fallback_note": (
                     "매일 공급이 적을 수 있어 $2,800까지의 차순위 매물도 확인하지만, "
@@ -622,12 +877,8 @@ class StreetEasyAPI:
         }
 
     def build_feed(self) -> dict[str, Any]:
-        neighborhoods = sorted(
-            self.load_neighborhoods(),
-            key=lambda item: float(item.get("composite") or 0),
-            reverse=True,
-        )
-        neighborhoods = [hood for hood in neighborhoods if not is_hard_avoid_neighborhood(hood)]
+        neighborhoods = [hood for hood in self.load_neighborhoods() if not is_hard_avoid_neighborhood(hood)]
+        neighborhoods = sorted(neighborhoods, key=self.neighborhood_priority_key)
         by_name = {item["name"]: item for item in neighborhoods}
         enriched: list[dict[str, Any]] = []
         for hood in neighborhoods:
