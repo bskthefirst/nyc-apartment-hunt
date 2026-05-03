@@ -288,6 +288,7 @@ function confidence(r){return{rent:"보통",crime:"높음",commute:"낮음",tran
 function fitClass(status){return"fit-"+status.toLowerCase().replace(/[^a-z0-9]+/g,"-")}
 function fitLabel(status){return{Shortlist:"추천",Viable:"가능",Watch:"주의",Avoid:"제외","Laundry Gate":"세탁 미충족","Hard Avoid":"강력 제외"}[status]||status}
 function targetLabel(status){return{Target:"40x 통과",Stretch:"스트레치",Watch:"관찰","No 40x Solo":"초과","Laundry Gate":"세탁 미충족","Hard Avoid":"강력 제외"}[status]||status}
+function soloChipClass(status){return status==="Target"?"fit-shortlist":status==="Stretch"?"fit-viable":status==="Watch"?"fit-watch":status==="No 40x Solo"?"fit-avoid":status==="Laundry Gate"?"fit-laundry-gate":"fit-hard-avoid"}
 function reasonList(r,fit){
   const reasons=[fit.reason];
   const eff=effectiveCost(r);
@@ -357,6 +358,10 @@ function renderOverview(){
   const shortlistRows=results.filter(passesFilters);
   const rankRows=function(rows){
     return rows.slice().sort(function(a,b){
+      const fa=fitInfo(a).status, fb=fitInfo(b).status;
+      const fp=fa==="Shortlist"?0:fa==="Viable"?1:fa==="Watch"?2:fa==="Avoid"?3:fa==="Laundry Gate"?4:5;
+      const fbp=fb==="Shortlist"?0:fb==="Viable"?1:fb==="Watch"?2:fb==="Avoid"?3:fb==="Laundry Gate"?4:5;
+      if(fp!==fbp)return fp-fbp;
       const ra=soloRentStatus(a).status, rb=soloRentStatus(b).status;
       const pa=ra==="Target"?0:ra==="Stretch"?1:2;
       const pb=rb==="Target"?0:rb==="Stretch"?1:2;
@@ -385,7 +390,8 @@ function renderOverview(){
     const fit=fitInfo(r), eff=effectiveCost(r), solo=soloRentStatus(r), reasons=reasonList(r,fit);
     const nameArg=JSON.stringify(r.name);
     const nameClick='onclick="focusNeighborhood('+nameArg+');return false;" style="cursor:pointer"';
-    return '<div class="card"><div class="name" '+nameClick+'>'+r.name+' <span class="chip '+fitClass(fit.status).replace(/^fit-/,"")+'">'+fitLabel(fit.status)+'</span> <span class="chip '+(solo.status==="Target"?"shortlist":"watch")+'">'+targetLabel(solo.status)+'</span></div>'+
+    const soloChip=(fit.status===solo.status)?'':' <span class="chip '+(solo.status==="Target"?"shortlist":"watch")+'">'+targetLabel(solo.status)+'</span>';
+    return '<div class="card"><div class="name" '+nameClick+'>'+r.name+' <span class="chip '+fitClass(fit.status).replace(/^fit-/,"")+'">'+fitLabel(fit.status)+'</span>'+soloChip+'</div>'+
       '<div class="meta">점수 '+r.composite.toFixed(1)+' · Studio $'+rentBasis(r).toLocaleString()+' · 실질비용 $'+eff.toLocaleString()+' · 통근 '+r.min+'m</div>'+
       '<div class="meta">Studio $'+r.studio.toLocaleString()+' · 1BR $'+r.one_br.toLocaleString()+' · 40x 기준 '+targetLabel(solo.status)+'</div>'+
       '<div class="meta">'+reasons.join('<br>')+'</div>'+
@@ -432,7 +438,7 @@ function renderTable(){
       '<td><span class="tier '+fitClass(fit.status)+'">'+fitLabel(fit.status)+'</span></td>'+
       '<td class="m" style="font-size:14px;font-weight:700;color:'+sc(r.composite)+'">'+r.composite.toFixed(1)+'<span class="tier '+(r.composite>=55?'t-s':r.composite>=45?'t-f':'t-a')+'">'+(r.composite>=55?'강함':r.composite>=45?'보통':'약함')+'</span></td>'+
         '<td class="m" style="font-size:11px">$'+rentBasis(r).toLocaleString()+'<div style="font-size:9px;color:#777">1BR $'+r.one_br.toLocaleString()+'</div></td>'+
-        '<td><span class="tier '+(solo.status==="Target"?'fit-shortlist':solo.status==="Stretch"?'fit-viable':solo.status==="Watch"?'fit-watch':solo.status==="No 40x Solo"?'fit-avoid':solo.status==="Laundry Gate"?'fit-laundry-gate':'fit-hard-avoid')+'">'+targetLabel(solo.status)+'</span><div class="m" style="font-size:10px;color:#666">S '+r.studio.toLocaleString()+' / 1BR '+r.one_br.toLocaleString()+'</div></td>'+
+      '<td><span class="tier '+soloChipClass(solo.status)+'">'+targetLabel(solo.status)+'</span><div class="m" style="font-size:10px;color:#666">S '+r.studio.toLocaleString()+' / 1BR '+r.one_br.toLocaleString()+'</div></td>'+
         '<td class="m" style="font-size:11px">$'+eff.toLocaleString()+'</td>'+
         '<td class="m" style="font-size:11px">'+r.min+'m</td>'+
         '<td class="m" style="font-size:10px;color:'+(r.min_11pm<=r.min?'#2C5F3F':'#A6271E')+'">'+r.min_11pm+'m <span style="font-size:8px">('+lateStr+')</span></td>'+
@@ -450,7 +456,7 @@ function renderTable(){
       mobile.innerHTML=sorted.map(function(r,i){
         const fit=fitInfo(r), eff=effectiveCost(r), solo=soloRentStatus(r), reasons=reasonList(r,fit), tx=r.tax==="NJ"?"뉴저지 -$246":"뉴욕시";
         return '<div class="mobile-card" onclick="focusNeighborhood('+JSON.stringify(r.name)+');return false;">'+
-          '<div class="mobile-top"><div><div class="mobile-rank">#'+(i+1)+'</div></div><div style="flex:1;min-width:0"><div class="mobile-name">'+r.name+'</div><div style="margin-top:4px"><span class="tier '+fitClass(fit.status)+'">'+fitLabel(fit.status)+'</span> <span class="tier '+(solo.status==="Target"?'fit-shortlist':solo.status==="Stretch"?'fit-viable':solo.status==="Watch"?'fit-watch':solo.status==="No 40x Solo"?'fit-avoid':solo.status==="Laundry Gate"?'fit-laundry-gate':'fit-hard-avoid')+'">'+targetLabel(solo.status)+'</span></div></div><div style="text-align:right"><div style="font-size:18px;font-weight:700;color:'+sc(r.composite)+'">'+r.composite.toFixed(1)+'</div><div style="font-size:10px;color:#666">/100</div></div></div>'+
+          '<div class="mobile-top"><div><div class="mobile-rank">#'+(i+1)+'</div></div><div style="flex:1;min-width:0"><div class="mobile-name">'+r.name+'</div><div style="margin-top:4px"><span class="tier '+fitClass(fit.status)+'">'+fitLabel(fit.status)+'</span> <span class="tier '+soloChipClass(solo.status)+'">'+targetLabel(solo.status)+'</span></div></div><div style="text-align:right"><div style="font-size:18px;font-weight:700;color:'+sc(r.composite)+'">'+r.composite.toFixed(1)+'</div><div style="font-size:10px;color:#666">/100</div></div></div>'+
           '<div class="mobile-meta">Studio $'+rentBasis(r).toLocaleString()+' · 1BR $'+r.one_br.toLocaleString()+' · 실질비용 $'+eff.toLocaleString()+' · 통근 '+r.min+'m / '+r.min_11pm+'m · '+tx+'</div>'+
           '<div class="mobile-grid">'+
             '<div class="mobile-pill"><b>40x</b>'+targetLabel(solo.status)+'<br>S $'+r.studio.toLocaleString()+' / 1BR $'+r.one_br.toLocaleString()+'</div>'+
