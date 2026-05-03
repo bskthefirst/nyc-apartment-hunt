@@ -45,6 +45,7 @@ BLOCKED_PAGE_RE = re.compile(
     r"(?i)access to this page has been denied|please enable javascript|verify you are human|captcha"
 )
 HARD_AVOID_NEIGHBORHOODS = {"Washington Heights"}
+HARD_AVOID_ROB_RATE = 2.0
 SEARCH_MODES = ("0,1", "0", "1")
 
 STREETEASY_PATHS = {
@@ -107,6 +108,21 @@ def slug_for_neighborhood(name: str) -> str | None:
 
 def allowed_localities_for(slug: str) -> set[str]:
     return ALLOWED_LOCALITIES.get(slug, set())
+
+
+def is_hard_avoid_neighborhood(hood: dict[str, Any]) -> bool:
+    name = str(hood.get("name") or "")
+    note = str(hood.get("note") or "")
+    station_safety = str(hood.get("station_safety") or "")
+    rob_rate = float(hood.get("rob_rate") or 0)
+    return (
+        name in HARD_AVOID_NEIGHBORHOODS
+        or rob_rate > HARD_AVOID_ROB_RATE
+        or "강력 제외" in note
+        or "Hard Avoid" in note
+        or "강력 제외" in station_safety
+        or "Hard Avoid" in station_safety
+    )
 
 
 class StreetEasyAPI:
@@ -459,11 +475,7 @@ class StreetEasyAPI:
             return None
 
         hood = by_name[candidate.neighborhood]
-        hood_note = str(hood.get("note") or "")
-        station_safety = str(hood.get("station_safety") or "")
-        if candidate.neighborhood in HARD_AVOID_NEIGHBORHOODS:
-            return None
-        if "강력 제외" in hood_note or "Hard Avoid" in hood_note or "강력 제외" in station_safety:
+        if is_hard_avoid_neighborhood(hood):
             return None
         if not laundry_match:
             return None
@@ -580,6 +592,14 @@ class StreetEasyAPI:
         hood = next((item for item in neighborhoods if item["name"] == neighborhood_name), None)
         if not hood:
             raise KeyError(f"Unknown neighborhood: {neighborhood_name}")
+        if is_hard_avoid_neighborhood(hood):
+            return {
+                "neighborhood": neighborhood_name,
+                "search_urls": self._search_urls(STREETEASY_PATHS[neighborhood_name], self.stretch_rent),
+                "count": 0,
+                "results": [],
+                "note": "hard_avoid_neighborhood",
+            }
 
         candidates = self.fetch_search_candidates(hood, min_candidates=max(count, 2))
         by_name = {item["name"]: item for item in neighborhoods}
@@ -607,6 +627,7 @@ class StreetEasyAPI:
             key=lambda item: float(item.get("composite") or 0),
             reverse=True,
         )
+        neighborhoods = [hood for hood in neighborhoods if not is_hard_avoid_neighborhood(hood)]
         by_name = {item["name"]: item for item in neighborhoods}
         enriched: list[dict[str, Any]] = []
         for hood in neighborhoods:
