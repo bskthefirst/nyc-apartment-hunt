@@ -530,7 +530,17 @@ function apartmentRouteUrl(item){
   return 'https://www.google.com/maps/dir/?api=1&origin='+encodeURIComponent(origin)+'&destination='+encodeURIComponent('1 Manhattan West, 395 9th Ave, New York, NY 10001')+'&travelmode=transit';
 }
 function apartmentFeeLabel(item){return item.no_fee?"No fee":"수수료 확인"}
-function apartmentLaundryLabel(item){return item.laundry_confirmed?item.laundry:"세탁은 매물에서 확인"}
+function apartmentLaundryLabel(item){
+  if(!item.laundry_confirmed)return"세탁기 있음 여부 확인";
+  if(item.laundry_kind==="in_unit")return"방 안 세탁기 있음";
+  if(item.laundry_kind==="building")return"아파트 공용 세탁기 있음";
+  if(item.laundry){
+    if(item.laundry.indexOf("방 안")!==-1||item.laundry.indexOf("in unit")!==-1)return"방 안 세탁기 있음";
+    if(item.laundry.indexOf("공용")!==-1||item.laundry.indexOf("building")!==-1)return"아파트 공용 세탁기 있음";
+    return item.laundry;
+  }
+  return"세탁기 있음 여부 확인";
+}
 function apartmentUpdatedText(data){
   if(!data||!data.updated_at)return"";
   const count=(data.apartments||[]).length;
@@ -567,7 +577,7 @@ function renderTopApartments(){
       '<div class="mobile-top"><div><div class="mobile-rank">#'+item.rank+'</div></div><div style="flex:1;min-width:0"><div class="mobile-name">'+item.address+'</div><div style="margin-top:4px">'+apartmentRentChip(item.rent_status)+' '+apartmentConfidenceChip(item.source_confidence)+'</div></div><div style="text-align:right"><div style="font-size:18px;font-weight:700;color:#141210">$'+item.price.toLocaleString()+'</div><div style="font-size:10px;color:#666">'+item.beds+'</div></div></div>'+
       '<div class="mobile-meta">'+item.neighborhood+' · 출근 '+item.commute_minutes+'m · 실질비용 $'+item.effective_cost.toLocaleString()+'<br>'+item.summary+'</div>'+
       '<div class="mobile-grid">'+
-        '<div class="mobile-pill"><b>세탁</b>'+apartmentLaundryLabel(item)+'</div>'+
+        '<div class="mobile-pill"><b>세탁기</b>'+apartmentLaundryLabel(item)+'</div>'+
         '<div class="mobile-pill"><b>수수료</b>'+apartmentFeeLabel(item)+'</div>'+
       '</div>'+
       '<div class="mobile-actions"><a class="smallbtn" target="_blank" rel="noopener" href="'+item.listing_url+'">StreetEasy</a><a class="smallbtn" target="_blank" rel="noopener" href="'+apartmentRouteUrl(item)+'">경로</a></div>'+
@@ -576,7 +586,7 @@ function renderTopApartments(){
   body.innerHTML=
     apartmentUpdatedText(topApartmentData)+
     '<div class="apt-grid">'+
-      '<div class="apt-table-wrap"><table class="apt-table"><thead><tr><th>#</th><th>Apartment</th><th>Price</th><th>40x</th><th>Laundry</th><th>Commute</th><th>Effective</th><th>Confidence</th><th>Summary</th><th>Links</th></tr></thead><tbody>'+tableRows+'</tbody></table></div>'+
+      '<div class="apt-table-wrap"><table class="apt-table"><thead><tr><th>#</th><th>Apartment</th><th>Price</th><th>40x</th><th>세탁기</th><th>Commute</th><th>Effective</th><th>Confidence</th><th>Summary</th><th>Links</th></tr></thead><tbody>'+tableRows+'</tbody></table></div>'+
       '<div class="apt-mobile">'+mobileCards+'</div>'+
     '</div>';
 }

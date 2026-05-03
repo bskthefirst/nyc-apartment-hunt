@@ -33,11 +33,10 @@ REQUEST_HEADERS = {
     "Accept-Language": "en-US,en;q=0.9",
 }
 
-LAUNDRY_RE = re.compile(
-    r"(?i)"
-    r"(washer/dryer(?: in unit)?|washer in unit|dryer in unit|"
-    r"in[- ]unit laundry|in[- ]unit washer|laundry in building|laundry room)"
+IN_UNIT_LAUNDRY_RE = re.compile(
+    r"(?i)(washer/dryer(?: in unit)?|washer in unit|dryer in unit|in[- ]unit laundry|in[- ]unit washer)"
 )
+BUILDING_LAUNDRY_RE = re.compile(r"(?i)(laundry in building|laundry room)")
 EXCLUDE_RE = re.compile(r"(?i)room for rent|shared apartment|co-?living|sublet")
 NO_FEE_RE = re.compile(r"(?i)no.?fee")
 PRICE_RE = re.compile(r"\$([\d,]+)\s*/mo")
@@ -229,6 +228,14 @@ def effective_cost_for_hood(hood: dict[str, Any]) -> int:
 
 def laundry_pass(hood: dict[str, Any]) -> bool:
     return str(hood.get("ltxt") or "") != "Rare"
+
+
+def classify_laundry_text(text: str) -> tuple[str, str] | None:
+    if IN_UNIT_LAUNDRY_RE.search(text):
+        return "방 안 세탁기 있음", "in_unit"
+    if BUILDING_LAUNDRY_RE.search(text):
+        return "아파트 공용 세탁기 있음", "building"
+    return None
 
 
 def solo_rent_fit(hood: dict[str, Any]) -> dict[str, bool]:
@@ -708,7 +715,7 @@ class StreetEasyAPI:
         if text and EXCLUDE_RE.search(text):
             return None
 
-        laundry_match = LAUNDRY_RE.search(text) if text else None
+        laundry_info = classify_laundry_text(text) if text else None
         no_fee = bool(NO_FEE_RE.search(text)) if text else False
         price = candidate.price
         if not price:
@@ -721,7 +728,7 @@ class StreetEasyAPI:
         hood = by_name[candidate.neighborhood]
         if is_hard_avoid_neighborhood(hood):
             return None
-        if not laundry_match:
+        if not laundry_info:
             return None
 
         hood_fit = fit_info(hood)
@@ -742,18 +749,18 @@ class StreetEasyAPI:
         )
         confidence = (hood.get("data_confidence") or "medium").lower()
         fit_status = "target" if price <= self.target_rent else "stretch"
-        laundry_text = laundry_match.group(1) if laundry_match else "verify on listing"
+        laundry_text, laundry_kind = laundry_info
         canonical_search_url = self._canonical_search_url(candidate.search_slug, candidate.beds, self.stretch_rent)
 
         summary_parts = [
             f"{candidate.beds} in {candidate.neighborhood}",
             f"출근 약 {commute}분",
-            "세탁 확인",
+            laundry_text,
             "무중개수수료 표기" if no_fee else "수수료 조건 확인 필요",
         ]
         listing_score = (
             float(hood.get("composite") or 0)
-            + (18 if laundry_match else 0)
+            + 18
             + (12 if price <= self.target_rent else 5)
             + (4 if no_fee else 0)
             - max(0, commute - 45) * 2.5
@@ -774,6 +781,7 @@ class StreetEasyAPI:
             "price": price,
             "rent_status": fit_status,
             "laundry": laundry_text,
+            "laundry_kind": laundry_kind,
             "laundry_confirmed": True,
             "no_fee": no_fee,
             "commute_minutes": commute,
@@ -831,7 +839,7 @@ class StreetEasyAPI:
                 "stretch_rent": self.stretch_rent,
                 "beds": ["Studio", "1BR"],
                 "ranking_note": (
-                    "세탁이 확인된 매물만 남기고 강력 제외 동네를 배제한 뒤, "
+                    "세탁기 있음이 확인된 매물만 남기고 강력 제외 동네를 배제한 뒤, "
                     "웹사이트와 같은 동네 tier 순서로 40x 기준($2,350) 충족 여부, 통근 시간, 신뢰도를 함께 반영합니다."
                 ),
                 "fallback_note": (
