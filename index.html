@@ -35,6 +35,7 @@ h1{font-size:18px;font-weight:700;margin-bottom:4px}
 .tip{background:#141210;color:#F5F0E3;font-size:11px;padding:7px 14px;border-radius:5px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center}
 .tip .x{cursor:pointer;opacity:0.6;font-size:13px}.tip .x:hover{opacity:1}
 .tw{border:1px solid #DED4B8;border-radius:6px;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.mobile-list{display:none}
 table{width:100%;border-collapse:collapse;font-size:12px}
 th{text-align:left;padding:6px 8px;border-bottom:2px solid #141210;font-size:10px;text-transform:uppercase;letter-spacing:0.05em;color:#8C836F;font-weight:600;position:sticky;top:0;background:#F5F0E3;cursor:pointer;user-select:none;white-space:nowrap;z-index:10}
 th:hover{color:#141210;text-decoration:underline}
@@ -82,8 +83,33 @@ tr.dim{opacity:0.2;pointer-events:none}
 .modebar .label{font-size:10px;color:#8C836F}
 @keyframes nudge{0%,100%{background:transparent}50%{background:#EDE6D3}}
 tr.c:first-child{animation:nudge 1.5s ease 1.5s 2}
-@media(max-width:768px){#map{height:40vh}#drag{height:18px}#drag .grip{width:48px;height:5px}.p{padding:10px 12px 32px}table{min-width:1150px}th,td{padding:6px 7px;font-size:11px}h1{font-size:16px}.pill{padding:6px 14px;font-size:12px;border-radius:20px}.tip{font-size:12px;padding:10px 14px}.foot{grid-template-columns:1fr 1fr}.panel-grid{grid-template-columns:1fr}}
-@media(max-width:480px){#map{height:35vh}h1{font-size:14px}.pill{padding:5px 10px;font-size:11px}.foot{grid-template-columns:1fr;gap:8px}}
+@media(max-width:768px){
+  #map{height:38vh}
+  #drag{height:18px}
+  #drag .grip{width:48px;height:5px}
+  .p{padding:10px 12px 28px}
+  .tip{font-size:12px;padding:10px 14px}
+  .foot{grid-template-columns:1fr 1fr}
+  .panel-grid{grid-template-columns:1fr}
+  .filters,.modebar{gap:5px}
+  .pill{padding:6px 12px;font-size:12px;border-radius:18px}
+}
+@media(max-width:640px){
+  .tw{border:0;overflow:visible}
+  table{display:none}
+  .mobile-list{display:grid;gap:8px}
+  .mobile-card{border:1px solid #DED4B8;border-radius:8px;background:#FDFBF4;padding:10px 12px}
+  .mobile-top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+  .mobile-name{font-size:15px;font-weight:700;line-height:1.2}
+  .mobile-rank{font-size:13px;font-weight:700;color:#4A9D6E;min-width:20px}
+  .mobile-meta{margin-top:6px;font-size:11px;line-height:1.45;color:#666}
+  .mobile-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;margin-top:8px}
+  .mobile-pill{display:block;border:1px solid #E5DCC0;border-radius:6px;padding:6px 8px;background:#fff;font-size:11px;line-height:1.35}
+  .mobile-pill b{display:block;font-size:9px;color:#8C836F;margin-bottom:2px;text-transform:uppercase;letter-spacing:0.04em}
+  .mobile-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+  .mobile-actions .smallbtn{padding:4px 8px;font-size:10px}
+}
+@media(max-width:480px){#map{height:34vh}h1{font-size:14px}.pill{padding:5px 9px;font-size:11px}.foot{grid-template-columns:1fr;gap:8px}}
 </style></head><body>
 <div id="map"></div>
 <div id="drag"><div class="grip"></div></div>
@@ -120,7 +146,7 @@ tr.c:first-child{animation:nudge 1.5s ease 1.5s 2}
 <th onclick="st(9)" data-tip="동네 범죄 강도 지수입니다.">강도</th><th onclick="st(10)" data-tip="아파트 침입 절도 지수입니다.">절도</th>
 <th onclick="st(11)" data-tip="역 주변 안전 점수입니다.">교통</th><th onclick="st(12)" data-tip="인유닛 또는 건물 내 세탁 가능 여부입니다.">세탁</th>
 <th onclick="st(13)" data-tip="뉴욕시인지 뉴저지인지, 그리고 NJ 세금 혜택이 있는지 보여줍니다.">세금</th><th onclick="st(14)" data-tip="밤 11시 기준 통근 시간입니다.">심야</th><th onclick="st(15)" data-tip="건물 연식과 상태 점수입니다.">건물</th><th onclick="st(16)" data-tip="월 통근비입니다. 예: OMNY, PATH, NJ Transit를 기준으로 계산합니다.">교통비</th>
-</tr></thead><tbody></tbody></table></div>
+</tr></thead><tbody></tbody></table><div id="mobileList" class="mobile-list"></div></div>
 <div class="foot">
 <div><b>강도 범죄 지수</b> = 연간 1,000명당 길거리 소매치기/강도 비율<br><span style="color:#2C5F3F">매우 낮음</span> ≤0.8 · <span style="color:#4A9D6E">낮음</span> ≤1.2 · <span style="color:#9C6A0C">보통</span> ≤1.8<br><span style="color:#D4930D">상승</span> ≤2.5 · <span style="color:#A6271E">높음</span> &gt;2.5<br><b>절도</b> = 아파트 침입 절도, 같은 기준</div>
 <div><b>저녁 퇴근</b> = 월요일 밤 11시 기준 보수적 대중교통 추정치<br>괄호 안은 아침 출근 7시 대비 변화량<br>통근 시간은 Google Routes API 실제 점검값 사용<br>A train / PATH 배차는 심야에 더 불규칙할 수 있음</div>
@@ -370,9 +396,11 @@ function passesFilters(r){
 
 function renderTable(){
   const tb=document.querySelector("#tbl tbody");
+  const mobile=document.getElementById("mobileList");
   const sorted=results.slice().sort(function(a,b){return compareRows(a,b,sortState.key,sortState.asc)}).filter(passesFilters);
   if(!sorted.length){
     tb.innerHTML='<tr id="es"><td colspan="17">모든 필터를 만족하는 동네가 없습니다. 하나를 줄여 보세요.</td></tr>';
+    if(mobile)mobile.innerHTML='<div class="mobile-card" id="es-mobile">모든 필터를 만족하는 동네가 없습니다. 하나를 줄여 보세요.</div>';
   }else{
     tb.innerHTML=sorted.map(function(r,i){
       const fit=fitInfo(r), eff=effectiveCost(r), tx=r.tax==="NJ"?'뉴저지 <span class="m" style="font-size:9px">-$246</span>':'뉴욕시', solo=soloRentStatus(r), soloFit=soloRentFit(r);
@@ -397,6 +425,22 @@ function renderTable(){
         '<td class="m" style="font-size:10px;color:'+(r.transit_col||'#4A9D6E')+'" title="'+r.transit_detail+'">$'+(r.transit_cost||0)+'</td>'+
       '</tr>';
     }).join('');
+    if(mobile){
+      mobile.innerHTML=sorted.map(function(r,i){
+        const fit=fitInfo(r), eff=effectiveCost(r), solo=soloRentStatus(r), reasons=reasonList(r,fit);
+        return '<div class="mobile-card" onclick="focusNeighborhood('+JSON.stringify(r.name)+');return false;">'+
+          '<div class="mobile-top"><div><div class="mobile-rank">#'+(i+1)+'</div></div><div style="flex:1;min-width:0"><div class="mobile-name">'+r.name+'</div><div style="margin-top:4px"><span class="tier '+fitClass(fit.status)+'">'+fitLabel(fit.status)+'</span> <span class="tier '+(solo.status==="Target"?'fit-shortlist':solo.status==="Stretch"?'fit-viable':solo.status==="Watch"?'fit-watch':solo.status==="No 40x Solo"?'fit-avoid':solo.status==="Laundry Gate"?'fit-laundry-gate':'fit-hard-avoid')+'">'+targetLabel(solo.status)+'</span></div></div><div style="text-align:right"><div style="font-size:18px;font-weight:700;color:'+sc(r.composite)+'">'+r.composite.toFixed(1)+'</div><div style="font-size:10px;color:#666">/100</div></div></div>'+
+          '<div class="mobile-meta">월세 $'+r.rent.toLocaleString()+' · 실질비용 $'+eff.toLocaleString()+' · 통근 '+r.min+'m / '+r.min_11pm+'m · '+tx.replace(/<[^>]+>/g,'')+'</div>'+
+          '<div class="mobile-grid">'+
+            '<div class="mobile-pill"><b>40x</b>'+targetLabel(solo.status)+'<br>S $'+r.studio.toLocaleString()+' / 1BR $'+r.one_br.toLocaleString()+'</div>'+
+            '<div class="mobile-pill"><b>세탁</b>'+laundryLabel(r.ltxt)+'<br>'+reasons[0]+'</div>'+
+            '<div class="mobile-pill"><b>강도</b>'+r.rob_rate+'/1K · '+riskLabel(r.rob_label)+'</div>'+
+            '<div class="mobile-pill"><b>절도</b>'+r.burg_rate+'/1K · '+riskLabel(r.burg_label)+'</div>'+
+          '</div>'+
+          '<div class="mobile-actions"><a class="smallbtn" target="_blank" rel="noopener" href="'+streetEasyTargetUrl(r,"all",targetRent)+'">All ≤ $2,350</a><a class="smallbtn" target="_blank" rel="noopener" href="'+streetEasyTargetUrl(r,"studio",targetRent)+'">Studio</a><a class="smallbtn" target="_blank" rel="noopener" href="'+streetEasyTargetUrl(r,"onebr",targetRent)+'">1BR</a></div>'+
+        '</div>';
+      }).join('');
+    }
   }
   tb.closest("table").style.visibility="visible";
   document.getElementById("fc").textContent=sorted.length+" of "+results.length+" shown"+(shortlistCount()?" · "+shortlistCount()+" 40x candidates":"");
