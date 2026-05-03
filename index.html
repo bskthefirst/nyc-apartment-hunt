@@ -213,7 +213,7 @@ function streetEasyUrl(r){const slug=streetEasyPaths[r.name]||slugifyName(r.name
 function effectiveCost(r){return r.rent+(r.transit_cost||0)-(r.tax==="NJ"?246:0)}
 function priceBasis(r){return r.tax==="NJ"?effectiveCost(r):r.rent}
 function laundryPass(r){return r.ltxt!=="Rare"}
-function hardAvoid(r){return r.name==="Washington Heights"}
+function hardAvoid(r){return r.name==="Washington Heights"||r.rob_rate>2.0}
 function laundryLabel(v){return{Rare:"드묾",Mixed:"혼합",Common:"흔함"}[v]||v}
 function riskLabel(v){return{ "Very Low":"매우 낮음","Low":"낮음","Moderate":"보통","Elevated":"다소 높음","High":"높음"}[v]||v}
 function stationSafetyLabel(v){return{ "N/A":"해당 없음","Very Low":"매우 낮음","Low":"낮음","Moderate":"보통","Elevated":"높음","High":"매우 높음"}[v]||v}
@@ -286,9 +286,6 @@ results.forEach(function(r){
 function renderOverview(){
   const shortlistRows=results.filter(passesFilters);
   const list=shortlistRows.slice().sort(function(a,b){
-    const fa=fitInfo(a), fb=fitInfo(b);
-    const rank=rankOrder(fa.status)-rankOrder(fb.status);
-    if(rank!==0)return rank;
     return b.composite-a.composite;
   }).filter(function(r){const s=fitInfo(r).status;return s==="Shortlist"||s==="Viable"||s==="Watch"});
   const take=mode==="apartment"?5:3;
