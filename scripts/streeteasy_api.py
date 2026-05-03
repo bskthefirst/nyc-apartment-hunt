@@ -148,12 +148,12 @@ class StreetEasyAPI:
         self._neighborhoods = json.loads(html[start:end].strip())
         return self._neighborhoods
 
-    def _cache_path(self, url: str) -> Path:
-        digest = hashlib.sha1(url.encode("utf-8")).hexdigest()
+    def _cache_path(self, url: str, source: str) -> Path:
+        digest = hashlib.sha1(f"{source}:{url}".encode("utf-8")).hexdigest()
         return self.cache_dir / f"{digest}.txt"
 
-    def _read_cache(self, url: str) -> str | None:
-        path = self._cache_path(url)
+    def _read_cache(self, url: str, source: str) -> str | None:
+        path = self._cache_path(url, source)
         if not path.exists():
             return None
         age = time.time() - path.stat().st_mtime
@@ -164,14 +164,14 @@ class StreetEasyAPI:
         except Exception:
             return None
 
-    def _write_cache(self, url: str, text: str) -> None:
+    def _write_cache(self, url: str, text: str, source: str) -> None:
         try:
-            self._cache_path(url).write_text(text)
+            self._cache_path(url, source).write_text(text)
         except Exception:
             pass
 
     def fetch_text(self, url: str, timeout: int = 18, allow_jina: bool = True) -> str:
-        cached = self._read_cache(url)
+        cached = self._read_cache(url, "direct")
         if cached is not None:
             return cached
 
@@ -191,13 +191,16 @@ class StreetEasyAPI:
                     last_error = RuntimeError(f"{url} returned {status}")
                     continue
                 if text and not BLOCKED_PAGE_RE.search(text):
-                    self._write_cache(url, text)
+                    self._write_cache(url, text, "direct")
                     return text
                 last_error = RuntimeError(f"{url} returned blocked content")
             except Exception as exc:  # pragma: no cover - network fallback
                 last_error = exc
 
         if allow_jina:
+            cached_jina = self._read_cache(url, "jina")
+            if cached_jina is not None:
+                return cached_jina
             for delay in (0, 2, 5):
                 if delay:
                     time.sleep(delay)
@@ -206,7 +209,7 @@ class StreetEasyAPI:
                     response.raise_for_status()
                     text = response.text or ""
                     if text:
-                        self._write_cache(url, text)
+                        self._write_cache(url, text, "jina")
                         return text
                 except Exception as exc:  # pragma: no cover - network fallback
                     last_error = exc
@@ -268,6 +271,10 @@ class StreetEasyAPI:
         # Preserve ordering but avoid duplicate entries if a slug ever maps oddly.
         return list(dict.fromkeys(urls))
 
+    def _canonical_search_url(self, slug: str, beds: str, max_rent: int) -> str:
+        bed_code = "0" if beds == "Studio" else "1"
+        return f"https://streeteasy.com/for-rent/{slug}?beds={bed_code}&price=-{max_rent}"
+
     def _parse_search_html(self, neighborhood: dict[str, Any], search_url: str, search_html: str) -> list[Candidate]:
         slug = STREETEASY_PATHS.get(neighborhood["name"])
         if not slug:
@@ -326,7 +333,7 @@ class StreetEasyAPI:
         return candidates
 
     def _parse_search_jina(self, neighborhood: dict[str, Any], search_url: str) -> list[Candidate]:
-        markdown = self.fetch_text(search_url)
+        markdown = self.fetch_text(search_url, allow_jina=True)
         lines = [line.rstrip() for line in markdown.splitlines()]
         records: list[Candidate] = []
         current_price: int | None = None
@@ -476,6 +483,7 @@ class StreetEasyAPI:
         confidence = (hood.get("data_confidence") or "medium").lower()
         fit_status = "target" if price <= self.target_rent else "stretch"
         laundry_text = laundry_match.group(1) if laundry_match else "verify on listing"
+        canonical_search_url = self._canonical_search_url(candidate.search_slug, candidate.beds, self.stretch_rent)
 
         summary_parts = [
             f"{candidate.beds} in {candidate.neighborhood}",
@@ -511,7 +519,7 @@ class StreetEasyAPI:
             "source_confidence": confidence,
             "summary": " · ".join(summary_parts),
             "listing_url": candidate.listing_url,
-            "search_url": candidate.search_url,
+            "search_url": canonical_search_url,
             "route_url": route_url,
             "available": candidate.available,
         }
@@ -636,6 +644,7 @@ def main(argv: list[str] | None = None) -> int:
     search = sub.add_parser("search", help="Search one neighborhood")
     search.add_argument("--neighborhood", required=True)
     search.add_argument("--count", type=int, default=3)
+    search.add_argument("--max-rent", type=int, default=TARGET_RENT)
     search.add_argument("--json", action="store_true", help="Print compact JSON to stdout")
 
     args = parser.parse_args(argv)
@@ -654,7 +663,12 @@ def main(argv: list[str] | None = None) -> int:
         return 0
 
     if args.command == "search":
-        payload = api.search_neighborhood(args.neighborhood, count=args.count)
+        search_api = StreetEasyAPI(
+            target_rent=min(TARGET_RENT, args.max_rent),
+            stretch_rent=args.max_rent,
+            output_count=args.count,
+        )
+        payload = search_api.search_neighborhood(args.neighborhood, count=args.count)
         if args.json:
             print(json.dumps(payload, ensure_ascii=False, separators=(",", ":")))
         else:
