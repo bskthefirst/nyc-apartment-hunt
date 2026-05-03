@@ -36,6 +36,22 @@ h1{font-size:18px;font-weight:700;margin-bottom:4px}
 .tip .x{cursor:pointer;opacity:0.6;font-size:13px}.tip .x:hover{opacity:1}
 .tw{border:1px solid #DED4B8;border-radius:6px;overflow-x:auto;-webkit-overflow-scrolling:touch}
 .mobile-list{display:none}
+.apt-panel{margin-top:12px}
+.apt-status{display:inline-block;padding:2px 7px;border-radius:999px;font-size:10px;font-weight:700;border:1px solid transparent}
+.apt-status.target{background:#E3F0E7;color:#2C5F3F;border-color:#2C5F3F}
+.apt-status.stretch{background:#FFF2D7;color:#9C6A0C;border-color:#9C6A0C}
+.apt-grid{display:grid;gap:10px}
+.apt-table-wrap{border:1px solid #DED4B8;border-radius:8px;overflow:hidden;background:#fff}
+.apt-table{width:100%;border-collapse:collapse;font-size:11px}
+.apt-table th,.apt-table td{padding:8px 9px;border-bottom:1px solid #E8DFC6;vertical-align:top}
+.apt-table th{background:#F8F3E5;font-size:10px;text-transform:uppercase;letter-spacing:0.04em;color:#8C836F}
+.apt-table tr:last-child td{border-bottom:0}
+.apt-updated{font-size:10px;color:#666}
+.apt-summary{font-size:10px;line-height:1.45;color:#555}
+.apt-actions{display:flex;gap:6px;flex-wrap:wrap}
+.apt-mobile{display:none}
+.apt-empty{padding:12px;border:1px dashed #C9BF9F;border-radius:8px;background:#fff;font-size:11px;color:#666}
+.apt-loading{font-size:11px;color:#666}
 table{width:100%;border-collapse:collapse;font-size:12px}
 th{text-align:left;padding:6px 8px;border-bottom:2px solid #141210;font-size:10px;text-transform:uppercase;letter-spacing:0.05em;color:#8C836F;font-weight:600;position:sticky;top:0;background:#F5F0E3;cursor:pointer;user-select:none;white-space:nowrap;z-index:10}
 th:hover{color:#141210;text-decoration:underline}
@@ -113,6 +129,8 @@ tr.c:first-child{animation:nudge 1.5s ease 1.5s 2}
   .panel{padding:10px}
   .panel-copy{font-size:10px}
   .card{padding:10px}
+  .apt-table-wrap{display:none}
+  .apt-mobile{display:grid;gap:8px}
   .mobile-list{display:grid;gap:8px}
   .mobile-card{border:1px solid #DED4B8;border-radius:8px;background:#FDFBF4;padding:10px 12px}
   .mobile-top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
@@ -172,6 +190,11 @@ tr.c:first-child{animation:nudge 1.5s ease 1.5s 2}
 <th onclick="st(11)" data-tip="역 주변 안전 점수입니다.">교통</th><th onclick="st(12)" data-tip="인유닛 또는 건물 내 세탁 가능 여부입니다.">세탁</th>
 <th onclick="st(13)" data-tip="뉴욕시인지 뉴저지인지, 그리고 NJ 세금 혜택이 있는지 보여줍니다.">세금</th><th onclick="st(14)" data-tip="밤 11시 기준 통근 시간입니다.">심야</th><th onclick="st(15)" data-tip="건물 연식과 상태 점수입니다.">건물</th><th onclick="st(16)" data-tip="월 통근비입니다. 예: OMNY, PATH, NJ Transit를 기준으로 계산합니다.">교통비</th>
 </tr></thead><tbody></tbody></table><div id="mobileList" class="mobile-list"></div></div>
+<div id="top-apartments" class="panel apt-panel">
+  <h2>오늘의 실제 매물 Top 5</h2>
+  <div class="panel-copy">매일 StreetEasy 기준으로 다시 찾아서 갱신합니다. Studio/1BR, 기본 목표 월세 <strong>$2,350</strong>, 필요하면 <strong>$2,600</strong> 스트레치까지 포함합니다.</div>
+  <div id="top-apartments-body" class="apt-loading">실제 매물을 불러오는 중입니다.</div>
+</div>
 <div class="foot">
 <div><b>강도 범죄 지수</b> = 연간 1,000명당 길거리 소매치기/강도 비율<br><span style="color:#2C5F3F">매우 낮음</span> ≤0.8 · <span style="color:#4A9D6E">낮음</span> ≤1.2 · <span style="color:#9C6A0C">보통</span> ≤1.8<br><span style="color:#D4930D">상승</span> ≤2.5 · <span style="color:#A6271E">높음</span> &gt;2.5<br><b>절도</b> = 아파트 침입 절도, 같은 기준</div>
 <div><b>저녁 퇴근</b> = 월요일 밤 11시 기준 보수적 대중교통 추정치<br>괄호 안은 아침 출근 7시 대비 변화량<br>통근 시간은 Google Routes API 실제 점검값 사용<br>A train / PATH 배차는 심야에 더 불규칙할 수 있음</div>
@@ -453,6 +476,7 @@ let sortState={key:"composite",asc:false};
 const filters=new Set();
 let mode="neighborhood";
 const markers={};const dots=L.layerGroup().addTo(map);
+let topApartmentData=null;
 function popupHtml(r){
   const c=sc(r.composite), pen=r.night_penalty, penStr=pen>0?"+"+pen+"m":pen+"m", eff=effectiveCost(r), fit=fitInfo(r), conf=confidence(r), solo=soloRentStatus(r), soloFit=soloRentFit(r);
   return '<div style="font-family:IBM Plex Sans;min-width:300px">'+
@@ -490,6 +514,76 @@ results.forEach(function(r){
   dots.addLayer(m);
   markers[r.name]={marker:m,lat:r.lat,lng:r.lng,fit:fit};
 });
+
+function apartmentConfidenceChip(level){
+  return '<span class="chip '+confidenceClass(level)+'">'+confidenceLabel(level)+'</span>';
+}
+function apartmentRentChip(status){
+  return '<span class="apt-status '+status+'">'+(status==="target"?"40x 기준 안":"스트레치")+'</span>';
+}
+function apartmentFeeLabel(item){return item.no_fee?"No fee":"수수료 확인"}
+function apartmentLaundryLabel(item){return item.laundry_confirmed?item.laundry:"세탁은 매물에서 확인"}
+function apartmentUpdatedText(data){
+  if(!data||!data.updated_at)return"";
+  return '<div class="apt-updated">마지막 갱신: '+data.updated_at+' · '+data.criteria.ranking_note+' '+data.criteria.fallback_note+'</div>';
+}
+function renderTopApartments(){
+  const body=document.getElementById("top-apartments-body");
+  if(!body)return;
+  if(!topApartmentData){
+    body.innerHTML='<div class="apt-empty">오늘의 실제 매물을 아직 불러오지 못했습니다. 잠시 후 다시 확인해 주세요.</div>';
+    return;
+  }
+  const items=topApartmentData.apartments||[];
+  if(!items.length){
+    body.innerHTML='<div class="apt-empty">현재 기준에 맞는 매물을 아직 충분히 찾지 못했습니다. 내일 자동 갱신에서 다시 확인합니다.</div>';
+    return;
+  }
+  const tableRows=items.map(function(item){
+    return '<tr>'+
+      '<td class="m" style="font-weight:700;color:#4A9D6E">'+item.rank+'</td>'+
+      '<td><div style="font-weight:700">'+item.address+'</div><div class="apt-summary">'+item.neighborhood+' · '+item.beds+'</div></td>'+
+      '<td class="m">$'+item.price.toLocaleString()+'</td>'+
+      '<td>'+apartmentRentChip(item.rent_status)+'</td>'+
+      '<td>'+apartmentLaundryLabel(item)+'</td>'+
+      '<td class="m">'+item.commute_minutes+'m</td>'+
+      '<td class="m">$'+item.effective_cost.toLocaleString()+'</td>'+
+      '<td>'+apartmentConfidenceChip(item.source_confidence)+'</td>'+
+      '<td><div class="apt-summary">'+item.summary+'</div></td>'+
+      '<td><div class="apt-actions"><a class="smallbtn" target="_blank" rel="noopener" href="'+item.listing_url+'">StreetEasy</a><a class="smallbtn" target="_blank" rel="noopener" href="'+item.search_url+'">검색</a></div></td>'+
+    '</tr>';
+  }).join('');
+  const mobileCards=items.map(function(item){
+    return '<div class="mobile-card">'+
+      '<div class="mobile-top"><div><div class="mobile-rank">#'+item.rank+'</div></div><div style="flex:1;min-width:0"><div class="mobile-name">'+item.address+'</div><div style="margin-top:4px">'+apartmentRentChip(item.rent_status)+' '+apartmentConfidenceChip(item.source_confidence)+'</div></div><div style="text-align:right"><div style="font-size:18px;font-weight:700;color:#141210">$'+item.price.toLocaleString()+'</div><div style="font-size:10px;color:#666">'+item.beds+'</div></div></div>'+
+      '<div class="mobile-meta">'+item.neighborhood+' · 출근 '+item.commute_minutes+'m · 실질비용 $'+item.effective_cost.toLocaleString()+'<br>'+item.summary+'</div>'+
+      '<div class="mobile-grid">'+
+        '<div class="mobile-pill"><b>세탁</b>'+apartmentLaundryLabel(item)+'</div>'+
+        '<div class="mobile-pill"><b>수수료</b>'+apartmentFeeLabel(item)+'</div>'+
+      '</div>'+
+      '<div class="mobile-actions"><a class="smallbtn" target="_blank" rel="noopener" href="'+item.listing_url+'">StreetEasy</a><a class="smallbtn" target="_blank" rel="noopener" href="'+item.search_url+'">검색</a></div>'+
+    '</div>';
+  }).join('');
+  body.innerHTML=
+    apartmentUpdatedText(topApartmentData)+
+    '<div class="apt-grid">'+
+      '<div class="apt-table-wrap"><table class="apt-table"><thead><tr><th>#</th><th>Apartment</th><th>Price</th><th>40x</th><th>Laundry</th><th>Commute</th><th>Effective</th><th>Confidence</th><th>Summary</th><th>Links</th></tr></thead><tbody>'+tableRows+'</tbody></table></div>'+
+      '<div class="apt-mobile">'+mobileCards+'</div>'+
+    '</div>';
+}
+async function loadTopApartments(){
+  const body=document.getElementById("top-apartments-body");
+  if(body)body.innerHTML='<div class="apt-loading">실제 매물을 불러오는 중입니다.</div>';
+  try{
+    const response=await fetch('data/top_apartments.json?ts='+Date.now(),{cache:'no-store'});
+    if(!response.ok)throw new Error('Failed to fetch apartment feed');
+    topApartmentData=await response.json();
+  }catch(err){
+    console.error(err);
+    topApartmentData=null;
+  }
+  renderTopApartments();
+}
 
 function renderOverview(){
   const shortlistRows=results.filter(passesFilters);
@@ -676,5 +770,5 @@ drag.addEventListener("touchstart",onDS,{passive:false});document.addEventListen
 
 const lg=L.control({position:"bottomright"});lg.onAdd=function(){const d=L.DomUtil.create("div","lg");d.innerHTML='<b>색칠 구역 = 강도 범죄 지수 (21개 관할)</b><div><span class="sq" style="background:#b8dfc8;border:1px solid #2C5F3F"></span>매우 낮음 <span class="sq" style="background:#c8e6cf;border:1px solid #4A9D6E"></span>낮음</div><div><span class="sq" style="background:#dae8c8;border:1px solid #6B8E23"></span>평균 이하 <span class="sq" style="background:#f5e6b8;border:1px solid #9C6A0C"></span>보통</div><div><span class="sq" style="background:#f5d6b0;border:1px solid #C96A00"></span>상승 <span class="sq" style="background:#f0c4c0;border:1px solid #A6271E"></span>높음</div><b>점 색상 = 종합 점수</b><div><span class="d" style="background:#2C5F3F"></span>65+ <span class="d" style="background:#4A9D6E"></span>55+ <span class="d" style="background:#9C6A0C"></span>45+</div><div><span class="d" style="background:#D4930D"></span>38+ <span class="d" style="background:#A6271E"></span>&lt;38</div>';return d};lg.addTo(map);
 
-window.addEventListener("load",function(){validateDataset();renderTable()});
+window.addEventListener("load",function(){validateDataset();renderTable();loadTopApartments()});
 </script></div></body></html>
