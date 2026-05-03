@@ -537,7 +537,6 @@ function apartmentLaundryLabel(item){
   if(item.laundry){
     if(item.laundry.indexOf("방 안")!==-1||item.laundry.indexOf("in unit")!==-1)return"방 안 세탁기 있음";
     if(item.laundry.indexOf("공용")!==-1||item.laundry.indexOf("building")!==-1)return"아파트 공용 세탁기 있음";
-    return item.laundry;
   }
   return"세탁기 있음 여부 확인";
 }
@@ -644,7 +643,7 @@ function renderOverview(){
   }).slice(0,3);
   const cards=buildCards(recommended,"recommended");
   const nearCards=buildCards(nearMisses,"near");
-  const checklist = mode==="apartment" ? '<div class="card"><div class="name">아파트 검색 체크리스트</div><div class="meta">- 인유닛 또는 건물 내 세탁 확인<br>- 집에서 직장까지 통근이 45분 이내<br>- 밤에 역까지 걷는 길이 안전하게 느껴지는지 확인<br>- Studio 월세가 $2,350 기준에 맞는지 확인<br>- 수수료, 보증인, 임대 조건 확인</div></div>' : '';
+  const checklist = mode==="apartment" ? '<div class="card"><div class="name">아파트 검색 체크리스트</div><div class="meta">- 방 안 세탁기 있음 또는 아파트 공용 세탁기 있음 확인<br>- 집에서 직장까지 통근이 45분 이내<br>- 밤에 역까지 걷는 길이 안전하게 느껴지는지 확인<br>- Studio 월세가 $2,350 기준에 맞는지 확인<br>- 수수료, 보증인, 임대 조건 확인</div></div>' : '';
   const panelTitle=mode==="apartment"?"아파트 검색 모드":"40x 기준 추천 동네";
   const recommendedHtml=cards||'<div class="card">세탁, 통근, 가격, 신뢰도 조건을 동시에 통과한 진짜 추천 후보가 아직 없습니다.</div>';
   const nearHtml=nearCards||'<div class="card">근접 후보도 현재 조건에서는 비어 있습니다.</div>';

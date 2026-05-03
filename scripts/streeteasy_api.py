@@ -104,10 +104,6 @@ def compact_text(text: str) -> str:
     return re.sub(r"\s+", " ", text).strip()
 
 
-def slug_for_neighborhood(name: str) -> str | None:
-    return STREETEASY_PATHS.get(name)
-
-
 def allowed_localities_for(slug: str) -> set[str]:
     return ALLOWED_LOCALITIES.get(slug, set())
 
@@ -150,67 +146,6 @@ def station_risk_level(hood: dict[str, Any]) -> str:
 
 def safe_station(hood: dict[str, Any]) -> bool:
     return station_risk_level(hood) != "high"
-
-
-def calc_price_score(rent: int) -> int:
-    if rent <= 2400:
-        return 100
-    if rent <= 2600:
-        return 80
-    if rent <= 2800:
-        return 55
-    if rent <= 3000:
-        return 30
-    if rent <= 3200:
-        return 10
-    return 0
-
-
-def calc_commute_score(mins: int) -> float:
-    penalty = max(0, mins - 18) * 2.35
-    rush_penalty = (mins - 45) * 2 if mins > 45 else 0
-    return max(0.0, min(100.0, 100.0 - penalty - rush_penalty))
-
-
-def calc_hood_safety_score(hood: dict[str, Any]) -> float:
-    return max(0.0, min(100.0, 100.0 - (float(hood.get("rob_rate") or 0) * 18) - (float(hood.get("burg_rate") or 0) * 6)))
-
-
-def calc_transit_safety_score(hood: dict[str, Any]) -> int:
-    risk = station_risk_level(hood)
-    if risk == "low":
-        return 85
-    if risk == "high":
-        return 20
-    return 60
-
-
-def calc_laundry_score(value: str) -> int:
-    if value == "Common":
-        return 100
-    if value == "Mixed":
-        return 60
-    return 10
-
-
-def calc_late_score(value: Any) -> int:
-    return max(0, min(100, int(value or 0)))
-
-
-def calc_building_score(value: Any) -> int:
-    return max(0, min(100, int(value or 0)))
-
-
-def derive_scores(hood: dict[str, Any]) -> dict[str, Any]:
-    return {
-        "price": calc_price_score(int(rent_basis(hood))),
-        "hood_safety": calc_hood_safety_score(hood),
-        "transit_safety": calc_transit_safety_score(hood),
-        "commute": calc_commute_score(int(hood.get("min") or 0)),
-        "laundry": calc_laundry_score(str(hood.get("ltxt") or "")),
-        "late": calc_late_score(hood.get("late")),
-        "bldg": calc_building_score(hood.get("bldg")),
-    }
 
 
 def rent_basis(hood: dict[str, Any]) -> int:
@@ -341,6 +276,8 @@ def recommendation_tier(hood: dict[str, Any]) -> int:
         return 3
     if reliable and fit == "Viable":
         return 4
+    if reliable and fit == "Watch":
+        return 5
     if fit == "Laundry Gate":
         return 7
     if fit == "Hard Avoid":
@@ -448,11 +385,12 @@ class StreetEasyAPI:
             cached_jina = self._read_cache(url, "jina")
             if cached_jina is not None:
                 return cached_jina
-            for delay in (0, 2, 5):
+            jina_timeout = max(6, min(timeout, 8))
+            for delay in (0, 1, 2):
                 if delay:
                     time.sleep(delay)
                 try:
-                    response = pyrequests.get(f"https://r.jina.ai/{url}", timeout=timeout)
+                    response = pyrequests.get(f"https://r.jina.ai/{url}", timeout=jina_timeout)
                     response.raise_for_status()
                     text = response.text or ""
                     if text:
@@ -514,13 +452,9 @@ class StreetEasyAPI:
 
     def _search_urls(self, slug: str, max_rent: int) -> list[str]:
         base = f"https://streeteasy.com/for-rent/{slug}"
-        urls = [f"{base}?beds={beds}&price=-{max_rent}" for beds in SEARCH_MODES]
+        urls = [f"{base}?beds={beds}&price=-{max_rent}&laundry_in_building=1" for beds in SEARCH_MODES]
         # Preserve ordering but avoid duplicate entries if a slug ever maps oddly.
         return list(dict.fromkeys(urls))
-
-    def _canonical_search_url(self, slug: str, beds: str, max_rent: int) -> str:
-        bed_code = "0" if beds == "Studio" else "1"
-        return f"https://streeteasy.com/for-rent/{slug}?beds={bed_code}&price=-{max_rent}"
 
     def neighborhood_priority_key(self, hood: dict[str, Any]) -> tuple[Any, ...]:
         fit = fit_info(hood)["status"]
@@ -661,7 +595,7 @@ class StreetEasyAPI:
             return []
 
         candidates: list[Candidate] = []
-        for max_rent in (self.stretch_rent,):
+        for max_rent in (self.target_rent, self.stretch_rent):
             for idx, search_url in enumerate(self._search_urls(slug, max_rent)):
                 try:
                     search_html = self.fetch_text(search_url)
@@ -680,6 +614,9 @@ class StreetEasyAPI:
                     seen = {candidate.listing_url for candidate in candidates}
                     if len(seen) >= min_candidates:
                         break
+            seen = {candidate.listing_url for candidate in candidates}
+            if len(seen) >= min_candidates:
+                break
 
         seen_urls: set[str] = set()
         unique: list[Candidate] = []
@@ -750,7 +687,6 @@ class StreetEasyAPI:
         confidence = (hood.get("data_confidence") or "medium").lower()
         fit_status = "target" if price <= self.target_rent else "stretch"
         laundry_text, laundry_kind = laundry_info
-        canonical_search_url = self._canonical_search_url(candidate.search_slug, candidate.beds, self.stretch_rent)
 
         summary_parts = [
             f"{candidate.beds} in {candidate.neighborhood}",
@@ -793,7 +729,7 @@ class StreetEasyAPI:
             "source_confidence": confidence,
             "summary": " · ".join(summary_parts),
             "listing_url": candidate.listing_url,
-            "search_url": canonical_search_url,
+            "search_url": candidate.search_url,
             "route_url": route_url,
             "available": candidate.available,
         }
@@ -888,19 +824,18 @@ class StreetEasyAPI:
         neighborhoods = [hood for hood in self.load_neighborhoods() if not is_hard_avoid_neighborhood(hood)]
         neighborhoods = sorted(neighborhoods, key=self.neighborhood_priority_key)
         by_name = {item["name"]: item for item in neighborhoods}
-        enriched: list[dict[str, Any]] = []
+        all_candidates: list[Candidate] = []
         for hood in neighborhoods:
-            candidates = self.fetch_search_candidates(hood)
-            if not candidates:
-                continue
-            with ThreadPoolExecutor(max_workers=self.max_workers) as pool:
-                futures = [pool.submit(self.enrich_candidate, candidate, by_name) for candidate in candidates]
-                for future in as_completed(futures):
-                    record = future.result()
-                    if record:
-                        enriched.append(record)
-            if len(enriched) >= self.output_count * 2:
+            all_candidates.extend(self.fetch_search_candidates(hood))
+            if len(all_candidates) >= self.output_count * 6:
                 break
+        enriched: list[dict[str, Any]] = []
+        with ThreadPoolExecutor(max_workers=self.max_workers) as pool:
+            futures = [pool.submit(self.enrich_candidate, candidate, by_name) for candidate in all_candidates]
+            for future in as_completed(futures):
+                record = future.result()
+                if record:
+                    enriched.append(record)
 
         return self.build_output(enriched)
 
