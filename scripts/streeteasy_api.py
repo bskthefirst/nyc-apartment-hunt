@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import argparse
+from collections import Counter
 import hashlib
 import json
 import re
@@ -98,6 +99,11 @@ class Candidate:
     beds: str
     price: int | None
     available: str
+    search_parse_source: str = "unknown"
+    price_source: str = "unknown"
+    address_source: str = "unknown"
+    availability_source: str = "unknown"
+    fallback_used: bool = False
 
 
 def compact_text(text: str) -> str:
@@ -457,6 +463,18 @@ class StreetEasyAPI:
         # Preserve ordering but avoid duplicate entries if a slug ever maps oddly.
         return list(dict.fromkeys(urls))
 
+    def _search_url_for_listing(self, search_slug: str, beds: str, price: int | None) -> str | None:
+        if not search_slug or not price:
+            return None
+        if beds == "Studio":
+            beds_code = "0"
+        elif beds == "1BR":
+            beds_code = "1"
+        else:
+            return None
+        cap = self.target_rent if price <= self.target_rent else self.stretch_rent
+        return f"https://streeteasy.com/for-rent/{search_slug}?beds={beds_code}&price=-{cap}"
+
     def neighborhood_priority_key(self, hood: dict[str, Any]) -> tuple[Any, ...]:
         fit = fit_info(hood)["status"]
         solo = solo_rent_status(hood)["status"]
@@ -530,6 +548,11 @@ class StreetEasyAPI:
                     beds="Studio" if beds == 0 else "1BR",
                     price=price,
                     available=events.get(url, {}).get("available", "check listing"),
+                    search_parse_source="html_jsonld",
+                    price_source="event_offer" if events.get(url, {}).get("price") else "jsonld_property",
+                    address_source="jsonld_address",
+                    availability_source="event_start_date" if events.get(url, {}).get("available") and events.get(url, {}).get("available") != "check listing" else "unknown",
+                    fallback_used=False,
                 )
             )
         return candidates
@@ -555,6 +578,11 @@ class StreetEasyAPI:
                     beds=current_beds,
                     price=current_price,
                     available="check listing",
+                    search_parse_source="jina_markdown",
+                    price_source="jina_text",
+                    address_source="jina_title",
+                    availability_source="unknown",
+                    fallback_used=True,
                 )
             )
 
@@ -633,38 +661,44 @@ class StreetEasyAPI:
             unique.append(candidate)
         return unique
 
-    def _fetch_detail_text(self, listing_url: str) -> str:
+    def _fetch_detail_text(self, listing_url: str) -> tuple[str, str]:
         html = ""
         try:
             html = self.fetch_text(listing_url, timeout=12)
         except Exception:
             html = ""
+        detail_source = "direct_html" if html else "missing"
         if html and BLOCKED_PAGE_RE.search(html):
             html = ""
+            detail_source = "missing"
         if not html:
             try:
                 html = self.fetch_text(listing_url, timeout=12, allow_jina=True)
+                detail_source = "jina_fallback" if html else "missing"
             except Exception:
                 html = ""
+                detail_source = "missing"
         if not html:
-            return ""
+            return "", detail_source
         try:
-            return compact_text(Selector(html).get_all_text())
+            return compact_text(Selector(html).get_all_text()), detail_source
         except Exception:
-            return compact_text(re.sub(r"<[^>]+>", " ", html))
+            return compact_text(re.sub(r"<[^>]+>", " ", html)), detail_source
 
     def enrich_candidate(self, candidate: Candidate, by_name: dict[str, dict[str, Any]]) -> dict[str, Any] | None:
-        text = self._fetch_detail_text(candidate.listing_url)
+        text, detail_parse_source = self._fetch_detail_text(candidate.listing_url)
         if text and EXCLUDE_RE.search(text):
             return None
 
         laundry_info = classify_laundry_text(text) if text else None
         no_fee = bool(NO_FEE_RE.search(text)) if text else False
         price = candidate.price
+        price_source = candidate.price_source
         if not price:
             price_match = PRICE_RE.search(text)
             if price_match:
                 price = int(price_match.group(1).replace(",", ""))
+                price_source = "detail_text"
         if not price or price > self.stretch_rent:
             return None
 
@@ -695,6 +729,28 @@ class StreetEasyAPI:
         else:
             laundry_text, laundry_kind = "세탁기 있음 여부 확인", "unknown"
             laundry_confirmed = False
+        final_search_url = self._search_url_for_listing(candidate.search_slug, candidate.beds, price) or candidate.search_url
+        availability_confirmed = candidate.available != "check listing"
+        neighborhood_confidence = normalize_confidence(confidence)
+        verification_notes: list[str] = []
+        if candidate.search_parse_source == "jina_markdown":
+            verification_notes.append("search fallback used")
+        if detail_parse_source == "jina_fallback":
+            verification_notes.append("detail fallback used")
+        if not laundry_confirmed:
+            verification_notes.append("laundry unconfirmed")
+        if not availability_confirmed:
+            verification_notes.append("availability unconfirmed")
+
+        if candidate.search_parse_source == "html_jsonld" and detail_parse_source == "direct_html" and laundry_confirmed:
+            listing_verification = "verified"
+            listing_confidence = "high"
+        elif candidate.search_parse_source == "jina_markdown" or detail_parse_source == "jina_fallback":
+            listing_verification = "fallback_parsed"
+            listing_confidence = "low" if not laundry_confirmed else "medium"
+        else:
+            listing_verification = "partially_verified"
+            listing_confidence = "medium" if laundry_confirmed else "low"
 
         summary_parts = [
             f"{candidate.beds} in {candidate.neighborhood}",
@@ -708,7 +764,8 @@ class StreetEasyAPI:
             + (12 if price <= self.target_rent else 5)
             + (4 if no_fee else 0)
             - max(0, commute - 45) * 2.5
-            - (10 if confidence == "low" else 0)
+            - (10 if neighborhood_confidence == "low" else 0)
+            - (8 if listing_confidence == "low" else 3 if listing_confidence == "high" else 0)
         )
 
         return {
@@ -734,23 +791,32 @@ class StreetEasyAPI:
             "tax_credit": tax_credit,
             "score": round(listing_score, 1),
             "neighborhood_score": float(hood.get("composite") or 0),
-            "source_confidence": confidence,
+            "listing_confidence": listing_confidence,
+            "listing_verification": listing_verification,
+            "neighborhood_confidence": neighborhood_confidence,
+            "search_parse_source": candidate.search_parse_source,
+            "detail_parse_source": detail_parse_source,
+            "price_source": price_source,
+            "availability_source": candidate.availability_source,
+            "availability_confirmed": availability_confirmed,
+            "fallback_used": bool(candidate.fallback_used or candidate.search_parse_source == "jina_markdown" or detail_parse_source == "jina_fallback"),
+            "verification_notes": verification_notes,
             "summary": " · ".join(summary_parts),
             "listing_url": candidate.listing_url,
-            "search_url": candidate.search_url,
+            "search_url": final_search_url,
             "route_url": route_url,
             "available": candidate.available,
         }
 
     @staticmethod
     def rank_key(item: dict[str, Any]) -> tuple[Any, ...]:
-        confidence_rank = {"high": 0, "medium": 1, "low": 2}.get(item["source_confidence"], 1)
+        confidence_rank = {"high": 0, "medium": 1, "low": 2}.get(item["listing_confidence"], 1)
         return (
-            int(item.get("neighborhood_tier") or 9),
             0 if item["laundry_confirmed"] else 1,
+            confidence_rank,
+            int(item.get("neighborhood_tier") or 9),
             0 if item["rent_status"] == "target" else 1,
             0 if item["commute_minutes"] <= 45 else 1,
-            confidence_rank,
             item["price"],
             item["commute_minutes"],
             -item["neighborhood_score"],
@@ -772,10 +838,34 @@ class StreetEasyAPI:
             unique.append(item)
         return unique
 
+    def select_diverse_top(self, items: list[dict[str, Any]], per_neighborhood_cap: int = 2) -> list[dict[str, Any]]:
+        ranked = self.unique_best(items)
+        selected: list[dict[str, Any]] = []
+        skipped: list[dict[str, Any]] = []
+        counts: Counter[str] = Counter()
+        for item in ranked:
+            neighborhood = str(item.get("neighborhood") or "Unknown")
+            if counts[neighborhood] < per_neighborhood_cap:
+                selected.append(item)
+                counts[neighborhood] += 1
+                if len(selected) >= self.output_count:
+                    return selected
+            else:
+                skipped.append(item)
+        for item in skipped:
+            selected.append(item)
+            if len(selected) >= self.output_count:
+                break
+        return selected
+
     def build_output(self, items: list[dict[str, Any]]) -> dict[str, Any]:
-        top = self.unique_best(items)[: self.output_count]
+        top = self.select_diverse_top(items)[: self.output_count]
         for idx, item in enumerate(top, start=1):
             item["rank"] = idx
+        verified_count = sum(1 for item in top if item.get("listing_verification") == "verified")
+        partial_count = sum(1 for item in top if item.get("listing_verification") == "partially_verified")
+        fallback_count = sum(1 for item in top if item.get("listing_verification") == "fallback_parsed")
+        laundry_confirmed_count = sum(1 for item in top if item.get("laundry_confirmed"))
         return {
             "updated_at": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC"),
             "criteria": {
@@ -783,13 +873,20 @@ class StreetEasyAPI:
                 "stretch_rent": self.stretch_rent,
                 "beds": ["Studio", "1BR"],
                 "ranking_note": (
-                    "세탁기 있음이 확인된 매물을 우선으로 두고, 세탁기 정보가 없는 차차순위 매물은 뒤로 보낸 뒤 "
-                    "웹사이트와 같은 동네 tier 순서로 40x 기준($2,350) 충족 여부, 통근 시간, 신뢰도를 함께 반영합니다."
+                    "세탁기 있음이 확인된 매물을 우선으로 두고, 세탁기 정보가 없는 차차순위 매물은 뒤로 보냅니다. "
+                    "또한 동네당 최대 2개까지 먼저 담고, 부족할 때만 같은 동네 매물을 더 채웁니다."
                 ),
                 "fallback_note": (
-                    "매일 공급이 적을 수 있어 세탁기 정보가 없는 차차순위 매물도 확인하지만, "
-                    "검증되지 않은 매물로 개수를 억지로 채우지는 않습니다."
+                    "매일 공급이 적을 수 있어 세탁기 정보가 없는 차차순위 매물과 폴백 파싱 결과도 포함될 수 있지만, "
+                    "직접 확인된 매물을 먼저 보여줍니다."
                 ),
+            },
+            "stats": {
+                "verified_count": verified_count,
+                "partial_count": partial_count,
+                "fallback_count": fallback_count,
+                "laundry_confirmed_count": laundry_confirmed_count,
+                "backup_count": len(top) - laundry_confirmed_count,
             },
             "apartments": top,
         }
@@ -833,9 +930,13 @@ class StreetEasyAPI:
         neighborhoods = sorted(neighborhoods, key=self.neighborhood_priority_key)
         by_name = {item["name"]: item for item in neighborhoods}
         all_candidates: list[Candidate] = []
+        seen_candidate_neighborhoods: set[str] = set()
         for hood in neighborhoods:
-            all_candidates.extend(self.fetch_search_candidates(hood, laundry_required=False))
-            if len(all_candidates) >= self.output_count * 6:
+            fresh = self.fetch_search_candidates(hood, laundry_required=False)
+            all_candidates.extend(fresh)
+            if fresh:
+                seen_candidate_neighborhoods.add(hood["name"])
+            if len(all_candidates) >= self.output_count * 8 and len(seen_candidate_neighborhoods) >= min(6, len(neighborhoods)):
                 break
         enriched: list[dict[str, Any]] = []
         with ThreadPoolExecutor(max_workers=self.max_workers) as pool:

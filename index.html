@@ -194,7 +194,7 @@ tr.c:first-child{animation:nudge 1.5s ease 1.5s 2}
 </tr></thead><tbody></tbody></table><div id="mobileList" class="mobile-list"></div></div>
 <div id="top-apartments" class="panel apt-panel">
   <h2>오늘의 실제 매물 Top 10</h2>
-<div class="panel-copy">매일 StreetEasy 기준으로 다시 찾아서 갱신합니다. 세탁기 있음이 확인된 매물을 우선 보여주고, 세탁기 정보가 없는 매물은 <strong>차차순위 매물</strong>로 뒤에 둡니다. Studio/1BR, 기본 목표 월세 <strong>$2,350</strong>, 필요하면 <strong>$2,800</strong>까지 확인합니다.</div>
+<div class="panel-copy">매일 StreetEasy 기준으로 후보 매물을 다시 찾습니다. 직접 확인된 매물을 먼저 보여주고, 세탁기 또는 상세 정보가 덜 확인된 항목은 <strong>차차순위 매물</strong>로 뒤에 둡니다. Studio/1BR, 기본 목표 월세 <strong>$2,350</strong>, 필요하면 <strong>$2,800</strong>까지 확인합니다.</div>
   <div id="top-apartments-body" class="apt-loading">실제 매물을 불러오는 중입니다.</div>
 </div>
 <div class="foot">
@@ -429,6 +429,9 @@ function confidenceLabel(level){
   const normalized=normalizeConfidence(level);
   return normalized==="high"?"확인됨":normalized==="low"?"추정":"부분 확인";
 }
+function apartmentVerificationLabel(status){
+  return status==="verified"?"직접 확인":status==="fallback_parsed"?"폴백 파싱":"부분 확인";
+}
 function fitLabel(status){return{Shortlist:"추천",Viable:"가능",Watch:"주의",Avoid:"제외","Laundry Gate":"세탁 미충족","Hard Avoid":"강력 제외"}[status]||status}
 function targetLabel(status){return{Target:"40x 통과",Stretch:"스트레치",Watch:"관찰","No 40x Solo":"초과","Laundry Gate":"세탁 미충족","Hard Avoid":"강력 제외"}[status]||status}
 function soloChipClass(status){return status==="Target"?"fit-shortlist":status==="Stretch"?"fit-viable":status==="Watch"?"fit-watch":status==="No 40x Solo"?"fit-avoid":status==="Laundry Gate"?"fit-laundry-gate":"fit-hard-avoid"}
@@ -517,8 +520,10 @@ results.forEach(function(r){
   markers[r.name]={marker:m,lat:r.lat,lng:r.lng,fit:fit};
 });
 
-function apartmentConfidenceChip(level){
-  return '<span class="chip '+confidenceClass(level)+'">'+confidenceLabel(level)+'</span>';
+function apartmentConfidenceChip(item){
+  const level=item.listing_confidence||item.source_confidence||"medium";
+  const verification=item.listing_verification||"partially_verified";
+  return '<span class="chip '+confidenceClass(level)+'">'+apartmentVerificationLabel(verification)+'</span>';
 }
 function apartmentRentChip(status,isLaundryConfirmed){
   if(status==="target"&&isLaundryConfirmed)return '<span class="apt-status '+status+'">최적의 매물</span>';
@@ -545,7 +550,13 @@ function apartmentLaundryLabel(item){
 function apartmentUpdatedText(data){
   if(!data||!data.updated_at)return"";
   const count=(data.apartments||[]).length;
-  return '<div class="apt-updated">마지막 갱신: '+data.updated_at+' · 검증 매물 '+count+'건 · '+data.criteria.ranking_note+' '+data.criteria.fallback_note+'</div>';
+  const stats=data.stats||{};
+  const verified=stats.verified_count??0;
+  const partial=stats.partial_count??0;
+  const fallback=stats.fallback_count??0;
+  const laundry=stats.laundry_confirmed_count??0;
+  const backup=stats.backup_count??Math.max(0,count-laundry);
+  return '<div class="apt-updated">마지막 갱신: '+data.updated_at+' · 총 '+count+'건 · 직접 확인 '+verified+'건 · 부분 확인 '+partial+'건 · 폴백 '+fallback+'건 · 세탁 확인 '+laundry+'건 · 차차순위 '+backup+'건 · '+data.criteria.ranking_note+' '+data.criteria.fallback_note+'</div>';
 }
 function renderTopApartments(){
   const body=document.getElementById("top-apartments-body");
@@ -568,14 +579,14 @@ function renderTopApartments(){
       '<td>'+apartmentLaundryLabel(item)+'</td>'+
       '<td class="m">'+item.commute_minutes+'m</td>'+
       '<td class="m">$'+item.effective_cost.toLocaleString()+'</td>'+
-      '<td>'+apartmentConfidenceChip(item.source_confidence)+'</td>'+
+      '<td>'+apartmentConfidenceChip(item)+'</td>'+
       '<td><div class="apt-summary">'+item.summary+'</div></td>'+
       '<td><div class="apt-actions"><a class="smallbtn" target="_blank" rel="noopener" href="'+item.listing_url+'">StreetEasy</a><a class="smallbtn" target="_blank" rel="noopener" href="'+apartmentRouteUrl(item)+'">경로</a></div></td>'+
     '</tr>';
   }).join('');
   const mobileCards=items.map(function(item){
     return '<div class="mobile-card">'+
-      '<div class="mobile-top"><div><div class="mobile-rank">#'+item.rank+'</div></div><div style="flex:1;min-width:0"><div class="mobile-name">'+item.address+'</div><div style="margin-top:4px">'+apartmentRentChip(item.rent_status,item.laundry_confirmed)+' '+apartmentConfidenceChip(item.source_confidence)+'</div></div><div style="text-align:right"><div style="font-size:18px;font-weight:700;color:#141210">$'+item.price.toLocaleString()+'</div><div style="font-size:10px;color:#666">'+item.beds+'</div></div></div>'+
+      '<div class="mobile-top"><div><div class="mobile-rank">#'+item.rank+'</div></div><div style="flex:1;min-width:0"><div class="mobile-name">'+item.address+'</div><div style="margin-top:4px">'+apartmentRentChip(item.rent_status,item.laundry_confirmed)+' '+apartmentConfidenceChip(item)+'</div></div><div style="text-align:right"><div style="font-size:18px;font-weight:700;color:#141210">$'+item.price.toLocaleString()+'</div><div style="font-size:10px;color:#666">'+item.beds+'</div></div></div>'+
       '<div class="mobile-meta">'+item.neighborhood+' · 출근 '+item.commute_minutes+'m · 실질비용 $'+item.effective_cost.toLocaleString()+'<br>'+item.summary+'</div>'+
       '<div class="mobile-grid">'+
         '<div class="mobile-pill"><b>세탁기</b>'+apartmentLaundryLabel(item)+'</div>'+
