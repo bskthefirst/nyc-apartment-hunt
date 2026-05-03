@@ -2,8 +2,8 @@
 from __future__ import annotations
 
 import json
-import math
 import re
+import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass
 from datetime import datetime, timezone
@@ -12,6 +12,7 @@ from typing import Any
 from urllib.parse import quote_plus
 
 from curl_cffi import requests as cf
+import requests as pyrequests
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -37,6 +38,10 @@ LAUNDRY_RE = re.compile(
 EXCLUDE_RE = re.compile(r"(?i)room for rent|shared apartment|co-?living|sublet")
 NO_FEE_RE = re.compile(r"(?i)no.?fee")
 PRICE_RE = re.compile(r"\$([\d,]+)\s*/mo")
+BLOCKED_PAGE_RE = re.compile(
+    r"(?i)access to this page has been denied|please enable javascript|verify you are human|captcha"
+)
+HARD_AVOID_NEIGHBORHOODS = {"Washington Heights"}
 
 STREETEASY_PATHS = {
     "Astoria": "astoria",
@@ -107,6 +112,22 @@ def get(url: str, timeout: int = 18) -> str:
     raise RuntimeError(f"Unable to fetch {url}")
 
 
+def jina_get(url: str, timeout: int = 30) -> str:
+    last_error: Exception | None = None
+    for delay in (0, 2, 5):
+        if delay:
+            time.sleep(delay)
+        try:
+            response = pyrequests.get(f"https://r.jina.ai/{url}", timeout=timeout)
+            response.raise_for_status()
+            return response.text
+        except Exception as exc:  # pragma: no cover - network fallback
+            last_error = exc
+    if last_error:
+        raise last_error
+    raise RuntimeError(f"Unable to fetch {url} via Jina")
+
+
 def load_neighborhoods() -> list[dict[str, Any]]:
     html = INDEX_HTML.read_text()
     prefix = "const results = "
@@ -165,7 +186,10 @@ def fetch_search_candidates(neighborhood: dict[str, Any]) -> list[Candidate]:
     try:
         graph = listing_graph(get(search_url))
     except Exception:
-        return []
+        try:
+            return fetch_search_candidates_from_jina(neighborhood, search_url)
+        except Exception:
+            return []
     events: dict[str, dict[str, Any]] = {}
     for item in graph:
         if item.get("@type") != "Event":
@@ -216,7 +240,70 @@ def fetch_search_candidates(neighborhood: dict[str, Any]) -> list[Candidate]:
                 available=events.get(url, {}).get("available", "check listing"),
             )
         )
-    return candidates
+    if candidates:
+        return candidates
+
+    try:
+        return fetch_search_candidates_from_jina(neighborhood, search_url)
+    except Exception:
+        return []
+
+
+def fetch_search_candidates_from_jina(neighborhood: dict[str, Any], search_url: str) -> list[Candidate]:
+    markdown = jina_get(search_url)
+    lines = [line.rstrip() for line in markdown.splitlines()]
+    records: list[Candidate] = []
+    current_price: int | None = None
+    current_beds: str | None = None
+
+    def add_candidate(title: str, url: str) -> None:
+        if not current_price or not current_beds:
+            return
+        records.append(
+            Candidate(
+                neighborhood=neighborhood["name"],
+                search_slug=STREETEASY_PATHS.get(neighborhood["name"], ""),
+                search_url=search_url,
+                listing_url=url,
+                address=title,
+                locality=neighborhood["name"],
+                beds=current_beds,
+                price=current_price,
+                available="check listing",
+            )
+        )
+
+    for raw_line in lines:
+        line = raw_line.strip()
+        price_match = re.match(r"^\$([\d,]+)\s*$", line)
+        if price_match and current_price is None:
+            current_price = int(price_match.group(1).replace(",", ""))
+            continue
+        if current_beds is None:
+            if re.search(r"(?i)^\*\s+studio\s*$", line):
+                current_beds = "Studio"
+                continue
+            if re.search(r"(?i)^\*\s+1 bed\s*$", line):
+                current_beds = "1BR"
+                continue
+        match = re.search(
+            r"\[!\[Image \d+: ([^\]]+?) image 1 of \d+\]\([^)]+\)\]\((https://streeteasy\.com/building/[^)]+)\)",
+            line,
+        )
+        if match:
+            add_candidate(match.group(1).strip(), match.group(2))
+            current_price = None
+            current_beds = None
+
+    seen: set[str] = set()
+    unique: list[Candidate] = []
+    for rec in records:
+        if rec.listing_url in seen:
+            continue
+        seen.add(rec.listing_url)
+        if rec.price and rec.price <= STRETCH_RENT:
+            unique.append(rec)
+    return unique
 
 
 def compact_text(html: str) -> str:
@@ -229,8 +316,18 @@ def enrich_candidate(candidate: Candidate, by_name: dict[str, dict[str, Any]]) -
     except Exception:
         html = ""
     text = compact_text(html)
+    if text and BLOCKED_PAGE_RE.search(text):
+        text = ""
     if text and EXCLUDE_RE.search(text):
         return None
+
+    if not text:
+        try:
+            text = compact_text(jina_get(candidate.listing_url))
+        except Exception:
+            text = ""
+    if text and BLOCKED_PAGE_RE.search(text):
+        text = ""
 
     laundry_match = LAUNDRY_RE.search(text) if text else None
     no_fee = bool(NO_FEE_RE.search(text)) if text else False
@@ -243,6 +340,13 @@ def enrich_candidate(candidate: Candidate, by_name: dict[str, dict[str, Any]]) -
         return None
 
     hood = by_name[candidate.neighborhood]
+    hood_note = str(hood.get("note") or "")
+    station_safety = str(hood.get("station_safety") or "")
+    if candidate.neighborhood in HARD_AVOID_NEIGHBORHOODS:
+        return None
+    if "강력 제외" in hood_note or "Hard Avoid" in hood_note or "강력 제외" in station_safety:
+        return None
+
     commute = int(hood["min"])
     transit_cost = int(hood.get("transit_cost") or 0)
     tax_credit = 246 if hood.get("tax") == "NJ" else 0
@@ -258,6 +362,8 @@ def enrich_candidate(candidate: Candidate, by_name: dict[str, dict[str, Any]]) -
     confidence = (hood.get("data_confidence") or "medium").lower()
     fit_status = "target" if price <= TARGET_RENT else "stretch"
     laundry_text = laundry_match.group(1) if laundry_match else "verify on listing"
+    if not laundry_match:
+        return None
 
     summary_parts = [
         f"{candidate.beds} in {candidate.neighborhood}",
@@ -291,7 +397,6 @@ def enrich_candidate(candidate: Candidate, by_name: dict[str, dict[str, Any]]) -
         "tax_credit": tax_credit,
         "score": round(listing_score, 1),
         "neighborhood_score": float(hood.get("composite") or 0),
-        "fit_status": hood.get("data_confidence", "medium"),
         "source_confidence": confidence,
         "summary": " · ".join(summary_parts),
         "listing_url": candidate.listing_url,
@@ -342,11 +447,12 @@ def build_output(items: list[dict[str, Any]]) -> dict[str, Any]:
             "stretch_rent": STRETCH_RENT,
             "beds": ["Studio", "1BR"],
             "ranking_note": (
-                "세탁 확인된 매물을 우선하고, 그다음 40x 기준($2,350) 충족 여부와 "
-                "통근 시간, 동네 점수를 함께 반영합니다."
+                "세탁이 확인된 매물만 남기고 강력 제외 동네를 배제한 뒤, "
+                "40x 기준($2,350) 충족 여부와 통근 시간, 동네 점수를 함께 반영합니다."
             ),
             "fallback_note": (
-                "매일 공급이 적을 수 있어 $2,600까지의 스트레치 매물도 포함합니다."
+                "매일 공급이 적을 수 있어 $2,600까지의 스트레치 매물도 확인하지만, "
+                "검증되지 않은 매물로 5개를 억지로 채우지는 않습니다."
             ),
         },
         "apartments": top,
@@ -369,6 +475,9 @@ def main() -> None:
                 enriched.append(record)
 
     payload = build_output(enriched)
+    if not payload["apartments"]:
+        print("No verified apartments found; leaving existing feed untouched")
+        return
     OUTPUT_JSON.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n")
     print(f"Wrote {len(payload['apartments'])} apartments to {OUTPUT_JSON}")
 

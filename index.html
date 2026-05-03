@@ -531,7 +531,8 @@ function apartmentFeeLabel(item){return item.no_fee?"No fee":"수수료 확인"}
 function apartmentLaundryLabel(item){return item.laundry_confirmed?item.laundry:"세탁은 매물에서 확인"}
 function apartmentUpdatedText(data){
   if(!data||!data.updated_at)return"";
-  return '<div class="apt-updated">마지막 갱신: '+data.updated_at+' · '+data.criteria.ranking_note+' '+data.criteria.fallback_note+'</div>';
+  const count=(data.apartments||[]).length;
+  return '<div class="apt-updated">마지막 갱신: '+data.updated_at+' · 검증 매물 '+count+'건 · '+data.criteria.ranking_note+' '+data.criteria.fallback_note+'</div>';
 }
 function renderTopApartments(){
   const body=document.getElementById("top-apartments-body");
