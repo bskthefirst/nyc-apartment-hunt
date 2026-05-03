@@ -120,37 +120,39 @@ tr.c:first-child{animation:nudge 1.5s ease 1.5s 2}
 }
 @media(max-width:640px){
   body{overflow:auto}
-  .controls{position:sticky;top:0;background:rgba(245,240,227,0.97);backdrop-filter:blur(8px);padding:8px 0 6px;margin-bottom:8px;border-bottom:1px solid #DED4B8}
+  .controls{position:sticky;top:0;background:rgba(245,240,227,0.97);backdrop-filter:blur(8px);padding:6px 0 4px;margin-bottom:6px;border-bottom:1px solid #DED4B8}
   .tw{border:0;overflow:visible}
   table{display:none}
-  .filters,.modebar{flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;padding-bottom:4px;scrollbar-width:none;-ms-overflow-style:none}
+  .filters,.modebar{flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;padding-bottom:4px;scrollbar-width:none;-ms-overflow-style:none;scroll-snap-type:x proximity}
   .filters::-webkit-scrollbar,.modebar::-webkit-scrollbar{display:none}
-  .filters span,.modebar .label,.pill{flex:0 0 auto}
+  .filters span,.modebar .label,.pill{flex:0 0 auto;scroll-snap-align:start}
   .panel{padding:10px}
-  .panel-copy{font-size:10px}
+  .panel-copy{font-size:10px;line-height:1.45}
   .card{padding:10px}
+  .card .meta,.card .reason{font-size:9px;line-height:1.35}
   .apt-table-wrap{display:none}
   .apt-mobile{display:grid;gap:8px}
   .mobile-list{display:grid;gap:8px}
-  .mobile-card{border:1px solid #DED4B8;border-radius:8px;background:#FDFBF4;padding:10px 12px}
+  .mobile-card{border:1px solid #DED4B8;border-radius:8px;background:#FDFBF4;padding:10px}
   .mobile-top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
   .mobile-name{font-size:15px;font-weight:700;line-height:1.2}
   .mobile-rank{font-size:13px;font-weight:700;color:#4A9D6E;min-width:20px}
   .mobile-meta{margin-top:6px;font-size:11px;line-height:1.45;color:#666}
-  .mobile-grid{display:grid;grid-template-columns:1fr;gap:6px;margin-top:8px}
-  .mobile-pill{display:block;border:1px solid #E5DCC0;border-radius:6px;padding:6px 8px;background:#fff;font-size:11px;line-height:1.35}
+  .mobile-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;margin-top:8px}
+  .mobile-pill{display:block;border:1px solid #E5DCC0;border-radius:6px;padding:6px 8px;background:#fff;font-size:10px;line-height:1.3}
   .mobile-pill b{display:block;font-size:9px;color:#8C836F;margin-bottom:2px;text-transform:uppercase;letter-spacing:0.04em}
   .mobile-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;margin-top:8px}
   .mobile-actions .smallbtn{padding:8px 10px;font-size:11px;text-align:center}
 }
 @media(max-width:430px){
-  #map{height:31vh}
+  #map{height:27vh}
   h1{font-size:15px}
   .sub,.fc{font-size:11px}
   .tip{font-size:11px;line-height:1.45}
   .pill{padding:7px 10px;font-size:11px}
   .mobile-top{gap:8px}
   .mobile-name{font-size:14px}
+  .mobile-grid{grid-template-columns:1fr}
 }
 @media(max-width:480px){.foot{grid-template-columns:1fr;gap:8px}}
 </style></head><body>
@@ -192,7 +194,7 @@ tr.c:first-child{animation:nudge 1.5s ease 1.5s 2}
 </tr></thead><tbody></tbody></table><div id="mobileList" class="mobile-list"></div></div>
 <div id="top-apartments" class="panel apt-panel">
   <h2>오늘의 실제 매물 Top 5</h2>
-  <div class="panel-copy">매일 StreetEasy 기준으로 다시 찾아서 갱신합니다. Studio/1BR, 기본 목표 월세 <strong>$2,350</strong>, 필요하면 <strong>$2,600</strong> 스트레치까지 포함합니다.</div>
+<div class="panel-copy">매일 StreetEasy 기준으로 다시 찾아서 갱신합니다. Studio/1BR, 기본 목표 월세 <strong>$2,350</strong>, 필요하면 <strong>$2,800</strong> 차순위 매물까지 확인합니다.</div>
   <div id="top-apartments-body" class="apt-loading">실제 매물을 불러오는 중입니다.</div>
 </div>
 <div class="foot">
@@ -519,7 +521,7 @@ function apartmentConfidenceChip(level){
   return '<span class="chip '+confidenceClass(level)+'">'+confidenceLabel(level)+'</span>';
 }
 function apartmentRentChip(status){
-  return '<span class="apt-status '+status+'">'+(status==="target"?"40x 기준 안":"스트레치")+'</span>';
+  return '<span class="apt-status '+status+'">'+(status==="target"?"최적의 매물":"차순위 매물")+'</span>';
 }
 function apartmentRouteUrl(item){
   if(item.route_url)return item.route_url;

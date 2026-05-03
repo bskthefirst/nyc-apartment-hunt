@@ -21,7 +21,7 @@ jobs:
           python-version: "3.11"
 
       - name: Install scraper dependency
-        run: python -m pip install --upgrade pip curl_cffi requests
+        run: python -m pip install --upgrade pip curl_cffi requests scrapling
 
       - name: Refresh top apartment feed
         run: python scripts/update_top_apartments.py
