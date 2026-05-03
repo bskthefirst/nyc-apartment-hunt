@@ -362,11 +362,11 @@ function soloRentLabel(r){
 }
 function soloRentStatus(r){
   const f=soloRentFit(r), eff=effectiveCost(r), laundry=laundryPass(r), commute=r.min<=45, safeNight=safeStation(r);
-  if(hardAvoid(r))return{status:"Hard Avoid",reason:"강력 제외: 168th St A 역 사건의 영향이 큽니다"};
-  if(!laundry)return{status:"Laundry Gate",reason:"세탁 미충족: 세탁 옵션이 거의 없습니다"};
+  if(hardAvoid(r))return{status:"Hard Avoid",reason:"강력 제외: 168th St A 역 관련 위험이 여전히 큽니다"};
+  if(!laundry)return{status:"Laundry Gate",reason:"세탁 미충족: 건물 내 세탁 선택지가 거의 없습니다"};
   if((f.studio||f.onebr)&&commute&&safeNight&&r.composite>=48)return{status:"Target",reason:f.studio&&f.onebr?"스튜디오와 1BR 모두 $2,350 이내입니다":f.studio?"스튜디오가 $2,350 이내입니다":"1BR이 $2,350 이내입니다"};
-  if((f.studioStretch||f.onebrStretch)&&commute&&safeNight&&eff<=2900)return{status:"Stretch",reason:"실질비용과 통근이 괜찮은 스트레치 후보입니다"};
-  if(f.studio||f.onebr)return{status:"Watch",reason:"월세는 맞지만 통근 또는 역 주변 체감 안전이 덜 안정적입니다"};
+  if((f.studioStretch||f.onebrStretch)&&commute&&safeNight&&eff<=2900)return{status:"Stretch",reason:"예산은 조금 넘지만 통근과 전체 조건은 아직 괜찮습니다"};
+  if(f.studio||f.onebr)return{status:"Watch",reason:"월세는 맞지만 통근이나 역 주변 체감 안전이 아쉽습니다"};
   return{status:"No 40x Solo",reason:"Studio와 1BR 모두 $2,350을 넘습니다"};
 }
 function targetRank(status){return{Target:0,Stretch:1,Watch:2,"No 40x Solo":3,"Laundry Gate":4,"Hard Avoid":5}[status]??9}
@@ -375,12 +375,12 @@ function riskLabel(v){return{ "Very Low":"매우 낮음","Low":"낮음","Moderat
 function stationSafetyLabel(v){return{ "N/A":"해당 없음","Very Low":"매우 낮음","Low":"낮음","Moderate":"보통","Elevated":"높음","High":"매우 높음"}[v]||v}
 function fitInfo(r){
   const eff=effectiveCost(r), laundry=laundryPass(r), commute=r.min<=45, safeNight=safeStation(r);
-  if(hardAvoid(r))return{status:"Hard Avoid",reason:"강력 제외: 168th St A 역 사건의 영향이 큽니다"};
-  if(!laundry)return{status:"Laundry Gate",reason:"세탁 미충족: 세탁 옵션이 거의 없습니다"};
-  if(eff<=2900&&commute&&safeNight&&r.composite>=48)return{status:"Shortlist",reason:"실질비용과 통근, 역 주변 체감 안전의 균형이 좋습니다"};
-  if(eff<=3200&&r.min<=52)return{status:"Viable",reason:"비용과 통근 기준을 대체로 충족하고 세탁도 괜찮습니다"};
-  if(eff<=3450&&r.min<=60)return{status:"Watch",reason:"통근은 괜찮지만 선호하는 실질비용보다 조금 높습니다"};
-  return{status:"Avoid",reason:"너무 비싸거나 핵심 조건이 약합니다"};
+  if(hardAvoid(r))return{status:"Hard Avoid",reason:"강력 제외: 168th St A 역 관련 위험이 여전히 큽니다"};
+  if(!laundry)return{status:"Laundry Gate",reason:"세탁 미충족: 건물 내 세탁 선택지가 거의 없습니다"};
+  if(eff<=2900&&commute&&safeNight&&r.composite>=48)return{status:"Shortlist",reason:"실질비용, 통근, 역 주변 체감 안전의 균형이 좋습니다"};
+  if(eff<=3200&&r.min<=52)return{status:"Viable",reason:"비용과 통근은 대체로 괜찮고 세탁 조건도 무난합니다"};
+  if(eff<=3450&&r.min<=60)return{status:"Watch",reason:"검토는 가능하지만 실질비용이나 통근이 조금 아쉽습니다"};
+  return{status:"Avoid",reason:"가격이나 핵심 조건이 기준에 많이 못 미칩니다"};
 }
 function confidence(r){
   const level=normalizeConfidence(r.data_confidence);
@@ -427,14 +427,14 @@ function reasonList(r,fit){
   const reasons=[fit.reason];
   const eff=effectiveCost(r);
   const soloFit=soloRentFit(r);
-  if(r.tax==="NJ")reasons.push("NJ 세금 절감으로 실질 월비용이 $"+eff.toLocaleString()+"입니다");
-  else if(eff>2900)reasons.push("교통비 포함 실질비용이 $"+eff.toLocaleString()+"입니다");
-  if(soloFit.studio||soloFit.onebr)reasons.push("Studio / 1BR 중 하나가 $2,350 이내입니다");
-  else reasons.push("Studio / 1BR 모두 $2,350을 넘습니다");
-  if(r.ltxt==="Rare")reasons.push("세탁 옵션이 드뭅니다");
-  if(r.min<=35)reasons.push("통근이 45분보다 여유롭게 짧습니다");
-  if(!safeStation(r))reasons.push("역 주변이 다소 불안한 편입니다");
-  if(normalizeConfidence(r.data_confidence)==="low")reasons.push("월세 데이터는 추정치에 가깝습니다");
+  if(r.tax==="NJ")reasons.push("NJ 세금 절감까지 반영한 실질 월비용이 $"+eff.toLocaleString()+"입니다");
+  else if(eff>2900)reasons.push("교통비를 포함한 실질 월비용이 $"+eff.toLocaleString()+"입니다");
+  if(soloFit.studio||soloFit.onebr)reasons.push("Studio나 1BR 중 최소 하나는 $2,350 안에 들어옵니다");
+  else reasons.push("Studio와 1BR 모두 $2,350을 넘습니다");
+  if(r.ltxt==="Rare")reasons.push("건물 내 세탁 선택지가 드문 편입니다");
+  if(r.min<=35)reasons.push("출근 통근이 45분보다 여유 있게 짧습니다");
+  if(!safeStation(r))reasons.push("역 주변 체감 안전이 조금 불안한 편입니다");
+  if(normalizeConfidence(r.data_confidence)==="low")reasons.push("월세 수치는 아직 추정치에 가깝습니다");
   return reasons.slice(0,3);
 }
 function rankOrder(status){return{Shortlist:0,Viable:1,Watch:2,Avoid:3,"Laundry Gate":4,"Hard Avoid":5}[status]??9}
