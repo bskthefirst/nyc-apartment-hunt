@@ -88,6 +88,7 @@ tr.dim{opacity:0.2;pointer-events:none}
 .smallbtn:hover{background:#141210;color:#F5F0E3;border-color:#141210}
 .modebar{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:8px}
 .modebar .label{font-size:10px;color:#8C836F}
+.controls{position:relative;z-index:30}
 @keyframes nudge{0%,100%{background:transparent}50%{background:#EDE6D3}}
 tr.c:first-child{animation:nudge 1.5s ease 1.5s 2}
 @media(max-width:768px){
@@ -103,6 +104,7 @@ tr.c:first-child{animation:nudge 1.5s ease 1.5s 2}
 }
 @media(max-width:640px){
   body{overflow:auto}
+  .controls{position:sticky;top:0;background:rgba(245,240,227,0.97);backdrop-filter:blur(8px);padding:8px 0 6px;margin-bottom:8px;border-bottom:1px solid #DED4B8}
   .tw{border:0;overflow:visible}
   table{display:none}
   .filters,.modebar{flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;padding-bottom:4px;scrollbar-width:none;-ms-overflow-style:none}
@@ -143,6 +145,7 @@ tr.c:first-child{animation:nudge 1.5s ease 1.5s 2}
 0.28 가격 + 0.20 동네 안전 + 0.10 대중교통 안전 + 0.25 통근 + 0.08 세탁 + 0.06 심야 이동 + 0.03 건물</div></details></div>
 <div class="tip" id="tip"><span>행을 클릭하면 해당 동네로 이동합니다. 열 제목을 클릭하면 정렬됩니다. 기본 정렬은 종합 점수 내림차순입니다. Studio가 가능하다는 전제로 $2,350 solo 옵션을 중심으로 다시 정리했습니다. 1BR은 참고용입니다. 2026년 5월 갱신: StreetEasy 월세, NYPD CompStat(4월 26일까지), 그리고 아침 출근 7:00 / 저녁 퇴근 11:00 Google Routes API 통근 점검.</span><span class="x" onclick="document.getElementById('tip').style.display='none'">✕</span></div>
 <div id="overview" class="panel"></div>
+<div class="controls">
 <div class="modebar"><span class="label">모드:</span>
 <button class="pill on" id="mode-neighborhood" onclick="setMode('neighborhood')">동네</button>
 <button class="pill" id="mode-apartment" onclick="setMode('apartment')">아파트</button>
@@ -161,7 +164,7 @@ tr.c:first-child{animation:nudge 1.5s ease 1.5s 2}
 <button class="pill" data-f="eff2900" onclick="tf('eff2900')">실질비용 ≤ $2,900</button>
 <button class="pill" data-f="hideAvoid" onclick="tf('hideAvoid')">강력 제외 숨기기</button>
 <button class="pill" data-f="shortlistOnly" onclick="tf('shortlistOnly')">40x 추천만</button>
-</div><div class="fc" id="fc"></div>
+</div></div><div class="fc" id="fc"></div>
 <div class="tw"><table id="tbl"><thead><tr>
 <th onclick="st(0)" data-tip="순위 번호입니다.">#</th><th onclick="st(1)" data-tip="동네 이름입니다.">동네</th><th onclick="st(2)" data-tip="당신의 조건에 얼마나 잘 맞는지 보여줍니다.">적합도</th><th onclick="st(3)" data-tip="가중치로 계산한 전체 점수입니다.">종합 점수 ▼</th>
 <th onclick="st(4)" data-tip="Studio 기준 StreetEasy 가격입니다. 1BR은 40x 칸에서 참고로 보여줍니다.">Studio 기준</th><th onclick="st(5)" data-tip="40x 기준 월세 $2,350 대비 스튜디오/1BR 가능 여부를 보여줍니다.">40x</th><th onclick="st(6)" data-tip="Studio 기준 월세에 교통비를 더하고 NJ는 세금 절감분을 뺀 실질 부담액입니다.">실제 부담액</th><th onclick="st(7)" data-tip="1 Manhattan West까지 아침 7시 기준 예상 통근 시간입니다.">아침 출근</th><th onclick="st(8)" data-tip="1 Manhattan West까지 밤 11시 기준 예상 통근 시간입니다.">저녁 퇴근</th>
@@ -390,6 +393,11 @@ function confidence(r){
     laundry:laundryPass(r)?"보통":"높음"
   };
 }
+function rentSourceLabel(r){
+  const level=normalizeConfidence(r.data_confidence);
+  return level==="high"?"StreetEasy 최신 확인":level==="medium"?"StreetEasy 표본 확인":"StreetEasy 추정치";
+}
+function crimeSourceLabel(r){return r.tax==="NJ"?"NJSP 연간 공개치":"NYPD CompStat YTD"}
 function fitClass(status){return"fit-"+status.toLowerCase().replace(/[^a-z0-9]+/g,"-")}
 function confidenceClass(level){return"conf-"+normalizeConfidence(level)}
 function confidenceLabel(level){
@@ -399,6 +407,22 @@ function confidenceLabel(level){
 function fitLabel(status){return{Shortlist:"추천",Viable:"가능",Watch:"주의",Avoid:"제외","Laundry Gate":"세탁 미충족","Hard Avoid":"강력 제외"}[status]||status}
 function targetLabel(status){return{Target:"40x 통과",Stretch:"스트레치",Watch:"관찰","No 40x Solo":"초과","Laundry Gate":"세탁 미충족","Hard Avoid":"강력 제외"}[status]||status}
 function soloChipClass(status){return status==="Target"?"fit-shortlist":status==="Stretch"?"fit-viable":status==="Watch"?"fit-watch":status==="No 40x Solo"?"fit-avoid":status==="Laundry Gate"?"fit-laundry-gate":"fit-hard-avoid"}
+function recommendationTier(r){
+  const fit=fitInfo(r).status, solo=soloRentStatus(r).status, reliable=normalizeConfidence(r.data_confidence)!=="low";
+  if(reliable&&fit==="Shortlist"&&solo==="Target")return 0;
+  if(reliable&&fit==="Viable"&&(solo==="Target"||solo==="Stretch"))return 1;
+  if(reliable&&fit==="Shortlist"&&solo==="Stretch")return 2;
+  if(reliable&&fit==="Watch"&&(solo==="Target"||solo==="Stretch"))return 3;
+  if(reliable&&fit==="Viable")return 4;
+  if(fit==="Laundry Gate")return 7;
+  if(fit==="Hard Avoid")return 9;
+  return 6;
+}
+function recommendationLabel(tier){
+  if(tier<=1)return"우선 검토";
+  if(tier<=3)return"다음 후보";
+  return"조건 재검토";
+}
 function reasonList(r,fit){
   const reasons=[fit.reason];
   const eff=effectiveCost(r);
@@ -450,6 +474,7 @@ function popupHtml(r){
     '<div style="margin-top:4px;font-size:10px;color:#555">가격: '+Math.round(r.scores.price)+' | 안전: '+Math.round(r.scores.hood_safety)+' | 교통 안전: '+Math.round(r.scores.transit_safety)+' | 통근: '+Math.round(r.scores.commute)+' | 세탁: '+Math.round(r.scores.laundry)+' | 저녁 퇴근: '+Math.round(r.scores.late)+' | 건물: '+Math.round(r.scores.bldg)+'</div></details>'+
     '<details style="border-top:1px solid #eee;padding-top:4px;margin-top:4px"><summary style="font-size:10px;color:#8C836F;cursor:pointer">신뢰도 + 링크</summary>'+
     '<div style="margin-top:4px;font-size:10px;color:#555">월세: '+conf.rent+' · 범죄: '+conf.crime+' · 통근: '+conf.commute+' · 교통: '+conf.transit+' · 세탁: '+conf.laundry+'</div>'+
+    '<div style="margin-top:4px;font-size:10px;color:#666">월세 출처: '+rentSourceLabel(r)+' · 범죄 출처: '+crimeSourceLabel(r)+'</div>'+
     (r.data_note?'<div style="margin-top:4px;font-size:10px;color:#666">'+r.data_note+'</div>':'')+
     '<div style="margin-top:6px;display:flex;gap:6px;flex-wrap:wrap">'+
       '<a class="smallbtn" target="_blank" rel="noopener" href="'+streetEasyUrl(r)+'">1BR 참고 검색</a>'+
@@ -470,14 +495,11 @@ function renderOverview(){
   const shortlistRows=results.filter(passesFilters);
   const rankRows=function(rows){
     return rows.slice().sort(function(a,b){
-      const fa=fitInfo(a).status, fb=fitInfo(b).status;
-      const fp=fa==="Shortlist"?0:fa==="Viable"?1:fa==="Watch"?2:fa==="Avoid"?3:fa==="Laundry Gate"?4:5;
-      const fbp=fb==="Shortlist"?0:fb==="Viable"?1:fb==="Watch"?2:fb==="Avoid"?3:fb==="Laundry Gate"?4:5;
-      if(fp!==fbp)return fp-fbp;
-      const ra=soloRentStatus(a).status, rb=soloRentStatus(b).status;
-      const pa=ra==="Target"?0:ra==="Stretch"?1:2;
-      const pb=rb==="Target"?0:rb==="Stretch"?1:2;
+      const pa=recommendationTier(a), pb=recommendationTier(b);
       if(pa!==pb)return pa-pb;
+      if(a.min!==b.min&&pa<=3)return a.min-b.min;
+      const ea=effectiveCost(a), eb=effectiveCost(b);
+      if(ea!==eb&&pa<=2)return ea-eb;
       return b.composite-a.composite;
     });
   };
@@ -489,10 +511,11 @@ function renderOverview(){
     const nameClick='onclick="focusNeighborhood('+nameArg+');return false;" style="cursor:pointer"';
     const soloChip=(fit.status===solo.status)?'':' <span class="chip '+(solo.status==="Target"?"shortlist":"watch")+'">'+targetLabel(solo.status)+'</span>';
     const reasonLead=kind==="recommended"?"통과 이유":"근접 사유";
+    const tierChip='<span class="chip '+(kind==="recommended"?"shortlist":"watch")+'">'+recommendationLabel(recommendationTier(r))+'</span>';
     return '<div class="card"><div class="name" '+nameClick+'>'+r.name+' <span class="chip '+fitClass(fit.status).replace(/^fit-/,"")+'">'+fitLabel(fit.status)+'</span><span class="chip '+confidenceClass(r.data_confidence)+'">'+confidenceLabel(r.data_confidence)+'</span>'+soloChip+'</div>'+
-      '<div class="meta">점수 '+r.composite.toFixed(1)+' · Studio $'+rentBasis(r).toLocaleString()+' · 실질비용 $'+eff.toLocaleString()+' · 통근 '+r.min+'m</div>'+
+      '<div class="meta">'+tierChip+' 점수 '+r.composite.toFixed(1)+' · Studio $'+rentBasis(r).toLocaleString()+' · 실질비용 $'+eff.toLocaleString()+' · 통근 '+r.min+'m</div>'+
       '<div class="meta">Studio $'+r.studio.toLocaleString()+' · 1BR $'+r.one_br.toLocaleString()+' · 40x 기준 '+targetLabel(solo.status)+'</div>'+
-      '<div class="reason"><strong>'+reasonLead+':</strong> '+reasons.slice(0,2).join(' · ')+'</div>'+
+      '<div class="reason"><strong>'+reasonLead+':</strong> '+reasons.slice(0,2).join(' · ')+'<br><span style="color:#666">월세 출처: '+rentSourceLabel(r)+' · 범죄 출처: '+crimeSourceLabel(r)+'</span></div>'+
       '<div class="actions"><a class="smallbtn" target="_blank" rel="noopener" href="'+streetEasyTargetUrl(r,"all",targetRent)+'">All ≤ $2,350</a><a class="smallbtn" target="_blank" rel="noopener" href="'+streetEasyTargetUrl(r,"studio",targetRent)+'">Studio ≤ $2,350</a><a class="smallbtn" target="_blank" rel="noopener" href="'+streetEasyTargetUrl(r,"onebr",targetRent)+'">1BR ≤ $2,350</a><a class="smallbtn" href="#" onclick="focusNeighborhood(\''+r.name.replace(/'/g,"\\'")+'\');return false;">지도에서 보기</a></div></div>';
   }).join('');
   }
@@ -549,7 +572,7 @@ function renderTable(){
       const latePen=r.night_penalty||0, lateStr=latePen>0?('+'+latePen+'m'):(latePen+'m');
       return '<tr class="c" data-hood="'+r.name+'" data-lat="'+r.lat+'" data-lng="'+r.lng+'" data-fit="'+fit.status+'" data-target="'+solo.status+'" data-effective="'+eff+'" data-rent="'+rentBasis(r)+'" data-score="'+r.composite+'" data-commute="'+r.min+'" data-rob="'+r.rob_rate+'" data-burgr="'+r.burg_rate+'" data-late="'+r.late+'" data-bldga="'+r.bldg+'" data-pm="'+r.min_11pm+'" data-transit="'+r.transit_score+'" data-tcost="'+(r.transit_cost||0)+'">'+
         '<td class="m" style="font-weight:700;color:'+sc(r.composite)+'">'+(i+1)+'</td>'+
-      '<td style="font-weight:600">'+r.name+' <span class="chip '+confidenceClass(r.data_confidence)+'">'+confidenceLabel(r.data_confidence)+'</span>'+(r.note?'<div class="nt">'+r.note+'</div>':'')+'</td>'+
+      '<td style="font-weight:600">'+r.name+' <span class="chip '+confidenceClass(r.data_confidence)+'">'+confidenceLabel(r.data_confidence)+'</span><div style="font-size:9px;color:#777;margin-top:2px">월세 '+rentSourceLabel(r)+' · 범죄 '+crimeSourceLabel(r)+'</div>'+(r.note?'<div class="nt">'+r.note+'</div>':'')+'</td>'+
       '<td><span class="tier '+fitClass(fit.status)+'">'+fitLabel(fit.status)+'</span></td>'+
       '<td class="m" style="font-size:14px;font-weight:700;color:'+sc(r.composite)+'">'+r.composite.toFixed(1)+'<span class="tier '+(r.composite>=55?'t-s':r.composite>=45?'t-f':'t-a')+'">'+(r.composite>=55?'강함':r.composite>=45?'보통':'약함')+'</span></td>'+
         '<td class="m" style="font-size:11px">$'+rentBasis(r).toLocaleString()+'<div style="font-size:9px;color:#777">1BR $'+r.one_br.toLocaleString()+'</div></td>'+
@@ -572,7 +595,7 @@ function renderTable(){
         const fit=fitInfo(r), eff=effectiveCost(r), solo=soloRentStatus(r), reasons=reasonList(r,fit), tx=r.tax==="NJ"?"뉴저지 -$246":"뉴욕시";
         return '<div class="mobile-card" onclick="focusNeighborhood('+JSON.stringify(r.name)+');return false;">'+
           '<div class="mobile-top"><div><div class="mobile-rank">#'+(i+1)+'</div></div><div style="flex:1;min-width:0"><div class="mobile-name">'+r.name+'</div><div style="margin-top:4px"><span class="tier '+fitClass(fit.status)+'">'+fitLabel(fit.status)+'</span> <span class="tier '+soloChipClass(solo.status)+'">'+targetLabel(solo.status)+'</span> <span class="chip '+confidenceClass(r.data_confidence)+'">'+confidenceLabel(r.data_confidence)+'</span></div></div><div style="text-align:right"><div style="font-size:18px;font-weight:700;color:'+sc(r.composite)+'">'+r.composite.toFixed(1)+'</div><div style="font-size:10px;color:#666">/100</div></div></div>'+
-          '<div class="mobile-meta">Studio $'+rentBasis(r).toLocaleString()+' · 1BR $'+r.one_br.toLocaleString()+' · 실질비용 $'+eff.toLocaleString()+' · 통근 '+r.min+'m / '+r.min_11pm+'m · '+tx+'</div>'+
+          '<div class="mobile-meta">Studio $'+rentBasis(r).toLocaleString()+' · 1BR $'+r.one_br.toLocaleString()+' · 실질비용 $'+eff.toLocaleString()+' · 통근 '+r.min+'m / '+r.min_11pm+'m · '+tx+'<br>월세 '+rentSourceLabel(r)+' · 범죄 '+crimeSourceLabel(r)+'</div>'+
           '<div class="mobile-grid">'+
             '<div class="mobile-pill"><b>40x</b>'+targetLabel(solo.status)+'<br>S $'+r.studio.toLocaleString()+' / 1BR $'+r.one_br.toLocaleString()+'</div>'+
             '<div class="mobile-pill"><b>세탁</b>'+laundryLabel(r.ltxt)+'<br>'+reasons[0]+'</div>'+
