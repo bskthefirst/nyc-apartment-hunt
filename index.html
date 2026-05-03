@@ -521,6 +521,12 @@ function apartmentConfidenceChip(level){
 function apartmentRentChip(status){
   return '<span class="apt-status '+status+'">'+(status==="target"?"40x 기준 안":"스트레치")+'</span>';
 }
+function apartmentRouteUrl(item){
+  if(item.route_url)return item.route_url;
+  const state=item.neighborhood&&item.neighborhood.indexOf("Jersey City")!==-1||item.neighborhood==="Hoboken"?"NJ":"NY";
+  const origin=[item.address,item.locality,state].filter(Boolean).join(", ");
+  return 'https://www.google.com/maps/dir/?api=1&origin='+encodeURIComponent(origin)+'&destination='+encodeURIComponent('1 Manhattan West, 395 9th Ave, New York, NY 10001')+'&travelmode=transit';
+}
 function apartmentFeeLabel(item){return item.no_fee?"No fee":"수수료 확인"}
 function apartmentLaundryLabel(item){return item.laundry_confirmed?item.laundry:"세탁은 매물에서 확인"}
 function apartmentUpdatedText(data){
@@ -550,7 +556,7 @@ function renderTopApartments(){
       '<td class="m">$'+item.effective_cost.toLocaleString()+'</td>'+
       '<td>'+apartmentConfidenceChip(item.source_confidence)+'</td>'+
       '<td><div class="apt-summary">'+item.summary+'</div></td>'+
-      '<td><div class="apt-actions"><a class="smallbtn" target="_blank" rel="noopener" href="'+item.listing_url+'">StreetEasy</a><a class="smallbtn" target="_blank" rel="noopener" href="'+item.search_url+'">검색</a></div></td>'+
+      '<td><div class="apt-actions"><a class="smallbtn" target="_blank" rel="noopener" href="'+item.listing_url+'">StreetEasy</a><a class="smallbtn" target="_blank" rel="noopener" href="'+apartmentRouteUrl(item)+'">경로</a></div></td>'+
     '</tr>';
   }).join('');
   const mobileCards=items.map(function(item){
@@ -561,7 +567,7 @@ function renderTopApartments(){
         '<div class="mobile-pill"><b>세탁</b>'+apartmentLaundryLabel(item)+'</div>'+
         '<div class="mobile-pill"><b>수수료</b>'+apartmentFeeLabel(item)+'</div>'+
       '</div>'+
-      '<div class="mobile-actions"><a class="smallbtn" target="_blank" rel="noopener" href="'+item.listing_url+'">StreetEasy</a><a class="smallbtn" target="_blank" rel="noopener" href="'+item.search_url+'">검색</a></div>'+
+      '<div class="mobile-actions"><a class="smallbtn" target="_blank" rel="noopener" href="'+item.listing_url+'">StreetEasy</a><a class="smallbtn" target="_blank" rel="noopener" href="'+apartmentRouteUrl(item)+'">경로</a></div>'+
     '</div>';
   }).join('');
   body.innerHTML=

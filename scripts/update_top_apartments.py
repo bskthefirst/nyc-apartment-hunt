@@ -9,6 +9,7 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
+from urllib.parse import quote_plus
 
 from curl_cffi import requests as cf
 
@@ -16,6 +17,7 @@ from curl_cffi import requests as cf
 ROOT = Path(__file__).resolve().parents[1]
 INDEX_HTML = ROOT / "index.html"
 OUTPUT_JSON = ROOT / "data" / "top_apartments.json"
+MAPS_DESTINATION = "1 Manhattan West, 395 9th Ave, New York, NY 10001"
 
 TARGET_RENT = 2350
 STRETCH_RENT = 2600
@@ -245,6 +247,14 @@ def enrich_candidate(candidate: Candidate, by_name: dict[str, dict[str, Any]]) -
     transit_cost = int(hood.get("transit_cost") or 0)
     tax_credit = 246 if hood.get("tax") == "NJ" else 0
     effective_cost = price + transit_cost - tax_credit
+    state = "NJ" if hood.get("tax") == "NJ" else "NY"
+    origin = f"{candidate.address}, {candidate.locality}, {state}"
+    route_url = (
+        "https://www.google.com/maps/dir/?api=1"
+        f"&origin={quote_plus(origin)}"
+        f"&destination={quote_plus(MAPS_DESTINATION)}"
+        "&travelmode=transit"
+    )
     confidence = (hood.get("data_confidence") or "medium").lower()
     fit_status = "target" if price <= TARGET_RENT else "stretch"
     laundry_text = laundry_match.group(1) if laundry_match else "verify on listing"
@@ -286,6 +296,7 @@ def enrich_candidate(candidate: Candidate, by_name: dict[str, dict[str, Any]]) -
         "summary": " · ".join(summary_parts),
         "listing_url": candidate.listing_url,
         "search_url": candidate.search_url,
+        "route_url": route_url,
         "available": candidate.available,
     }
 
