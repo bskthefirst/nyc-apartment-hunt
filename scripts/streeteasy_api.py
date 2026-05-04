@@ -407,12 +407,13 @@ class StreetEasyAPI:
                 final_url = str(getattr(response, "url", "") or url)
                 if status and int(status) >= 400:
                     status_code = int(status)
-                    self.fetch_source_counts[f"direct_http_{status_code}"] += 1
                     if status_code in DIRECT_BLOCK_STATUSES:
+                        self.fetch_source_counts["direct_blocked"] += 1
                         self.direct_disabled_until = time.time() + 10 * 60
                         self.direct_disable_reason = "Direct StreetEasy fetch temporarily disabled after a block response"
-                        last_error = RuntimeError(f"Direct StreetEasy fetch blocked with HTTP {status_code}")
+                        last_error = RuntimeError("Direct StreetEasy fetch blocked")
                         break
+                    self.fetch_source_counts[f"direct_http_{status_code}"] += 1
                     last_error = RuntimeError(f"{url} returned {status_code}")
                     continue
                 if text and not BLOCKED_PAGE_RE.search(text):
