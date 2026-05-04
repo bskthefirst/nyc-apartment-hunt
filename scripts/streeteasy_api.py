@@ -6,6 +6,7 @@ from collections import Counter
 import hashlib
 from html import unescape
 import json
+import os
 import re
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -27,6 +28,7 @@ MAPS_DESTINATION = "1 Manhattan West, 395 9th Ave, New York, NY 10001"
 TARGET_RENT = 2350
 STRETCH_RENT = 2800
 OUTPUT_COUNT = 10
+FETCH_MODE = os.environ.get("STREETEASY_FETCH_MODE", "auto").lower().replace("_", "-")
 REQUEST_HEADERS = {
     "User-Agent": (
         "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
@@ -45,6 +47,7 @@ PRICE_RE = re.compile(r"\$([\d,]+)\s*/mo")
 BLOCKED_PAGE_RE = re.compile(
     r"(?i)access to this page has been denied|please enable javascript|verify you are human|captcha"
 )
+DIRECT_BLOCK_STATUSES = {401, 403, 429}
 HARD_AVOID_NEIGHBORHOODS = {"Washington Heights"}
 HARD_AVOID_ROB_RATE = 2.0
 SEARCH_MODES = ("0,1", "0", "1")
@@ -321,6 +324,7 @@ class StreetEasyAPI:
         output_count: int = OUTPUT_COUNT,
         cache_ttl_seconds: int = 12 * 60 * 60,
         max_workers: int = 6,
+        fetch_mode: str = FETCH_MODE,
     ) -> None:
         self.index_html = index_html
         self.output_json = output_json
@@ -329,10 +333,13 @@ class StreetEasyAPI:
         self.output_count = output_count
         self.cache_ttl_seconds = cache_ttl_seconds
         self.max_workers = max_workers
+        self.fetch_mode = fetch_mode if fetch_mode in {"auto", "reader-first", "direct-only"} else "auto"
         self.cache_dir = cache_dir or (ROOT / ".cache" / "streeteasy")
         self.cache_dir.mkdir(parents=True, exist_ok=True)
         self._neighborhoods: list[dict[str, Any]] | None = None
         self.fetch_source_counts: Counter[str] = Counter()
+        self.direct_disabled_until = 0.0
+        self.direct_disable_reason = ""
 
     def _record_fetch(self, result: FetchResult) -> FetchResult:
         self.fetch_source_counts[result.source] += 1
@@ -381,6 +388,10 @@ class StreetEasyAPI:
         if cached is not None:
             return self._record_fetch(FetchResult(text=cached, source="cache_direct", cache_hit=True))
 
+        if time.time() < self.direct_disabled_until:
+            self.fetch_source_counts["direct_skipped"] += 1
+            raise RuntimeError(self.direct_disable_reason or "Direct StreetEasy fetch temporarily disabled")
+
         last_error: Exception | None = None
         for browser in ("chrome124", "safari17_0", "chrome120"):
             try:
@@ -395,14 +406,25 @@ class StreetEasyAPI:
                 text = response.text or ""
                 final_url = str(getattr(response, "url", "") or url)
                 if status and int(status) >= 400:
-                    last_error = RuntimeError(f"{url} returned {status}")
+                    status_code = int(status)
+                    self.fetch_source_counts[f"direct_http_{status_code}"] += 1
+                    if status_code in DIRECT_BLOCK_STATUSES:
+                        self.direct_disabled_until = time.time() + 10 * 60
+                        self.direct_disable_reason = "Direct StreetEasy fetch temporarily disabled after a block response"
+                        last_error = RuntimeError(f"Direct StreetEasy fetch blocked with HTTP {status_code}")
+                        break
+                    last_error = RuntimeError(f"{url} returned {status_code}")
                     continue
                 if text and not BLOCKED_PAGE_RE.search(text):
                     self._write_cache(url, text, "direct")
                     return self._record_fetch(
                         FetchResult(text=text, source="direct", status_code=int(status or 0) or None, final_url=final_url)
                     )
+                self.fetch_source_counts["direct_blocked_content"] += 1
+                self.direct_disabled_until = time.time() + 10 * 60
+                self.direct_disable_reason = "Direct StreetEasy fetch returned blocked content"
                 last_error = RuntimeError(f"{url} returned blocked content")
+                break
             except Exception as exc:  # pragma: no cover - network fallback
                 last_error = exc
 
@@ -440,6 +462,13 @@ class StreetEasyAPI:
         raise RuntimeError(f"Unable to fetch Jina fallback page: {url}")
 
     def fetch_result(self, url: str, timeout: int = 18, allow_jina: bool = True) -> FetchResult:
+        if self.fetch_mode == "reader-first":
+            if not allow_jina:
+                self.fetch_source_counts["direct_disabled_by_mode"] += 1
+                raise RuntimeError("Direct StreetEasy fetch disabled by reader-first mode")
+            return self.fetch_jina(url, timeout=timeout)
+        if self.fetch_mode == "direct-only":
+            return self.fetch_direct(url, timeout=timeout)
         try:
             return self.fetch_direct(url, timeout=timeout)
         except Exception as direct_error:
@@ -738,16 +767,17 @@ class StreetEasyAPI:
         candidates: list[Candidate] = []
         for max_rent in (self.target_rent, self.stretch_rent):
             for idx, search_url in enumerate(self._search_urls(slug, max_rent, laundry_required=laundry_required)):
-                try:
-                    search_result = self.fetch_direct(search_url)
-                    search_html = search_result.text
-                except Exception:
-                    search_html = ""
                 found: list[Candidate] = []
-                if search_html and not search_html.lstrip().startswith("Access to this page"):
-                    found = self._parse_search_html(neighborhood, search_url, search_html)
-                    if not found:
-                        found = self._parse_search_cards_html(neighborhood, search_url, search_html)
+                if self.fetch_mode != "reader-first":
+                    try:
+                        search_result = self.fetch_direct(search_url)
+                        search_html = search_result.text
+                    except Exception:
+                        search_html = ""
+                    if search_html and not search_html.lstrip().startswith("Access to this page"):
+                        found = self._parse_search_html(neighborhood, search_url, search_html)
+                        if not found:
+                            found = self._parse_search_cards_html(neighborhood, search_url, search_html)
                 if not found:
                     try:
                         found = self._parse_search_jina(neighborhood, search_url)
@@ -774,12 +804,13 @@ class StreetEasyAPI:
     def _fetch_detail_text(self, listing_url: str) -> tuple[str, str]:
         html = ""
         detail_source = "missing"
-        try:
-            result = self.fetch_direct(listing_url, timeout=12)
-            html = result.text
-            detail_source = "direct_html"
-        except Exception:
-            html = ""
+        if self.fetch_mode != "reader-first":
+            try:
+                result = self.fetch_direct(listing_url, timeout=12)
+                html = result.text
+                detail_source = "direct_html"
+            except Exception:
+                html = ""
         if html and BLOCKED_PAGE_RE.search(html):
             html = ""
             detail_source = "missing"
@@ -1082,15 +1113,27 @@ def main(argv: list[str] | None = None) -> int:
 
     top = sub.add_parser("top", help="Build the daily Top Apartments feed")
     top.add_argument("--json", action="store_true", help="Print compact JSON to stdout")
+    top.add_argument(
+        "--fetch-mode",
+        choices=("auto", "reader-first", "direct-only"),
+        default=FETCH_MODE,
+        help="Fetch strategy for StreetEasy pages",
+    )
 
     search = sub.add_parser("search", help="Search one neighborhood")
     search.add_argument("--neighborhood", required=True)
     search.add_argument("--count", type=int, default=3)
     search.add_argument("--max-rent", type=int, default=TARGET_RENT)
     search.add_argument("--json", action="store_true", help="Print compact JSON to stdout")
+    search.add_argument(
+        "--fetch-mode",
+        choices=("auto", "reader-first", "direct-only"),
+        default=FETCH_MODE,
+        help="Fetch strategy for StreetEasy pages",
+    )
 
     args = parser.parse_args(argv)
-    api = StreetEasyAPI()
+    api = StreetEasyAPI(fetch_mode=args.fetch_mode)
 
     if args.command == "top":
         payload = api.build_feed()
@@ -1109,6 +1152,7 @@ def main(argv: list[str] | None = None) -> int:
             target_rent=min(TARGET_RENT, args.max_rent),
             stretch_rent=args.max_rent,
             output_count=args.count,
+            fetch_mode=args.fetch_mode,
         )
         payload = search_api.search_neighborhood(args.neighborhood, count=args.count)
         if args.json:
