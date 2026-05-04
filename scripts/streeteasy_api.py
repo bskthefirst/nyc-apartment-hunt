@@ -4,6 +4,7 @@ from __future__ import annotations
 import argparse
 from collections import Counter
 import hashlib
+from html import unescape
 import json
 import re
 import time
@@ -104,6 +105,16 @@ class Candidate:
     address_source: str = "unknown"
     availability_source: str = "unknown"
     fallback_used: bool = False
+
+
+@dataclass(slots=True)
+class FetchResult:
+    text: str
+    source: str
+    status_code: int | None = None
+    final_url: str = ""
+    cache_hit: bool = False
+    blocked: bool = False
 
 
 def compact_text(text: str) -> str:
@@ -321,6 +332,11 @@ class StreetEasyAPI:
         self.cache_dir = cache_dir or (ROOT / ".cache" / "streeteasy")
         self.cache_dir.mkdir(parents=True, exist_ok=True)
         self._neighborhoods: list[dict[str, Any]] | None = None
+        self.fetch_source_counts: Counter[str] = Counter()
+
+    def _record_fetch(self, result: FetchResult) -> FetchResult:
+        self.fetch_source_counts[result.source] += 1
+        return result
 
     def load_neighborhoods(self) -> list[dict[str, Any]]:
         if self._neighborhoods is not None:
@@ -360,10 +376,10 @@ class StreetEasyAPI:
         except Exception:
             pass
 
-    def fetch_text(self, url: str, timeout: int = 18, allow_jina: bool = True) -> str:
+    def fetch_direct(self, url: str, timeout: int = 18) -> FetchResult:
         cached = self._read_cache(url, "direct")
         if cached is not None:
-            return cached
+            return self._record_fetch(FetchResult(text=cached, source="cache_direct", cache_hit=True))
 
         last_error: Exception | None = None
         for browser in ("chrome124", "safari17_0", "chrome120"):
@@ -377,37 +393,65 @@ class StreetEasyAPI:
                 )
                 status = getattr(response, "status_code", None) or getattr(response, "status", None)
                 text = response.text or ""
+                final_url = str(getattr(response, "url", "") or url)
                 if status and int(status) >= 400:
                     last_error = RuntimeError(f"{url} returned {status}")
                     continue
                 if text and not BLOCKED_PAGE_RE.search(text):
                     self._write_cache(url, text, "direct")
-                    return text
+                    return self._record_fetch(
+                        FetchResult(text=text, source="direct", status_code=int(status or 0) or None, final_url=final_url)
+                    )
                 last_error = RuntimeError(f"{url} returned blocked content")
             except Exception as exc:  # pragma: no cover - network fallback
                 last_error = exc
 
-        if allow_jina:
-            cached_jina = self._read_cache(url, "jina")
-            if cached_jina is not None:
-                return cached_jina
-            jina_timeout = max(6, min(timeout, 8))
-            for delay in (0, 1, 2):
-                if delay:
-                    time.sleep(delay)
-                try:
-                    response = pyrequests.get(f"https://r.jina.ai/{url}", timeout=jina_timeout)
-                    response.raise_for_status()
-                    text = response.text or ""
-                    if text:
-                        self._write_cache(url, text, "jina")
-                        return text
-                except Exception as exc:  # pragma: no cover - network fallback
-                    last_error = exc
-
         if last_error:
             raise last_error
-        raise RuntimeError(f"Unable to fetch {url}")
+        raise RuntimeError(f"Unable to fetch direct StreetEasy page: {url}")
+
+    def fetch_jina(self, url: str, timeout: int = 18) -> FetchResult:
+        cached_jina = self._read_cache(url, "jina")
+        if cached_jina is not None:
+            return self._record_fetch(FetchResult(text=cached_jina, source="cache_jina", cache_hit=True))
+        last_error: Exception | None = None
+        jina_timeout = max(6, min(timeout, 8))
+        for delay in (0, 1, 2):
+            if delay:
+                time.sleep(delay)
+            try:
+                response = pyrequests.get(f"https://r.jina.ai/{url}", timeout=jina_timeout)
+                response.raise_for_status()
+                text = response.text or ""
+                if text:
+                    self._write_cache(url, text, "jina")
+                    return self._record_fetch(
+                        FetchResult(
+                            text=text,
+                            source="jina",
+                            status_code=int(getattr(response, "status_code", 0) or 0) or None,
+                            final_url=str(getattr(response, "url", "") or f"https://r.jina.ai/{url}"),
+                        )
+                    )
+            except Exception as exc:  # pragma: no cover - network fallback
+                last_error = exc
+        if last_error:
+            raise last_error
+        raise RuntimeError(f"Unable to fetch Jina fallback page: {url}")
+
+    def fetch_result(self, url: str, timeout: int = 18, allow_jina: bool = True) -> FetchResult:
+        try:
+            return self.fetch_direct(url, timeout=timeout)
+        except Exception as direct_error:
+            if allow_jina:
+                try:
+                    return self.fetch_jina(url, timeout=timeout)
+                except Exception:
+                    pass
+            raise direct_error
+
+    def fetch_text(self, url: str, timeout: int = 18, allow_jina: bool = True) -> str:
+        return self.fetch_result(url, timeout=timeout, allow_jina=allow_jina).text
 
     def _jsonld_blocks(self, html: str) -> list[str]:
         blocks: list[str] = []
@@ -557,8 +601,71 @@ class StreetEasyAPI:
             )
         return candidates
 
+    def _normalize_listing_url(self, raw_url: str) -> str:
+        url = unescape(raw_url).split("?")[0]
+        if url.startswith("/"):
+            return f"https://streeteasy.com{url}"
+        return url
+
+    def _title_from_listing_url(self, listing_url: str) -> str:
+        slug = listing_url.rstrip("/").split("/")[-1]
+        return unescape(slug.replace("-", " ").replace("_", " ")).strip().title()
+
+    def _parse_search_cards_html(self, neighborhood: dict[str, Any], search_url: str, search_html: str) -> list[Candidate]:
+        slug = STREETEASY_PATHS.get(neighborhood["name"])
+        if not slug:
+            return []
+        records: list[Candidate] = []
+        seen: set[str] = set()
+        link_re = re.compile(
+            r"<a\b[^>]*href=[\"'](?P<href>(?:https://streeteasy\.com)?/building/[^\"'#?]+(?:/[^\"'#?]+)?)",
+            re.I,
+        )
+        for match in link_re.finditer(search_html):
+            url = self._normalize_listing_url(match.group("href"))
+            if url in seen:
+                continue
+            seen.add(url)
+            start = max(0, match.start() - 900)
+            end = min(len(search_html), match.end() + 1400)
+            window_html = search_html[start:end]
+            window_text = compact_text(unescape(re.sub(r"<[^>]+>", " ", window_html)))
+            if EXCLUDE_RE.search(window_text):
+                continue
+            price_match = PRICE_RE.search(window_text) or re.search(r"\$([\d,]+)(?!\s*(?:fee|deposit))", window_text)
+            price = int(price_match.group(1).replace(",", "")) if price_match else None
+            if price and price > self.stretch_rent:
+                continue
+            beds: str | None = None
+            if re.search(r"(?i)\bstudio\b", window_text):
+                beds = "Studio"
+            elif re.search(r"(?i)\b1\s*(?:bed|br|bedroom)\b", window_text):
+                beds = "1BR"
+            if not beds:
+                continue
+            title = self._title_from_listing_url(url)
+            records.append(
+                Candidate(
+                    neighborhood=neighborhood["name"],
+                    search_slug=slug,
+                    search_url=search_url,
+                    listing_url=url,
+                    address=title,
+                    locality=neighborhood["name"],
+                    beds=beds,
+                    price=price,
+                    available="check listing",
+                    search_parse_source="html_cards",
+                    price_source="html_card_text" if price else "unknown",
+                    address_source="listing_url",
+                    availability_source="unknown",
+                    fallback_used=False,
+                )
+            )
+        return records
+
     def _parse_search_jina(self, neighborhood: dict[str, Any], search_url: str) -> list[Candidate]:
-        markdown = self.fetch_text(search_url, allow_jina=True)
+        markdown = self.fetch_jina(search_url).text
         lines = [line.rstrip() for line in markdown.splitlines()]
         records: list[Candidate] = []
         current_price: int | None = None
@@ -632,12 +739,15 @@ class StreetEasyAPI:
         for max_rent in (self.target_rent, self.stretch_rent):
             for idx, search_url in enumerate(self._search_urls(slug, max_rent, laundry_required=laundry_required)):
                 try:
-                    search_html = self.fetch_text(search_url)
+                    search_result = self.fetch_direct(search_url)
+                    search_html = search_result.text
                 except Exception:
                     search_html = ""
                 found: list[Candidate] = []
                 if search_html and not search_html.lstrip().startswith("Access to this page"):
                     found = self._parse_search_html(neighborhood, search_url, search_html)
+                    if not found:
+                        found = self._parse_search_cards_html(neighborhood, search_url, search_html)
                 if not found:
                     try:
                         found = self._parse_search_jina(neighborhood, search_url)
@@ -663,17 +773,20 @@ class StreetEasyAPI:
 
     def _fetch_detail_text(self, listing_url: str) -> tuple[str, str]:
         html = ""
+        detail_source = "missing"
         try:
-            html = self.fetch_text(listing_url, timeout=12)
+            result = self.fetch_direct(listing_url, timeout=12)
+            html = result.text
+            detail_source = "direct_html"
         except Exception:
             html = ""
-        detail_source = "direct_html" if html else "missing"
         if html and BLOCKED_PAGE_RE.search(html):
             html = ""
             detail_source = "missing"
         if not html:
             try:
-                html = self.fetch_text(listing_url, timeout=12, allow_jina=True)
+                result = self.fetch_jina(listing_url, timeout=12)
+                html = result.text
                 detail_source = "jina_fallback" if html else "missing"
             except Exception:
                 html = ""
@@ -890,6 +1003,7 @@ class StreetEasyAPI:
                 "fallback_count": fallback_count,
                 "laundry_confirmed_count": laundry_confirmed_count,
                 "backup_count": len(top) - laundry_confirmed_count,
+                "fetch_sources": dict(sorted(self.fetch_source_counts.items())),
             },
             "apartments": top,
         }
@@ -929,6 +1043,7 @@ class StreetEasyAPI:
         }
 
     def build_feed(self) -> dict[str, Any]:
+        self.fetch_source_counts.clear()
         neighborhoods = [hood for hood in self.load_neighborhoods() if not is_hard_avoid_neighborhood(hood)]
         neighborhoods = sorted(neighborhoods, key=self.neighborhood_priority_key)
         by_name = {item["name"]: item for item in neighborhoods}
