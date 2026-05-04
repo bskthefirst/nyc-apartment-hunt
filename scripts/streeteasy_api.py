@@ -340,6 +340,8 @@ class StreetEasyAPI:
         self.fetch_source_counts: Counter[str] = Counter()
         self.direct_disabled_until = 0.0
         self.direct_disable_reason = ""
+        self.reader_session = pyrequests.Session()
+        self.reader_session.headers.update(REQUEST_HEADERS)
 
     def _record_fetch(self, result: FetchResult) -> FetchResult:
         self.fetch_source_counts[result.source] += 1
@@ -443,7 +445,7 @@ class StreetEasyAPI:
             if delay:
                 time.sleep(delay)
             try:
-                response = pyrequests.get(f"https://r.jina.ai/{url}", timeout=jina_timeout)
+                response = self.reader_session.get(f"https://r.jina.ai/{url}", timeout=jina_timeout)
                 response.raise_for_status()
                 text = response.text or ""
                 if text:
