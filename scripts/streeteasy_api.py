@@ -28,7 +28,7 @@ MAPS_DESTINATION = "1 Manhattan West, 395 9th Ave, New York, NY 10001"
 TARGET_RENT = 2350
 STRETCH_RENT = 2800
 OUTPUT_COUNT = 10
-FETCH_MODE = os.environ.get("STREETEASY_FETCH_MODE", "auto").lower().replace("_", "-")
+FETCH_MODE = os.environ.get("STREETEASY_FETCH_MODE", "reader-first").lower().replace("_", "-")
 REQUEST_HEADERS = {
     "User-Agent": (
         "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
