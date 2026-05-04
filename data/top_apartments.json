@@ -12,10 +12,10 @@
   },
   "stats": {
     "verified_count": 0,
-    "partial_count": 0,
-    "fallback_count": 10,
+    "partial_count": 1,
+    "fallback_count": 9,
     "laundry_confirmed_count": 1,
-    "backup_count": 9
+    "backup_count": 0
   },
   "apartments": [
     {
@@ -42,7 +42,7 @@
       "score": 56.8,
       "neighborhood_score": 34.3,
       "listing_confidence": "medium",
-      "listing_verification": "fallback_parsed",
+      "listing_verification": "partially_verified",
       "neighborhood_confidence": "high",
       "search_parse_source": "jina_markdown",
       "detail_parse_source": "direct_html",

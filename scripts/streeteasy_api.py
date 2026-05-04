@@ -745,6 +745,9 @@ class StreetEasyAPI:
         if candidate.search_parse_source == "html_jsonld" and detail_parse_source == "direct_html" and laundry_confirmed:
             listing_verification = "verified"
             listing_confidence = "high"
+        elif detail_parse_source == "direct_html" and laundry_confirmed:
+            listing_verification = "partially_verified"
+            listing_confidence = "medium"
         elif candidate.search_parse_source == "jina_markdown" or detail_parse_source == "jina_fallback":
             listing_verification = "fallback_parsed"
             listing_confidence = "low" if not laundry_confirmed else "medium"
