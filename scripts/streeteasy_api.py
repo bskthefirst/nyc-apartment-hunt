@@ -967,13 +967,19 @@ class StreetEasyAPI:
         if not availability_confirmed:
             verification_notes.append("availability unconfirmed")
 
-        if candidate.search_parse_source == "html_jsonld" and detail_parse_source == "direct_html" and laundry_confirmed:
+        direct_search = candidate.search_parse_source in {"html_jsonld", "html_cards"}
+        direct_detail = detail_parse_source == "direct_html"
+        fallback_search = candidate.search_parse_source == "jina_markdown"
+        fallback_detail = detail_parse_source == "jina_fallback"
+        if direct_search and direct_detail and laundry_confirmed:
             listing_verification = "verified"
             listing_confidence = "high"
-        elif detail_parse_source == "direct_html" and laundry_confirmed:
+        elif direct_search or direct_detail:
+            # A clean search parse plus a readable detail page is still materially better
+            # than an all-fallback record, even when the detail page came through the reader path.
             listing_verification = "partially_verified"
-            listing_confidence = "medium"
-        elif candidate.search_parse_source == "jina_markdown" or detail_parse_source == "jina_fallback":
+            listing_confidence = "medium" if laundry_confirmed or availability_confirmed else "low"
+        elif fallback_search or fallback_detail:
             listing_verification = "fallback_parsed"
             listing_confidence = "low" if not laundry_confirmed else "medium"
         else:
