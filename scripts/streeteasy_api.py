@@ -2,11 +2,13 @@
 from __future__ import annotations
 
 import argparse
+import asyncio
 from collections import Counter
 import hashlib
 from html import unescape
 import json
 import os
+import random
 import re
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -333,7 +335,7 @@ class StreetEasyAPI:
         self.output_count = output_count
         self.cache_ttl_seconds = cache_ttl_seconds
         self.max_workers = max_workers
-        self.fetch_mode = fetch_mode if fetch_mode in {"auto", "reader-first", "direct-only"} else "auto"
+        self.fetch_mode = fetch_mode if fetch_mode in {"auto", "reader-first", "direct-only", "playwright-first"} else "auto"
         self.cache_dir = cache_dir or (ROOT / ".cache" / "streeteasy")
         self.cache_dir.mkdir(parents=True, exist_ok=True)
         self._neighborhoods: list[dict[str, Any]] | None = None
@@ -436,24 +438,31 @@ class StreetEasyAPI:
         raise RuntimeError(f"Unable to fetch direct StreetEasy page: {url}")
 
     def fetch_jina(self, url: str, timeout: int = 18) -> FetchResult:
-        cached_jina = self._read_cache(url, "jina")
-        if cached_jina is not None:
-            return self._record_fetch(FetchResult(text=cached_jina, source="cache_jina", cache_hit=True))
         last_error: Exception | None = None
         jina_timeout = max(6, min(timeout, 8))
+        # Request HTML format so JSON-LD is preserved — lets _parse_search_html() work
+        # instead of the fragile markdown line-by-line parser (_parse_search_jina).
+        # Uses "jina_html" cache key to avoid collisions with old markdown cache entries.
+        jina_headers = {"X-Return-Format": "html"}
+        jina_cache_source = "jina_html"
+        cached_jina_html = self._read_cache(url, jina_cache_source)
+        if cached_jina_html is not None:
+            return self._record_fetch(FetchResult(text=cached_jina_html, source="cache_jina_html", cache_hit=True))
         for delay in (0, 1, 2):
             if delay:
                 time.sleep(delay)
             try:
-                response = self.reader_session.get(f"https://r.jina.ai/{url}", timeout=jina_timeout)
+                response = self.reader_session.get(
+                    f"https://r.jina.ai/{url}", headers=jina_headers, timeout=jina_timeout
+                )
                 response.raise_for_status()
                 text = response.text or ""
                 if text:
-                    self._write_cache(url, text, "jina")
+                    self._write_cache(url, text, jina_cache_source)
                     return self._record_fetch(
                         FetchResult(
                             text=text,
-                            source="jina",
+                            source="jina_html",
                             status_code=int(getattr(response, "status_code", 0) or 0) or None,
                             final_url=str(getattr(response, "url", "") or f"https://r.jina.ai/{url}"),
                         )
@@ -464,6 +473,56 @@ class StreetEasyAPI:
             raise last_error
         raise RuntimeError(f"Unable to fetch Jina fallback page: {url}")
 
+    async def _playwright_fetch_async(self, url: str, timeout: int = 30) -> str:
+        from playwright.async_api import async_playwright
+
+        async with async_playwright() as p:
+            browser = await p.chromium.launch(
+                headless=True,
+                args=[
+                    "--no-sandbox",
+                    "--disable-dev-shm-usage",
+                    "--disable-blink-features=AutomationControlled",
+                ],
+            )
+            context = await browser.new_context(
+                viewport={"width": 1440, "height": 900},
+                user_agent=REQUEST_HEADERS["User-Agent"],
+                locale="en-US",
+            )
+            # Block images/fonts/media — speeds up load without losing JSON-LD
+            await context.route(
+                "**/*.{png,jpg,jpeg,gif,webp,svg,woff,woff2,ttf,eot,ico,mp4,webm}",
+                lambda route: route.abort(),
+            )
+            page = await context.new_page()
+            try:
+                await page.goto(url, wait_until="domcontentloaded", timeout=timeout * 1000)
+                # Humanlike pause before reading (avoids instant-bot pattern)
+                await page.wait_for_timeout(random.randint(700, 1600))
+                # Smooth scroll triggers lazy-loaded listing cards
+                await page.evaluate("window.scrollTo({top: 400, behavior: 'smooth'})")
+                await page.wait_for_timeout(random.randint(400, 900))
+                text = await page.content()
+            finally:
+                await context.close()
+                await browser.close()
+        return text
+
+    def fetch_playwright(self, url: str, timeout: int = 30) -> FetchResult:
+        cached = self._read_cache(url, "playwright")
+        if cached is not None:
+            return self._record_fetch(FetchResult(text=cached, source="cache_playwright", cache_hit=True))
+        try:
+            text = asyncio.run(self._playwright_fetch_async(url, timeout=timeout))
+        except Exception as exc:
+            raise RuntimeError(f"Playwright fetch failed for {url}: {exc}") from exc
+        if not text or BLOCKED_PAGE_RE.search(text):
+            raise RuntimeError(f"Playwright: blocked content from {url}")
+        self._write_cache(url, text, "playwright")
+        self.fetch_source_counts["playwright"] += 1
+        return self._record_fetch(FetchResult(text=text, source="playwright"))
+
     def fetch_result(self, url: str, timeout: int = 18, allow_jina: bool = True) -> FetchResult:
         if self.fetch_mode == "reader-first":
             if not allow_jina:
@@ -472,15 +531,30 @@ class StreetEasyAPI:
             return self.fetch_jina(url, timeout=timeout)
         if self.fetch_mode == "direct-only":
             return self.fetch_direct(url, timeout=timeout)
+        if self.fetch_mode == "playwright-first":
+            try:
+                return self.fetch_playwright(url, timeout=30)
+            except Exception:
+                if allow_jina:
+                    try:
+                        return self.fetch_jina(url, timeout=timeout)
+                    except Exception:
+                        pass
+                raise
+        # auto mode: curl_cffi → playwright → jina
         try:
             return self.fetch_direct(url, timeout=timeout)
-        except Exception as direct_error:
+        except Exception:
+            try:
+                return self.fetch_playwright(url, timeout=30)
+            except Exception:
+                pass
             if allow_jina:
                 try:
                     return self.fetch_jina(url, timeout=timeout)
                 except Exception:
                     pass
-            raise direct_error
+            raise
 
     def fetch_text(self, url: str, timeout: int = 18, allow_jina: bool = True) -> str:
         return self.fetch_result(url, timeout=timeout, allow_jina=allow_jina).text
@@ -783,7 +857,11 @@ class StreetEasyAPI:
                             found = self._parse_search_cards_html(neighborhood, search_url, search_html)
                 if not found:
                     try:
-                        found = self._parse_search_jina(neighborhood, search_url)
+                        jina_result = self.fetch_jina(search_url)
+                        jina_html = jina_result.text
+                        found = self._parse_search_html(neighborhood, search_url, jina_html)
+                        if not found:
+                            found = self._parse_search_cards_html(neighborhood, search_url, jina_html)
                     except Exception:
                         found = []
                 candidates.extend(found)
@@ -1126,7 +1204,7 @@ def main(argv: list[str] | None = None) -> int:
     search = sub.add_parser("search", help="Search one neighborhood")
     search.add_argument("--neighborhood", required=True)
     search.add_argument("--count", type=int, default=3)
-    search.add_argument("--max-rent", type=int, default=TARGET_RENT)
+    search.add_argument("--max-rent", type=int, default=STRETCH_RENT)
     search.add_argument("--json", action="store_true", help="Print compact JSON to stdout")
     search.add_argument(
         "--fetch-mode",
