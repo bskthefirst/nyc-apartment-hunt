@@ -327,7 +327,7 @@ class StreetEasyAPI:
         stretch_rent: int = STRETCH_RENT,
         output_count: int = OUTPUT_COUNT,
         cache_ttl_seconds: int = 12 * 60 * 60,
-        max_workers: int = 6,
+        max_workers: int = 3,
         fetch_mode: str = FETCH_MODE,
     ) -> None:
         self.index_html = index_html
@@ -342,8 +342,6 @@ class StreetEasyAPI:
         self.cache_dir.mkdir(parents=True, exist_ok=True)
         self._neighborhoods: list[dict[str, Any]] | None = None
         self.fetch_source_counts: Counter[str] = Counter()
-        self.direct_disabled_until = 0.0
-        self.direct_disable_reason = ""
         self.reader_session = pyrequests.Session()
         self.reader_session.headers.update(REQUEST_HEADERS)
 
@@ -389,25 +387,21 @@ class StreetEasyAPI:
         except Exception:
             pass
 
-    def fetch_direct(self, url: str, timeout: int = 18) -> FetchResult:
+    def fetch_direct(self, url: str, timeout: int = 18, extra_headers: dict[str, str] | None = None) -> FetchResult:
         cached = self._read_cache(url, "direct")
         if cached is not None:
             return self._record_fetch(FetchResult(text=cached, source="cache_direct", cache_hit=True))
 
-        if time.time() < self.direct_disabled_until:
-            self.fetch_source_counts["direct_skipped"] += 1
-            raise RuntimeError(self.direct_disable_reason or "Direct fetch temporarily disabled")
-
+        headers = {**REQUEST_HEADERS, **(extra_headers or {})}
         # Randomize impersonation order so no single fingerprint is used consistently
         browsers = list(BROWSER_IMPERSONATIONS)
         random.shuffle(browsers)
         last_error: Exception | None = None
-        all_hard_blocked = True
-        for browser in browsers:
+        for i, browser in enumerate(browsers):
             try:
                 response = cf.get(
                     url,
-                    headers=REQUEST_HEADERS,
+                    headers=headers,
                     impersonate=browser,
                     timeout=timeout,
                     allow_redirects=True,
@@ -420,8 +414,10 @@ class StreetEasyAPI:
                     if status_code in DIRECT_BLOCK_STATUSES:
                         self.fetch_source_counts["direct_blocked"] += 1
                         last_error = RuntimeError(f"Blocked by {browser} ({status_code})")
-                        continue  # try next impersonation before giving up
-                    all_hard_blocked = False
+                        # Brief pause before next impersonation to avoid rapid-fire bot signal
+                        if i < len(browsers) - 1:
+                            time.sleep(random.uniform(0.5, 1.2))
+                        continue
                     self.fetch_source_counts[f"direct_http_{status_code}"] += 1
                     last_error = RuntimeError(f"{url} returned {status_code}")
                     continue
@@ -430,18 +426,14 @@ class StreetEasyAPI:
                     return self._record_fetch(
                         FetchResult(text=text, source="direct", status_code=int(status or 0) or None, final_url=final_url)
                     )
-                # Page content itself is a bot-detection page
                 self.fetch_source_counts["direct_blocked_content"] += 1
                 last_error = RuntimeError(f"Bot-detection page from {browser}")
-                continue  # try next impersonation
+                if i < len(browsers) - 1:
+                    time.sleep(random.uniform(0.5, 1.2))
+                continue
             except Exception as exc:
-                all_hard_blocked = False
                 last_error = exc
 
-        # Only engage circuit-breaker when EVERY impersonation was hard-blocked
-        if all_hard_blocked:
-            self.direct_disabled_until = time.time() + 2 * 60  # 2-minute cooldown
-            self.direct_disable_reason = "All impersonations hard-blocked; retrying after cooldown"
         if last_error:
             raise last_error
         raise RuntimeError(f"Unable to fetch: {url}")
@@ -550,14 +542,10 @@ class StreetEasyAPI:
                     except Exception:
                         pass
                 raise
-        # auto mode: curl_cffi → playwright → jina
+        # auto mode: curl_cffi → jina (playwright removed — never beats direct vs StreetEasy)
         try:
             return self.fetch_direct(url, timeout=timeout)
         except Exception:
-            try:
-                return self.fetch_playwright(url, timeout=30)
-            except Exception:
-                pass
             if allow_jina:
                 try:
                     return self.fetch_jina(url, timeout=timeout)
@@ -854,20 +842,23 @@ class StreetEasyAPI:
         for max_rent in (self.target_rent, self.stretch_rent):
             for idx, search_url in enumerate(self._search_urls(slug, max_rent, laundry_required=laundry_required)):
                 found: list[Candidate] = []
+                direct_ok = False
                 if self.fetch_mode != "reader-first":
                     try:
-                        search_result = self.fetch_direct(search_url)
-                        search_html = search_result.text
+                        search_html = self.fetch_direct(search_url).text
+                        direct_ok = True
                     except Exception:
                         search_html = ""
-                    if search_html and not search_html.lstrip().startswith("Access to this page"):
+                    if direct_ok and search_html:
                         found = self._parse_search_html(neighborhood, search_url, search_html)
                         if not found:
                             found = self._parse_search_cards_html(neighborhood, search_url, search_html)
-                if not found:
+                # Only try Jina when the direct fetch itself failed (network/block error).
+                # If direct succeeded but returned 0 results, Jina would parse the same
+                # page and find the same 0 — skipping saves 1–6 Jina calls per neighborhood.
+                if not direct_ok:
                     try:
-                        jina_result = self.fetch_jina(search_url)
-                        jina_html = jina_result.text
+                        jina_html = self.fetch_jina(search_url).text
                         found = self._parse_search_html(neighborhood, search_url, jina_html)
                         if not found:
                             found = self._parse_search_cards_html(neighborhood, search_url, jina_html)
@@ -891,23 +882,25 @@ class StreetEasyAPI:
             unique.append(candidate)
         return unique
 
-    def _fetch_detail_text(self, listing_url: str) -> tuple[str, str]:
+    def _fetch_detail_text(self, listing_url: str, search_url: str = "") -> tuple[str, str]:
         html = ""
         detail_source = "missing"
+        direct_ok = False
         if self.fetch_mode != "reader-first":
+            # Stagger concurrent workers and add Referer so request looks like
+            # navigation from search results, not a cold URL hit.
+            time.sleep(random.uniform(0.2, 0.6))
+            referer = search_url or "https://streeteasy.com/for-rent/nyc"
             try:
-                result = self.fetch_direct(listing_url, timeout=12)
-                html = result.text
+                html = self.fetch_direct(listing_url, timeout=12, extra_headers={"Referer": referer}).text
+                direct_ok = True
                 detail_source = "direct_html"
             except Exception:
                 html = ""
-        if html and BLOCKED_PAGE_RE.search(html):
-            html = ""
-            detail_source = "missing"
-        if not html:
+        # Only fall back to Jina when direct fetch itself failed (all impersonations blocked).
+        if not direct_ok:
             try:
-                result = self.fetch_jina(listing_url, timeout=12)
-                html = result.text
+                html = self.fetch_jina(listing_url, timeout=12).text
                 detail_source = "jina_fallback" if html else "missing"
             except Exception:
                 html = ""
@@ -920,7 +913,7 @@ class StreetEasyAPI:
             return compact_text(re.sub(r"<[^>]+>", " ", html)), detail_source
 
     def enrich_candidate(self, candidate: Candidate, by_name: dict[str, dict[str, Any]]) -> dict[str, Any] | None:
-        text, detail_parse_source = self._fetch_detail_text(candidate.listing_url)
+        text, detail_parse_source = self._fetch_detail_text(candidate.listing_url, search_url=candidate.search_url)
         if text and EXCLUDE_RE.search(text):
             return None
 
