@@ -30,11 +30,13 @@ MAPS_DESTINATION = "1 Manhattan West, 395 9th Ave, New York, NY 10001"
 TARGET_RENT = 2350
 STRETCH_RENT = 2800
 OUTPUT_COUNT = 10
-FETCH_MODE = os.environ.get("STREETEASY_FETCH_MODE", "reader-first").lower().replace("_", "-")
+FETCH_MODE = os.environ.get("STREETEASY_FETCH_MODE", "auto").lower().replace("_", "-")
+# Randomized to avoid fingerprint patterns; all confirmed working against StreetEasy
+BROWSER_IMPERSONATIONS = ("chrome131", "safari18_0", "firefox135", "chrome124")
 REQUEST_HEADERS = {
     "User-Agent": (
         "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
-        "Chrome/124.0.0.0 Safari/537.36"
+        "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
     ),
     "Accept-Language": "en-US,en;q=0.9",
 }
@@ -47,7 +49,7 @@ EXCLUDE_RE = re.compile(r"(?i)room for rent|shared apartment|co-?living|sublet")
 NO_FEE_RE = re.compile(r"(?i)no.?fee")
 PRICE_RE = re.compile(r"\$([\d,]+)\s*/mo")
 BLOCKED_PAGE_RE = re.compile(
-    r"(?i)access to this page has been denied|please enable javascript|verify you are human|captcha"
+    r"(?i)access to this page has been denied|verify you are human|px-captcha|_pxid|perimeterx\.com/api"
 )
 DIRECT_BLOCK_STATUSES = {401, 403, 429}
 HARD_AVOID_NEIGHBORHOODS = {"Washington Heights"}
@@ -394,10 +396,14 @@ class StreetEasyAPI:
 
         if time.time() < self.direct_disabled_until:
             self.fetch_source_counts["direct_skipped"] += 1
-            raise RuntimeError(self.direct_disable_reason or "Direct StreetEasy fetch temporarily disabled")
+            raise RuntimeError(self.direct_disable_reason or "Direct fetch temporarily disabled")
 
+        # Randomize impersonation order so no single fingerprint is used consistently
+        browsers = list(BROWSER_IMPERSONATIONS)
+        random.shuffle(browsers)
         last_error: Exception | None = None
-        for browser in ("chrome124", "safari17_0", "chrome120"):
+        all_hard_blocked = True
+        for browser in browsers:
             try:
                 response = cf.get(
                     url,
@@ -413,10 +419,9 @@ class StreetEasyAPI:
                     status_code = int(status)
                     if status_code in DIRECT_BLOCK_STATUSES:
                         self.fetch_source_counts["direct_blocked"] += 1
-                        self.direct_disabled_until = time.time() + 10 * 60
-                        self.direct_disable_reason = "Direct StreetEasy fetch temporarily disabled after a block response"
-                        last_error = RuntimeError("Direct StreetEasy fetch blocked")
-                        break
+                        last_error = RuntimeError(f"Blocked by {browser} ({status_code})")
+                        continue  # try next impersonation before giving up
+                    all_hard_blocked = False
                     self.fetch_source_counts[f"direct_http_{status_code}"] += 1
                     last_error = RuntimeError(f"{url} returned {status_code}")
                     continue
@@ -425,17 +430,21 @@ class StreetEasyAPI:
                     return self._record_fetch(
                         FetchResult(text=text, source="direct", status_code=int(status or 0) or None, final_url=final_url)
                     )
+                # Page content itself is a bot-detection page
                 self.fetch_source_counts["direct_blocked_content"] += 1
-                self.direct_disabled_until = time.time() + 10 * 60
-                self.direct_disable_reason = "Direct StreetEasy fetch returned blocked content"
-                last_error = RuntimeError(f"{url} returned blocked content")
-                break
-            except Exception as exc:  # pragma: no cover - network fallback
+                last_error = RuntimeError(f"Bot-detection page from {browser}")
+                continue  # try next impersonation
+            except Exception as exc:
+                all_hard_blocked = False
                 last_error = exc
 
+        # Only engage circuit-breaker when EVERY impersonation was hard-blocked
+        if all_hard_blocked:
+            self.direct_disabled_until = time.time() + 2 * 60  # 2-minute cooldown
+            self.direct_disable_reason = "All impersonations hard-blocked; retrying after cooldown"
         if last_error:
             raise last_error
-        raise RuntimeError(f"Unable to fetch direct StreetEasy page: {url}")
+        raise RuntimeError(f"Unable to fetch: {url}")
 
     def fetch_jina(self, url: str, timeout: int = 18) -> FetchResult:
         last_error: Exception | None = None
