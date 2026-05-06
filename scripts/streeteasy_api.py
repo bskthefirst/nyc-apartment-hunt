@@ -1056,9 +1056,9 @@ class StreetEasyAPI:
         confidence_rank = {"high": 0, "medium": 1, "low": 2}.get(item["listing_confidence"], 1)
         return (
             0 if item["laundry_confirmed"] else 1,
+            0 if item["rent_status"] == "target" else 1,  # budget first
             confidence_rank,
             int(item.get("neighborhood_tier") or 9),
-            0 if item["rent_status"] == "target" else 1,
             0 if item["commute_minutes"] <= 45 else 1,
             item["price"],
             item["commute_minutes"],
