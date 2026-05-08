@@ -285,6 +285,12 @@ results.forEach(function(r){
   }
   r.data_confidence=normalizeConfidence(r.data_confidence);
   r.station_risk=stationRiskLevel(r);
+  const robRisk=crimeRiskGrade(r.rob_rate), burgRisk=crimeRiskGrade(r.burg_rate);
+  r.rob_label=robRisk.label;
+  r.rob_color=robRisk.color;
+  r.burg_label=burgRisk.label;
+  r.burg_color=burgRisk.color;
+  r.rob_1inX=Math.round(1000/r.rob_rate);
   r.composite=Math.round(weightedComposite(r)*10)/10;
 });
 const map=L.map("map").setView([40.75,-73.94],11);
@@ -398,6 +404,13 @@ function targetRank(status){return{Target:0,Stretch:1,Watch:2,"No 40x Solo":3,"L
 function laundryLabel(v){return{Rare:"드묾",Mixed:"혼합",Common:"흔함"}[v]||v}
 function riskLabel(v){return{ "Very Low":"매우 낮음","Low":"낮음","Moderate":"보통","Elevated":"다소 높음","High":"높음"}[v]||v}
 function stationSafetyLabel(v){return{ "N/A":"해당 없음","Very Low":"매우 낮음","Low":"낮음","Moderate":"보통","Elevated":"높음","High":"매우 높음"}[v]||v}
+function crimeRiskGrade(rate){
+  if(rate<=0.8)return{label:"Very Low",color:"#2C5F3F"};
+  if(rate<=1.2)return{label:"Low",color:"#4A9D6E"};
+  if(rate<=1.8)return{label:"Moderate",color:"#9C6A0C"};
+  if(rate<=2.5)return{label:"Elevated",color:"#D4930D"};
+  return{label:"High",color:"#A6271E"};
+}
 function fitInfo(r){
   const eff=effectiveCost(r), laundry=laundryPass(r), commute=r.min<=45, safeNight=safeStation(r);
   if(hardAvoid(r))return{status:"Hard Avoid",reason:"강력 제외: 168th St A 역 관련 위험이 여전히 큽니다"};
