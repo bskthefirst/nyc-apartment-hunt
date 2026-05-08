@@ -28,7 +28,7 @@ OUTPUT_JSON = ROOT / "data" / "top_apartments.json"
 MAPS_DESTINATION = "1 Manhattan West, 395 9th Ave, New York, NY 10001"
 
 TARGET_RENT = 2350
-STRETCH_RENT = 2800
+STRETCH_RENT = 2350
 OUTPUT_COUNT = 10
 FETCH_MODE = os.environ.get("STREETEASY_FETCH_MODE", "auto").lower().replace("_", "-")
 # Randomized to avoid fingerprint patterns; all confirmed working against StreetEasy
@@ -839,8 +839,8 @@ class StreetEasyAPI:
             return []
 
         candidates: list[Candidate] = []
-        for max_rent in (self.target_rent, self.stretch_rent):
-            for idx, search_url in enumerate(self._search_urls(slug, max_rent, laundry_required=laundry_required)):
+        for max_rent in dict.fromkeys((self.target_rent, self.stretch_rent)):
+            for search_url in self._search_urls(slug, max_rent, laundry_required=laundry_required):
                 found: list[Candidate] = []
                 direct_ok = False
                 if self.fetch_mode != "reader-first":
@@ -865,13 +865,6 @@ class StreetEasyAPI:
                     except Exception:
                         found = []
                 candidates.extend(found)
-                if idx == 0:
-                    seen = {candidate.listing_url for candidate in candidates}
-                    if len(seen) >= min_candidates:
-                        break
-            seen = {candidate.listing_url for candidate in candidates}
-            if len(seen) >= min_candidates:
-                break
 
         seen_urls: set[str] = set()
         unique: list[Candidate] = []
