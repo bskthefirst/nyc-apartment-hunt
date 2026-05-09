@@ -8,47 +8,57 @@
 <style>
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
-body{margin:0;background:#F5F0E3;color:#17130F;font-family:"IBM Plex Sans KR","IBM Plex Sans",sans-serif;line-height:1.55}
-a{color:#2C5F3F;text-decoration-thickness:1.5px;text-underline-offset:3px}
-.wrap{max-width:1060px;margin:0 auto;padding:24px 18px 56px}
-.topbar{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:18px}
-.btn{display:inline-flex;align-items:center;justify-content:center;border:1.5px solid #8C836F;border-radius:999px;padding:8px 13px;background:#fff;color:#17130F;text-decoration:none;font-weight:700;font-size:14px}
+body{margin:0;background:#f3efe6;color:#17130F;font-family:"IBM Plex Sans KR","IBM Plex Sans",sans-serif;line-height:1.6}
+a{color:#234a33;text-decoration-thickness:1.5px;text-underline-offset:3px}
+.wrap{max-width:980px;margin:0 auto;padding:24px 18px 72px}
+.topbar{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:20px}
+.btn{display:inline-flex;align-items:center;justify-content:center;border:1px solid #8C836F;border-radius:999px;padding:9px 14px;background:#fffdfa;color:#17130F;text-decoration:none;font-weight:700;font-size:14px;transition:.18s ease}
 .btn:hover{background:#17130F;color:#F5F0E3;border-color:#17130F}
-.hero{border:1px solid #D8CCAA;border-radius:18px;padding:28px;background:linear-gradient(135deg,#FFFDF6 0%,#F4E8C6 52%,#DDEBDD 100%);box-shadow:0 18px 60px rgba(54,45,25,.08)}
-.eyebrow{font:700 12px/1 "JetBrains Mono",monospace;letter-spacing:.12em;text-transform:uppercase;color:#9C6A0C;margin:0 0 10px}
-h1{font-size:clamp(30px,7vw,58px);line-height:.98;letter-spacing:-.04em;margin:0 0 14px;max-width:780px}
-.lead{font-size:18px;max-width:800px;color:#463D30;margin:0}
-.grid{display:grid;grid-template-columns:1.15fr .85fr;gap:14px;margin-top:14px}
-.card,.section{background:#FFFDF6;border:1px solid #DED4B8;border-radius:14px;padding:16px}
-.card h2,.section h2{font-size:19px;margin:0 0 8px}
-.section h3{font-size:15px;margin:16px 0 6px;color:#8C5E0A;text-transform:uppercase;letter-spacing:.04em}
-.note{background:#17130F;color:#F5F0E3;border-radius:14px;padding:16px}
-.note h2{margin-top:0;color:#fff}
 .mono{font-family:"JetBrains Mono",monospace}
-.timeline{display:grid;gap:8px}
-.step{display:grid;grid-template-columns:145px 1fr;gap:10px;border-top:1px solid #E6DABE;padding-top:10px}
-.step:first-child{border-top:0;padding-top:0}
-.date{font-weight:800;color:#9C6A0C}
+.hero{padding:8px 0 0}
+.eyebrow{font:700 12px/1 "JetBrains Mono",monospace;letter-spacing:.12em;text-transform:uppercase;color:#8a6320;margin:0 0 12px}
+h1{font-size:clamp(32px,6vw,56px);line-height:1;letter-spacing:-.045em;margin:0 0 16px;max-width:760px}
+.lead{font-size:18px;max-width:820px;color:#433b31;margin:0}
+.summary-strip{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:24px 0 18px}
+.pill{background:#fffdfa;border:1px solid #ddd1b5;border-radius:16px;padding:14px}
+.pill-label{font:700 11px/1 "JetBrains Mono",monospace;letter-spacing:.08em;text-transform:uppercase;color:#7a7364;margin-bottom:6px}
+.pill strong{display:block;font-size:18px;line-height:1.2}
+.layout{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(280px,.75fr);gap:16px;align-items:start}
+.stack{display:grid;gap:16px}
+.section{background:#fffdfa;border:1px solid #ded4b8;border-radius:18px;padding:18px}
+.section h2{font-size:20px;letter-spacing:-.02em;margin:0 0 10px}
+.section-intro{font-size:14px;color:#62594a;margin:0 0 14px}
+.mini-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.mini-card{border:1px solid #e5dac0;border-radius:14px;background:#fbf6ea;padding:13px}
+.mini-card strong{display:block;margin-bottom:4px;font-size:15px}
+.note{background:#17130F;color:#F5F0E3;border:0}
+.note h2{color:#fff}
+.timeline{display:grid;gap:12px}
+.step{display:grid;grid-template-columns:132px 1fr;gap:14px;padding:14px 0;border-top:1px solid #ece2ca}
+.step:first-child{padding-top:0;border-top:0}
+.date{font:700 12px/1.3 "JetBrains Mono",monospace;letter-spacing:.04em;text-transform:uppercase;color:#8c5e0a}
+.step-copy strong{display:block;margin-bottom:4px;font-size:16px;color:#17130F}
 ul{padding-left:20px;margin:8px 0}
-li{margin:5px 0}
+li{margin:6px 0}
 .checklist{columns:2;column-gap:28px}
-.option-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
-.option{border:1px solid #E1D5B7;border-radius:12px;padding:12px;background:#FDF8EA}
-.option strong{display:block;margin-bottom:4px}
-.tag{display:inline-block;border:1px solid #9C6A0C;color:#9C6A0C;border-radius:999px;padding:2px 8px;font-size:12px;font-weight:700;margin-right:4px}
-table{width:100%;border-collapse:collapse;font-size:14px;background:#fff;border:1px solid #DED4B8;border-radius:12px;overflow:hidden}
-th,td{text-align:left;padding:10px;border-bottom:1px solid #E8DFC6;vertical-align:top}
-th{background:#F8F3E5;color:#7C735F;text-transform:uppercase;font-size:12px;letter-spacing:.05em}
+.option-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.option{border:1px solid #e1d5b7;border-radius:14px;padding:14px;background:#fdf8ea}
+.option strong{display:block;margin:6px 0 4px;font-size:15px}
+.tag{display:inline-block;border:1px solid #9C6A0C;color:#9C6A0C;border-radius:999px;padding:2px 8px;font-size:12px;font-weight:700}
+table{width:100%;border-collapse:collapse;font-size:14px;background:#fffdfa;border:1px solid #ded4b8;border-radius:14px;overflow:hidden}
+th,td{text-align:left;padding:12px;border-bottom:1px solid #e8dfc6;vertical-align:top}
+th{background:#f7f1e2;color:#6f6758;text-transform:uppercase;font-size:11px;letter-spacing:.08em}
 tr:last-child td{border-bottom:0}
 .sources{font-size:13px;color:#514A39}
+.sources ul{margin-top:10px}
 @media(max-width:760px){
-  .wrap{padding:14px 12px 36px}
+  .wrap{padding:14px 12px 42px}
   .topbar{align-items:flex-start;flex-direction:column}
-  .hero{padding:20px}
-  .grid,.option-grid{grid-template-columns:1fr}
-  .step{grid-template-columns:1fr;gap:2px}
+  .summary-strip,.layout,.mini-grid,.option-grid{grid-template-columns:1fr}
+  .step{grid-template-columns:1fr;gap:6px}
   .checklist{columns:1}
   .btn{width:100%}
+  th,td{padding:10px}
 }
 </style>
 </head>
@@ -62,41 +72,76 @@ tr:last-child td{border-bottom:0}
   <section class="hero">
     <p class="eyebrow">UIUC -> NYC/NJ Moving Guide</p>
     <h1>6월 25일 UIUC 퇴거 기준, 뉴욕 이사 실행 계획</h1>
-    <p class="lead">핵심은 두 가지입니다. <strong>6월 25일 목요일 낮 12시 전에는 UIUC 집에서 짐과 키가 모두 나가야 하고, NYC/NJ 실물 투어는 그 이후에 시작하는 플랜</strong>으로 잡습니다. 그래서 이 계획의 기본값은 6/25 퇴거 -> 짐 보관/배송 -> NYC/NJ 단기 체류 -> 직접 보고 신청 -> 7월 초-중순 입주입니다.</p>
+    <p class="lead">핵심은 두 가지입니다. <strong>6월 25일 목요일 낮 12시 전에는 UIUC 집에서 짐과 키가 모두 나가야 하고, NYC/NJ 실물 투어는 그 이후에 시작하는 플랜</strong>으로 잡습니다. 그래서 기본값은 <strong>6/25 퇴거 -> 짐은 1-2주 보관 hold -> NYC/NJ 단기 체류 -> 직접 보고 신청 -> 새 주소 확정 후 최종 배송</strong>입니다.</p>
   </section>
 
-  <div class="grid">
-    <section class="card">
-      <h2>추천 전략</h2>
-      <ul>
-        <li><strong>지금-5월 20일:</strong> guarantor/reference 없이 신청 가능한 매물 위주로 보고, ID/소득증명/은행잔고/credit check 준비만 한 폴더에 묶습니다.</li>
-        <li><strong>5월 20일-6월 20일:</strong> 실제 계약이 아니라 원격 스크리닝 기간입니다. 동네, 건물, 수수료, 세탁, 통근, 가격만 걸러냅니다.</li>
-        <li><strong>6월 20일-25일:</strong> 집 구하기보다 퇴거/짐/보관을 우선합니다. 6/25 12pm 마감이 더 단단한 deadline입니다.</li>
-        <li><strong>6월 26일-7월 초:</strong> NYC/NJ에서 직접 보고 신청합니다. 이때 단기 숙소 + 짐 보관이 기본 플랜입니다.</li>
-      </ul>
-    </section>
-    <section class="note">
-      <h2>결론</h2>
-      <p>가구가 많지 않으면 <strong>팔고, 박스만 배송/보관</strong>하는 쪽이 뉴욕에서는 제일 덜 위험합니다. 다만 EY brochure 기준으로 MiniMoves, Penske, CORT, PorchLight, National Corporate Housing, Corporate Living 같은 <strong>EY 할인/무료 리소스</strong>가 있으므로 결제 전에 먼저 비교합니다.</p>
-      <p><strong>주의:</strong> brochure의 할인 서비스는 자동 reimbursement가 아닙니다. 별도 offer letter나 relocation policy에 없는 비용은 환급 전제로 쓰지 않습니다.</p>
-    </section>
-  </div>
+  <section class="summary-strip">
+    <div class="pill"><div class="pill-label">Move-out</div><strong>6/25 12:00 PM</strong></div>
+    <div class="pill"><div class="pill-label">Search mode</div><strong>Tour after move-out</strong></div>
+    <div class="pill"><div class="pill-label">Default bridge</div><strong>1-2 week storage hold</strong></div>
+    <div class="pill"><div class="pill-label">Realistic move-in</div><strong>7/1-7/15</strong></div>
+  </section>
 
-  <section class="section">
-    <h2>날짜별 실행표</h2>
-    <div class="timeline">
-      <div class="step"><div class="date">5/9-5/12</div><div><strong>퇴거 기준은 확정: 6월 25일 낮 12시까지 키 반납.</strong> 이 기간에는 시간을 확인하는 게 아니라, 12시 마감에서 역산해서 짐 픽업/청소/마지막 사진 촬영/키 반납 순서를 캘린더에 박습니다.</div></div>
-      <div class="step"><div class="date">5/9-5/15</div><div>NYC/NJ 신청 서류 PDF 폴더를 만듭니다. 필요한 것은 ID, offer/employment letter, pay stub가 없으면 future-income proof, bank statements/savings, credit check 준비, 그리고 신청비/보증금 결제 수단입니다. <strong>이전 임대인 reference와 guarantor는 전제로 두지 않습니다.</strong></div></div>
-      <div class="step"><div class="date">5/12-6/20</div><div>StreetEasy, Zillow, building site, PATH/Jersey City/Hoboken buildings에 알림을 겁니다. 이 기간의 목적은 계약이 아니라 <strong>후보 압축</strong>입니다: 동네, 건물, 세탁, 수수료, 1MW 통근, 40x 가능 여부만 걸러냅니다.</div></div>
-      <div class="step"><div class="date">5/20-6/20</div><div>화상투어는 보조로만 씁니다. 직접 보기 전에는 큰돈을 보내거나 lease를 확정하지 않는 쪽을 기본값으로 둡니다. 대신 마음에 드는 건물/브로커/관리회사 목록과 질문 템플릿을 만듭니다.</div></div>
-      <div class="step"><div class="date">6/1-6/14</div><div>NYC 계약 목표 구간이 아니라 <strong>이사 물류 확정 구간</strong>입니다. EY brochure 기준으로 MiniMoves, Penske EY10, Corporate Living/National Corporate Housing, CORT 중 필요한 옵션만 고릅니다. 6/25 12pm 전에 짐이 빠지는지가 기준입니다.</div></div>
-      <div class="step"><div class="date">6/10-6/18</div><div>가구를 가져갈지 팔지 결정합니다. 뉴욕 walk-up, 엘리베이터 예약, truck parking 비용까지 고려합니다.</div></div>
-      <div class="step"><div class="date">6/18-6/22</div><div>전기/가스/인터넷 이전 또는 해지, USPS forwarding, 은행/학교/직장 주소 변경, renters insurance를 처리합니다.</div></div>
-      <div class="step"><div class="date">6/22-6/24</div><div>짐은 이 구간에 거의 끝냅니다. 6/24 밤에는 바닥 청소, 욕실/주방 청소, 사진/영상 기록, mailbox/storage/bike area 비우기까지 끝나 있어야 합니다.</div></div>
-      <div class="step"><div class="date">6/25 오전</div><div><strong>낮 12시 전 키 반납.</strong> 아침에는 새 작업을 만들지 말고 최종 walkthrough, 쓰레기 배출, 사진 몇 장 추가, key-return proof 확보만 합니다. 이후 NYC/NJ로 이동하거나 브릿지 숙소로 갑니다.</div></div>
-      <div class="step"><div class="date">6/26-7/7</div><div><strong>현장 투어 집중 구간.</strong> 하루 4-6개씩 보고, 괜찮은 집은 당일 신청합니다. 목표 입주는 7/1이 아니라 <strong>7월 초-중순</strong>으로 잡는 게 더 현실적입니다.</div></div>
+  <div class="layout">
+    <div class="stack">
+      <section class="section">
+        <h2>Recommended plan</h2>
+        <p class="section-intro">This version is tighter on purpose: deadline first, logistics second, apartment search third.</p>
+        <div class="mini-grid">
+          <div class="mini-card">
+            <strong>Now to late May</strong>
+            신청 가능한 매물 조건을 정리하고, 서류 PDF 폴더와 결제 수단만 준비합니다. 계약 확정이 아니라 shortlist 압축 단계입니다.
+          </div>
+          <div class="mini-card">
+            <strong>June before move-out</strong>
+            집 계약보다 퇴거와 짐 처리 우선입니다. 6/25 정오 전에 방이 비워지는지 기준으로 물류를 먼저 잠급니다.
+          </div>
+          <div class="mini-card">
+            <strong>6/25 to early July</strong>
+            단기 숙소와 storage hold를 깔고 NYC/NJ에서 실물 투어 후 바로 신청합니다.
+          </div>
+          <div class="mini-card">
+            <strong>Default bias</strong>
+            가구가 많지 않으면 팔고, 박스만 보관 또는 배송하는 쪽이 가장 단순하고 덜 위험합니다.
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>날짜별 실행표</h2>
+        <div class="timeline">
+          <div class="step"><div class="date">5/9-5/12</div><div class="step-copy"><strong>퇴거 기준 확정</strong>6월 25일 낮 12시까지 키 반납. 이 기간에는 시간을 다시 확인하는 게 아니라, 12시 마감에서 역산해서 짐 픽업, 청소, 마지막 사진 촬영, 키 반납 순서를 캘린더에 고정합니다.</div></div>
+          <div class="step"><div class="date">5/9-5/15</div><div class="step-copy"><strong>신청 서류 폴더 준비</strong>ID, offer or employment letter, future-income proof or pay documentation, bank statements or savings proof, credit check 준비, 신청비와 보증금 결제 수단을 묶습니다. <strong>이전 임대인 reference와 guarantor는 전제로 두지 않습니다.</strong></div></div>
+          <div class="step"><div class="date">5/12-6/20</div><div class="step-copy"><strong>후보 압축</strong>StreetEasy, Zillow, building site, PATH/Jersey City/Hoboken 건물 알림을 켭니다. 목적은 계약이 아니라 동네, 건물, 세탁, 수수료, 1MW 통근, 40x 가능 여부만 걸러내는 것입니다.</div></div>
+          <div class="step"><div class="date">5/20-6/20</div><div class="step-copy"><strong>원격은 보조 수단</strong>화상투어는 참고용으로만 쓰고, 직접 보기 전에는 큰돈을 보내거나 lease를 확정하지 않는 쪽을 기본값으로 둡니다.</div></div>
+          <div class="step"><div class="date">6/1-6/14</div><div class="step-copy"><strong>물류 확정</strong>EY brochure 기준으로 MiniMoves, Penske EY10, Corporate Living, National Corporate Housing, CORT 중 필요한 옵션만 비교합니다. 기준은 하나입니다. <strong>6/25 12pm 전에 짐이 빠지는가.</strong></div></div>
+          <div class="step"><div class="date">6/10-6/18</div><div class="step-copy"><strong>가구 결론 내기</strong>가져갈지 팔지 결정합니다. 뉴욕 walk-up, elevator reservation, truck parking 비용까지 생각해서 끊습니다.</div></div>
+          <div class="step"><div class="date">6/18-6/22</div><div class="step-copy"><strong>주소·공과금 정리</strong>전기, 가스, 인터넷 이전 또는 해지, USPS forwarding, 은행, 학교, 직장 주소 변경, renters insurance를 처리합니다.</div></div>
+          <div class="step"><div class="date">6/22-6/24</div><div class="step-copy"><strong>포장 마감</strong>짐은 이 구간에 거의 끝냅니다. 6/24 밤에는 바닥, 욕실, 주방 청소와 사진·영상 기록, mailbox, storage, bike area 비우기까지 끝나 있어야 합니다.</div></div>
+          <div class="step"><div class="date">6/25 AM</div><div class="step-copy"><strong>키 반납만 남기기</strong>아침에는 새 일을 만들지 말고 최종 walkthrough, 쓰레기 배출, 사진 몇 장 추가, key-return proof 확보만 합니다. 이후 NYC/NJ로 이동합니다.</div></div>
+          <div class="step"><div class="date">6/26-7/7</div><div class="step-copy"><strong>현장 투어 집중</strong>하루 4-6개씩 보고, 괜찮은 집은 당일 신청합니다. 현실적인 목표 입주는 <strong>7월 초-중순</strong>입니다.</div></div>
+        </div>
+      </section>
     </div>
-  </section>
+
+    <div class="stack">
+      <section class="section note">
+        <h2>Bottom line</h2>
+        <p>최종 NYC 주소가 없으면 UIUC에서 곧바로 새 아파트로 보내는 방식은 불안정합니다. 기본값은 <strong>storage hold -> 단기 체류 -> 현장 투어 -> signed lease -> final delivery</strong>입니다.</p>
+        <p><strong>주의:</strong> EY brochure의 vendor는 대부분 할인 또는 locator 리소스입니다. 자동 reimbursement처럼 쓰면 안 됩니다.</p>
+      </section>
+
+      <section class="section">
+        <h2>Quick filters</h2>
+        <div class="mini-grid" style="grid-template-columns:1fr">
+          <div class="mini-card"><strong>No final address yet</strong>박스는 hold 가능한 옵션만 비교합니다.</div>
+          <div class="mini-card"><strong>No guarantor / no landlord reference</strong>그 전제를 요구하지 않는 매물을 우선 봅니다.</div>
+          <div class="mini-card"><strong>Tour timing</strong>직접 투어는 6/25 이후 NYC/NJ 체류 구간에 몰아넣습니다.</div>
+          <div class="mini-card"><strong>Big scam rule</strong>실물 확인 전 큰 선입금이나 비정상적으로 싼 매물은 멈춥니다.</div>
+        </div>
+      </section>
+    </div>
+  </div>
 
   <section class="section">
     <h2>집 구하기 플랜</h2>
@@ -105,8 +150,9 @@ tr:last-child td{border-bottom:0}
       <tbody>
         <tr><td>예산</td><td>40x 기준은 월세 x 40의 연봉을 요구하는 경우가 많습니다. $2,350이면 약 $94,000, $2,800이면 약 $112,000 기준입니다.</td></tr>
         <tr><td>입주일</td><td>6/25 이후에 NYC/NJ에서 직접 볼 수 있으므로, 현실적인 목표 입주는 7/1-7/15입니다. 6/25-입주일까지는 단기 숙소 + 짐 보관을 기본 플랜으로 둡니다.</td></tr>
+        <tr><td>배송 방식</td><td><strong>최종 주소가 없으면 바로 NYC 아파트로 보내기 어렵습니다.</strong> 기본값은 UIUC에서 짐을 storage hold로 빼고, 새 lease를 signed한 뒤 그 주소로 final delivery를 넣는 방식입니다.</td></tr>
         <tr><td>단기 숙소</td><td>6/25 이후 바로 입주가 안 되면 National Corporate Housing 또는 Corporate Living의 furnished apartment/temporary housing 견적을 봅니다. Corporate Living은 brochure상 최대 15% 할인입니다.</td></tr>
-        <tr><td>서류</td><td>신분증, 소득/채용 증명, bank statements/savings, credit check 준비, 신청비/보증금 준비. 이전 landlord reference와 guarantor 없이 넣을 수 있는 매물을 우선 봅니다.</td></tr>
+        <tr><td>서류</td><td>신분증, 소득 또는 채용 증명, bank statements or savings, credit check 준비, 신청비와 보증금 준비. 이전 landlord reference와 guarantor 없이 넣을 수 있는 매물을 우선 봅니다.</td></tr>
         <tr><td>NYC 수수료</td><td>NYC는 FARE Act 이후 landlord-side broker를 tenant에게 전가하는 구조가 제한됩니다. 그래도 listing마다 수수료 조건을 반드시 확인합니다.</td></tr>
         <tr><td>NJ 보증금</td><td>뉴저지 보증금은 일반적으로 1.5개월치 월세 cap을 기준으로 확인합니다.</td></tr>
       </tbody>
@@ -115,16 +161,16 @@ tr:last-child td{border-bottom:0}
 
   <section class="section">
     <h2>EY relocation brochure 기준</h2>
-    <p><strong>중요:</strong> brochure는 “free services are noted where applicable”이고, 그 외 discounted service는 <strong>본인 부담이며 reimbursement 대상이 아니라고 명시</strong>합니다. 그래서 여기서는 “공짜 이사 혜택”이 아니라 “EY 할인/locator 옵션”으로만 씁니다.</p>
+    <p class="section-intro"><strong>Important:</strong> brochure는 “free services are noted where applicable”이고, 그 외 discounted service는 본인 부담이며 reimbursement 대상이 아닐 수 있다고 봐야 합니다.</p>
     <table>
       <thead><tr><th>Use case</th><th>Brochure option</th><th>How to use it</th></tr></thead>
       <tbody>
         <tr><td>NYC 도착 직후 임시 숙소</td><td>National Corporate Housing / Corporate Living</td><td>6/25 이후 바로 볼 집이 없으면 furnished temporary housing 견적을 먼저 봅니다. Corporate Living은 brochure상 최대 15% 할인.</td></tr>
-        <tr><td>직접 투어/지역 적응 도움</td><td>PorchLight / CORT locator</td><td>PorchLight는 rental tours, area tours, settling-in service. CORT는 free apartment locator와 destination service를 제공한다고 brochure에 적혀 있습니다.</td></tr>
-        <tr><td>박스/소량 짐</td><td>MiniMoves</td><td>방 하나, 소형 shipment, 몇 개 가구처럼 작은 짐에 맞는 옵션. 이 플랜의 기본 이동 방식과 가장 잘 맞습니다.</td></tr>
-        <tr><td>직접 운전</td><td>Penske Truck Rental</td><td>one-way rental unlimited miles. Promo code <strong>EY10</strong>으로 할인.</td></tr>
-        <tr><td>가구를 새 집에 임시로 채우기</td><td>CORT</td><td>가구 렌탈/구매 10% 할인. 뉴욕에서 당장 가구를 다 사기 싫을 때만 봅니다.</td></tr>
-        <tr><td>큰 가구를 전부 가져갈 때</td><td>Budd / Weleski / Mills</td><td>household goods moving/storage 할인 옵션. 지금 기본값은 아니고, 가구를 많이 가져가기로 결정했을 때만 견적을 받습니다.</td></tr>
+        <tr><td>직접 투어 또는 지역 적응 도움</td><td>PorchLight / CORT locator</td><td>PorchLight는 rental tours, area tours, settling-in service. CORT는 free apartment locator와 destination service를 제공한다고 brochure에 적혀 있습니다.</td></tr>
+        <tr><td>박스 또는 소량 짐</td><td>MiniMoves</td><td>방 하나, 소형 shipment, 몇 개 가구처럼 작은 짐에 맞는 옵션입니다. 다만 <strong>새 주소가 없으면 storage hold 또는 나중 delivery가 가능한지 먼저 확인</strong>해야 합니다.</td></tr>
+        <tr><td>직접 운전</td><td>Penske Truck Rental</td><td>One-way rental unlimited miles. Promo code <strong>EY10</strong>으로 할인.</td></tr>
+        <tr><td>가구를 새 집에 임시로 채우기</td><td>CORT</td><td>가구 렌탈 또는 구매 10% 할인. 뉴욕에서 당장 가구를 다 사기 싫을 때만 봅니다.</td></tr>
+        <tr><td>큰 가구를 전부 가져갈 때</td><td>Budd / Weleski / Mills</td><td>Household goods moving or storage 할인 옵션. 지금 기본값은 아니고, 가구를 많이 가져가기로 결정했을 때만 견적을 받습니다.</td></tr>
       </tbody>
     </table>
     <p style="margin-top:10px">Brochure contacts to use first: National Corporate Housing Michelle “Missy” Gobrecht, +1 267 664 5748, mgobrecht@nationalcorporatehousing.com; Corporate Living Valerie Mercier, valerie.mercier@corporateliving.com; Budd Van Lines Doug Ketzer, dketzer@buddvanlines.com; Mills Van Lines, ey@millsvanlines.com.</p>
@@ -133,11 +179,11 @@ tr:last-child td{border-bottom:0}
   <section class="section">
     <h2>이사/보관 옵션</h2>
     <div class="option-grid">
-      <div class="option"><span class="tag">가벼운 짐</span><strong>MiniMoves / 박스 배송</strong>방 하나, 작은 apartment, 일부 가구만 옮기는 경우 EY 할인 MiniMoves를 먼저 비교합니다. 더 가벼우면 책/옷/소형 물건만 배송하고 가구는 Champaign에서 처분합니다.</div>
-      <div class="option"><span class="tag">브릿지</span><strong>Corporate furnished stay</strong>6/25 이후 현장 투어 기간 동안 National Corporate Housing 또는 Corporate Living 견적을 봅니다.</div>
+      <div class="option"><span class="tag">가벼운 짐</span><strong>MiniMoves / 박스 배송</strong>방 하나, 작은 apartment, 일부 가구만 옮기는 경우 EY 할인 MiniMoves를 먼저 비교합니다. 다만 새 주소가 없으면 바로 final apartment로 보내는 게 아니라 storage hold 가능 여부를 먼저 봅니다.</div>
+      <div class="option"><span class="tag">브릿지</span><strong>Corporate furnished stay</strong>6/25 이후 현장 투어 기간 동안 National Corporate Housing 또는 Corporate Living 견적을 봅니다. 이 기간에는 짐도 함께 최종 배송하지 말고 hold 상태로 두는 게 기본입니다.</div>
       <div class="option"><span class="tag">가구 있음</span><strong>Budd / Weleski / Mills</strong>가구를 많이 가져가기로 결정했을 때만 EY 할인 household-goods movers 견적을 받습니다. 기본값은 아닙니다.</div>
       <div class="option"><span class="tag">직접 운전</span><strong>Penske EY10</strong>정말 직접 운전할 때만 봅니다. One-way unlimited miles + EY10 할인.</div>
-      <div class="option"><span class="tag">가구 렌탈</span><strong>CORT</strong>초기에는 큰 가구를 옮기지 않고 CORT 10% EY discount로 렌탈/구매를 검토합니다.</div>
+      <div class="option"><span class="tag">가구 렌탈</span><strong>CORT</strong>초기에는 큰 가구를 옮기지 않고 CORT 10% EY discount로 렌탈 또는 구매를 검토합니다.</div>
       <div class="option"><span class="tag">현장 도움</span><strong>PorchLight / CORT locator</strong>직접 투어 전 후보를 좁힐 때 rental tours, area tours, apartment locator를 보조로 씁니다.</div>
     </div>
   </section>
@@ -147,16 +193,17 @@ tr:last-child td{border-bottom:0}
     <ul class="checklist">
       <li>6월 25일 낮 12시 키 반납을 캘린더 최종 마감으로 고정</li>
       <li>6월 24일 밤까지 짐, 청소, 사진 기록을 끝내는 역산 일정 만들기</li>
-      <li>청소 후 사진/영상 기록</li>
+      <li>청소 후 사진과 영상 기록</li>
       <li>Mailbox, storage, bike area, balcony 비우기</li>
-      <li>전기/가스/인터넷 해지 또는 이전</li>
+      <li>전기, 가스, 인터넷 해지 또는 이전</li>
       <li>USPS forwarding 설정</li>
       <li>은행, 학교, 직장, 보험 주소 변경</li>
       <li>필수품 가방: ID, lease, 노트북, 충전기, 약, 세면도구, 이틀치 옷</li>
-      <li>Mover/배송 tracking, key-return proof, deposit correspondence 보관</li>
-      <li>EY brochure vendor는 reimbursement가 아니라 할인/무료 리소스인지 먼저 구분</li>
-      <li>MiniMoves, Penske EY10, CORT, PorchLight, National Corporate Housing, Corporate Living 견적/조건 비교</li>
-      <li>별도 offer letter나 relocation policy에 없는 비용은 환급 전제로 지출하지 않기</li>
+      <li>Mover tracking, key-return proof, deposit correspondence 보관</li>
+      <li>최종 NYC 주소가 나오기 전에는 final delivery 대신 storage hold 기간과 비용부터 확인</li>
+      <li>EY brochure vendor는 reimbursement가 아니라 할인 또는 무료 리소스인지 먼저 구분</li>
+      <li>MiniMoves, Penske EY10, CORT, PorchLight, National Corporate Housing, Corporate Living 견적과 조건 비교</li>
+      <li>Offer letter나 relocation policy에 없는 비용은 환급 전제로 지출하지 않기</li>
       <li>수상한 선입금 요구, viewing 전 송금, 비정상적으로 싼 매물은 중단하고 검증</li>
     </ul>
   </section>
