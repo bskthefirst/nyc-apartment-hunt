@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>UIUC -> NYC 이사 계획</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:#F5F0E3;color:#17130F;font-family:"IBM Plex Sans KR","IBM Plex Sans",sans-serif;line-height:1.55}
+a{color:#2C5F3F;text-decoration-thickness:1.5px;text-underline-offset:3px}
+.wrap{max-width:1060px;margin:0 auto;padding:24px 18px 56px}
+.topbar{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:18px}
+.btn{display:inline-flex;align-items:center;justify-content:center;border:1.5px solid #8C836F;border-radius:999px;padding:8px 13px;background:#fff;color:#17130F;text-decoration:none;font-weight:700;font-size:14px}
+.btn:hover{background:#17130F;color:#F5F0E3;border-color:#17130F}
+.hero{border:1px solid #D8CCAA;border-radius:18px;padding:28px;background:linear-gradient(135deg,#FFFDF6 0%,#F4E8C6 52%,#DDEBDD 100%);box-shadow:0 18px 60px rgba(54,45,25,.08)}
+.eyebrow{font:700 12px/1 "JetBrains Mono",monospace;letter-spacing:.12em;text-transform:uppercase;color:#9C6A0C;margin:0 0 10px}
+h1{font-size:clamp(30px,7vw,58px);line-height:.98;letter-spacing:-.04em;margin:0 0 14px;max-width:780px}
+.lead{font-size:18px;max-width:800px;color:#463D30;margin:0}
+.grid{display:grid;grid-template-columns:1.15fr .85fr;gap:14px;margin-top:14px}
+.card,.section{background:#FFFDF6;border:1px solid #DED4B8;border-radius:14px;padding:16px}
+.card h2,.section h2{font-size:19px;margin:0 0 8px}
+.section h3{font-size:15px;margin:16px 0 6px;color:#8C5E0A;text-transform:uppercase;letter-spacing:.04em}
+.note{background:#17130F;color:#F5F0E3;border-radius:14px;padding:16px}
+.note h2{margin-top:0;color:#fff}
+.mono{font-family:"JetBrains Mono",monospace}
+.timeline{display:grid;gap:8px}
+.step{display:grid;grid-template-columns:145px 1fr;gap:10px;border-top:1px solid #E6DABE;padding-top:10px}
+.step:first-child{border-top:0;padding-top:0}
+.date{font-weight:800;color:#9C6A0C}
+ul{padding-left:20px;margin:8px 0}
+li{margin:5px 0}
+.checklist{columns:2;column-gap:28px}
+.option-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.option{border:1px solid #E1D5B7;border-radius:12px;padding:12px;background:#FDF8EA}
+.option strong{display:block;margin-bottom:4px}
+.tag{display:inline-block;border:1px solid #9C6A0C;color:#9C6A0C;border-radius:999px;padding:2px 8px;font-size:12px;font-weight:700;margin-right:4px}
+table{width:100%;border-collapse:collapse;font-size:14px;background:#fff;border:1px solid #DED4B8;border-radius:12px;overflow:hidden}
+th,td{text-align:left;padding:10px;border-bottom:1px solid #E8DFC6;vertical-align:top}
+th{background:#F8F3E5;color:#7C735F;text-transform:uppercase;font-size:12px;letter-spacing:.05em}
+tr:last-child td{border-bottom:0}
+.sources{font-size:13px;color:#514A39}
+@media(max-width:760px){
+  .wrap{padding:14px 12px 36px}
+  .topbar{align-items:flex-start;flex-direction:column}
+  .hero{padding:20px}
+  .grid,.option-grid{grid-template-columns:1fr}
+  .step{grid-template-columns:1fr;gap:2px}
+  .checklist{columns:1}
+  .btn{width:100%}
+}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <div class="topbar">
+    <a class="btn" href="index.html">동네 점수표로 돌아가기</a>
+    <span class="mono" style="color:#7C735F;font-size:13px">Lease end: 2026-06-25</span>
+  </div>
+
+  <section class="hero">
+    <p class="eyebrow">UIUC -> NYC/NJ Moving Guide</p>
+    <h1>6월 25일 UIUC 퇴거 기준, 뉴욕 이사 실행 계획</h1>
+    <p class="lead">핵심은 두 가지입니다. 6월 초-중순까지 집을 확보하고, 6월 20-25일에는 짐을 빼는 플랜을 확정합니다. 가장 좋은 매물이 7월 1일 입주라면 6일짜리 브릿지 숙소/보관 플랜을 미리 깔아둡니다.</p>
+  </section>
+
+  <div class="grid">
+    <section class="card">
+      <h2>추천 전략</h2>
+      <ul>
+        <li><strong>지금-5월 20일:</strong> 서류 패킷, 동네 후보, 알림, 이사 옵션을 준비합니다.</li>
+        <li><strong>5월 20일-6월 7일:</strong> 투어와 신청을 몰아서 합니다. 맞는 매물은 당일 신청할 준비가 필요합니다.</li>
+        <li><strong>6월 1일-14일:</strong> 가능하면 계약 완료. 이때 이사업체/컨테이너/배송도 확정합니다.</li>
+        <li><strong>6월 15일-25일:</strong> 백업 기간입니다. 7월 1일 입주라면 보관 + 단기 숙소가 현실적입니다.</li>
+      </ul>
+    </section>
+    <section class="note">
+      <h2>결론</h2>
+      <p>가구가 많지 않으면 <strong>팔고, 박스만 배송/보관</strong>하는 쪽이 뉴욕에서는 제일 덜 위험합니다. 가구를 가져가야 한다면 U-Box 같은 컨테이너나 등록된 interstate mover를 비교합니다.</p>
+      <p>뉴욕/NJ 집 구하는 데 보통 <strong>집중 검색 1-3주</strong>, 여유 있게는 <strong>4-6주</strong>를 잡는 게 안전합니다.</p>
+    </section>
+  </div>
+
+  <section class="section">
+    <h2>날짜별 실행표</h2>
+    <div class="timeline">
+      <div class="step"><div class="date">5/9-5/12</div><div>현재 lease의 퇴거 시간, 키 반납, 청소 기준, 보증금 조건을 확인합니다. UIUC Housing이면 lease end date 정오 키 반납 규칙을 먼저 봅니다.</div></div>
+      <div class="step"><div class="date">5/9-5/15</div><div>NYC/NJ 신청 서류 PDF 폴더를 만듭니다. ID, offer/employment letter, pay stub 또는 future-income proof, bank statement, 이전 임대인 reference, guarantor 자료를 준비합니다.</div></div>
+      <div class="step"><div class="date">5/12-5/25</div><div>StreetEasy, Zillow, building site, PATH/Jersey City/Hoboken buildings, roommate/sublet 채널에 알림을 겁니다. 입주일은 6/15, 6/25, 7/1 세 가지로 봅니다.</div></div>
+      <div class="step"><div class="date">5/20-6/7</div><div>투어/화상투어를 집중합니다. 통근, 세탁, 실제 월 부담, 수수료, lease start date가 맞으면 당일 신청합니다.</div></div>
+      <div class="step"><div class="date">6/1-6/14</div><div>계약 목표 구간입니다. 동시에 mover, U-Box, student storage, 배송 라벨, 혹은 렌탈 트럭을 예약합니다.</div></div>
+      <div class="step"><div class="date">6/10-6/18</div><div>가구를 가져갈지 팔지 결정합니다. 뉴욕 walk-up, 엘리베이터 예약, truck parking 비용까지 고려합니다.</div></div>
+      <div class="step"><div class="date">6/18-6/22</div><div>전기/가스/인터넷 이전 또는 해지, USPS forwarding, 은행/학교/직장 주소 변경, renters insurance를 처리합니다.</div></div>
+      <div class="step"><div class="date">6/22-6/24</div><div>청소, 사진/영상 기록, mailbox/storage/bike area 비우기, 열쇠 반납 증빙 준비를 합니다.</div></div>
+      <div class="step"><div class="date">6/25</div><div>최종 점검 후 키를 반납합니다. 반납 증빙, 사진, mover 영수증, tracking 번호를 한 폴더에 보관합니다.</div></div>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2>집 구하기 플랜</h2>
+    <table>
+      <thead><tr><th>항목</th><th>기준</th></tr></thead>
+      <tbody>
+        <tr><td>예산</td><td>40x 기준은 월세 x 40의 연봉을 요구하는 경우가 많습니다. $2,350이면 약 $94,000, $2,800이면 약 $112,000 기준입니다.</td></tr>
+        <tr><td>입주일</td><td>6/15 또는 6/25 입주가 제일 깔끔합니다. 7/1 입주는 흔하지만 6/25-7/1 브릿지 플랜이 필요합니다.</td></tr>
+        <tr><td>서류</td><td>신분증, 소득/채용 증명, bank statements, 이전 landlord reference, guarantor 자료, 신청비/보증금 준비.</td></tr>
+        <tr><td>NYC 수수료</td><td>NYC는 FARE Act 이후 landlord-side broker를 tenant에게 전가하는 구조가 제한됩니다. 그래도 listing마다 수수료 조건을 반드시 확인합니다.</td></tr>
+        <tr><td>NJ 보증금</td><td>뉴저지 보증금은 일반적으로 1.5개월치 월세 cap을 기준으로 확인합니다.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="section">
+    <h2>이사/보관 옵션</h2>
+    <div class="option-grid">
+      <div class="option"><span class="tag">가벼운 짐</span><strong>팔고 박스 배송</strong>책/옷/소형 물건만 보내고 가구는 Champaign에서 처분합니다. 뉴욕에서는 가장 단순합니다.</div>
+      <div class="option"><span class="tag">브릿지</span><strong>Student storage / Collegeboxes</strong>UIUC 주변 픽업/보관/배송 옵션을 확인합니다. 7/1 입주와 잘 맞습니다.</div>
+      <div class="option"><span class="tag">가구 있음</span><strong>U-Box / portable container</strong>보관 후 배송이 가능하지만, NYC/NJ 목적지에서 컨테이너를 받을 수 있는지 먼저 확인합니다.</div>
+      <div class="option"><span class="tag">직접 운전</span><strong>렌탈 트럭/밴</strong>싸게 보일 수 있지만 톨, 주차, 건물 move-in rule, 장거리 운전 피로가 큽니다.</div>
+      <div class="option"><span class="tag">편함</span><strong>Interstate mover</strong>FMCSA 등록, USDOT 번호, written estimate, inventory, 보험을 확인합니다.</div>
+      <div class="option"><span class="tag">긴급</span><strong>단기 숙소 + 보관</strong>7/1 좋은 집을 잡는 대신 6/25-7/1은 호텔/친구집/서브렛 + storage로 버팁니다.</div>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2>체크리스트</h2>
+    <ul class="checklist">
+      <li>Lease의 notice, cleaning, key return, utility 조항 확인</li>
+      <li>Move-out inspection 가능 여부 확인</li>
+      <li>청소 후 사진/영상 기록</li>
+      <li>Mailbox, storage, bike area, balcony 비우기</li>
+      <li>전기/가스/인터넷 해지 또는 이전</li>
+      <li>USPS forwarding 설정</li>
+      <li>은행, 학교, 직장, 보험 주소 변경</li>
+      <li>필수품 가방: ID, lease, 노트북, 충전기, 약, 세면도구, 이틀치 옷</li>
+      <li>Mover/배송 tracking, key-return proof, deposit correspondence 보관</li>
+      <li>수상한 선입금 요구, viewing 전 송금, 비정상적으로 싼 매물은 중단하고 검증</li>
+    </ul>
+  </section>
+
+  <section class="section sources">
+    <h2>Sources</h2>
+    <ul>
+      <li><a href="https://housing.illinois.edu/MyHousing/Apartments/Move-Out">UIUC University Housing Apartment Move-Out</a></li>
+      <li><a href="https://occl.illinois.edu/housing/application-and-lease">UIUC Off-Campus Community Living lease guidance</a></li>
+      <li><a href="https://portal.311.nyc.gov/article/?kanumber=KA-03665">NYC311 Broker Fees / FARE Act</a></li>
+      <li><a href="https://ag.ny.gov/resources/individuals/tenants-homeowners/tenants">New York Attorney General tenant rights</a></li>
+      <li><a href="https://www.njcourts.gov/self-help/landlord-tenant">New Jersey Courts landlord/tenant guidance</a></li>
+      <li><a href="https://streeteasy.com/blog/how-much-rent-can-i-afford-in-nyc/">StreetEasy 40x affordability explainer</a></li>
+      <li><a href="https://www.apartmentlist.com/renter-life/when-to-start-apartment-search">Apartment List search timing guide</a></li>
+      <li><a href="https://www.uhaul.com/UBox/">U-Haul U-Box</a></li>
+      <li><a href="https://www.collegeboxes.com/university-of-illinois-urbana-champaign/">Collegeboxes UIUC storage/shipping</a></li>
+      <li><a href="https://www.fmcsa.dot.gov/protect-your-move/select-mover">FMCSA Protect Your Move</a></li>
+      <li><a href="https://www.mta.info/fares-tolls">MTA fares and tools</a></li>
+      <li><a href="https://www.njtransit.com/schedules-and-fares">NJ TRANSIT schedules and fares</a></li>
+    </ul>
+  </section>
+</main>
+</body>
+</html>
