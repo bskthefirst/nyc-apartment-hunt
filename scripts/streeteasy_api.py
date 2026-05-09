@@ -28,9 +28,9 @@ OUTPUT_JSON = ROOT / "data" / "top_apartments.json"
 MAPS_DESTINATION = "1 Manhattan West, 395 9th Ave, New York, NY 10001"
 
 TARGET_RENT = 2350
-STRETCH_RENT = 2350
+STRETCH_RENT = 2800
 OUTPUT_COUNT = 10
-FETCH_MODE = os.environ.get("STREETEASY_FETCH_MODE", "auto").lower().replace("_", "-")
+FETCH_MODE = os.environ.get("STREETEASY_FETCH_MODE", "reader-first").lower().replace("_", "-")
 # Randomized to avoid fingerprint patterns; all confirmed working against StreetEasy
 BROWSER_IMPERSONATIONS = ("chrome131", "safari18_0", "firefox135", "chrome124")
 REQUEST_HEADERS = {
@@ -833,13 +833,19 @@ class StreetEasyAPI:
         neighborhood: dict[str, Any],
         min_candidates: int = 2,
         laundry_required: bool = True,
+        max_rent_limit: int | None = None,
     ) -> list[Candidate]:
         slug = STREETEASY_PATHS.get(neighborhood["name"])
         if not slug:
             return []
 
         candidates: list[Candidate] = []
-        for max_rent in dict.fromkeys((self.target_rent, self.stretch_rent)):
+        rent_limits = tuple(
+            max_rent
+            for max_rent in dict.fromkeys((self.target_rent, self.stretch_rent))
+            if max_rent_limit is None or max_rent <= max_rent_limit
+        )
+        for max_rent in rent_limits:
             for search_url in self._search_urls(slug, max_rent, laundry_required=laundry_required):
                 found: list[Candidate] = []
                 direct_ok = False
@@ -1168,14 +1174,42 @@ class StreetEasyAPI:
         neighborhoods = sorted(neighborhoods, key=self.neighborhood_priority_key)
         by_name = {item["name"]: item for item in neighborhoods}
         all_candidates: list[Candidate] = []
+        seen_listing_urls: set[str] = set()
         seen_candidate_neighborhoods: set[str] = set()
-        for hood in neighborhoods:
-            fresh = self.fetch_search_candidates(hood, laundry_required=True)
-            all_candidates.extend(fresh)
-            if fresh:
-                seen_candidate_neighborhoods.add(hood["name"])
-            if len(all_candidates) >= self.output_count * 8 and len(seen_candidate_neighborhoods) >= min(6, len(neighborhoods)):
+        candidate_goal = max(self.output_count * 4, 24)
+
+        phases = [
+            ("laundry_target", True, self.target_rent),
+            ("backup_target", False, self.target_rent),
+        ]
+        if self.stretch_rent > self.target_rent:
+            phases.extend(
+                [
+                    ("laundry_stretch", True, self.stretch_rent),
+                    ("backup_stretch", False, self.stretch_rent),
+                ]
+            )
+
+        for _, laundry_required, max_rent_limit in phases:
+            if len(all_candidates) >= candidate_goal and len(seen_candidate_neighborhoods) >= min(6, len(neighborhoods)):
                 break
+            for hood in neighborhoods:
+                fresh = self.fetch_search_candidates(
+                    hood,
+                    laundry_required=laundry_required,
+                    max_rent_limit=max_rent_limit,
+                )
+                added = 0
+                for candidate in fresh:
+                    if candidate.listing_url in seen_listing_urls:
+                        continue
+                    seen_listing_urls.add(candidate.listing_url)
+                    all_candidates.append(candidate)
+                    added += 1
+                if added:
+                    seen_candidate_neighborhoods.add(hood["name"])
+                if len(all_candidates) >= candidate_goal and len(seen_candidate_neighborhoods) >= min(6, len(neighborhoods)):
+                    break
         enriched: list[dict[str, Any]] = []
         with ThreadPoolExecutor(max_workers=self.max_workers) as pool:
             futures = [pool.submit(self.enrich_candidate, candidate, by_name) for candidate in all_candidates]
