@@ -442,19 +442,19 @@ function crimeSourceLabel(r){if(r.name==="Jersey City (Journal Sq)")return"Crime
 const neighborhoodSummaryMap={
   "Jackson Heights":"다문화 상권이 활발하고, 주거 블록은 비교적 차분한 편입니다.",
   "Jersey City (Journal Sq)":"PATH 중심 교통 허브이고, 재개발로 빠르게 변하는 구역입니다.",
-  "Elmhurst":"상권 밀도가 높고 생활 편의는 좋지만, 대로변은 꽤 분주한 편입니다.",
+  "Elmhurst":"생활 편의는 좋지만 혼잡도가 높고, 안전은 보수적으로 보는 편이 낫습니다.",
   "Flushing":"한인·중화권 상권이 크고, 메인 스트리트 주변은 매우 바쁜 편입니다.",
   "Sunnyside":"주거지 느낌이 강하고, 7번선 접근성이 좋은 편입니다.",
   "Hamilton Heights":"역사적 주택가 느낌이 있고, 조용한 블록이 비교적 많습니다.",
   "Central Harlem":"상권은 강하지만 범죄 체감 리스크가 높아 보수적으로 봐야 합니다.",
-  "Washington Heights":"공원 접근성은 좋지만, 언덕과 블록별 체감 차이가 있습니다.",
+  "Washington Heights":"공원 접근성은 좋지만, 역 주변과 블록별 안전 리스크를 크게 봐야 합니다.",
   "Hoboken":"작고 걷기 편하지만, 밤 상권이 있는 구간은 꽤 활발합니다.",
   "Upper East Side":"주거 중심이고, 공원과 박물관 접근성이 좋은 편입니다.",
   "Forest Hills":"녹지감 있는 주거지이고, Austin Street 쪽은 활기가 있습니다.",
-  "Inwood":"공원 접근성이 좋고 동네 결은 느긋하지만, 북쪽 끝 통근은 길어질 수 있습니다.",
-  "Harlem (127-155)":"주거와 상업 구간이 섞여 있고, 블록별 분위기 차이가 큰 편입니다.",
+  "Inwood":"공원 접근성은 좋지만, 범죄 체감과 심야 통근은 보수적으로 봐야 합니다.",
+  "Harlem (127-155)":"상권과 주거가 섞여 있지만, 범죄 체감 리스크가 높고 블록별 편차도 큽니다.",
   "Astoria":"식당과 바가 풍부하고, 역세권은 활기 있지만 주거 블록은 비교적 안정적입니다.",
-  "East Harlem":"생활 상권이 활발하고, 블록별 체감 차이가 큰 편입니다."
+  "East Harlem":"생활 상권은 활발하지만, 범죄 체감 리스크가 높아 보수적으로 봐야 합니다."
 };
 function neighborhoodSummary(r){return neighborhoodSummaryMap[r.name]||"주거와 생활 상권이 섞여 있고, 블록별 분위기 차이가 있습니다."}
 function fitClass(status){return"fit-"+status.toLowerCase().replace(/[^a-z0-9]+/g,"-")}
