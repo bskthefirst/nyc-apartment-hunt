@@ -28,7 +28,7 @@ OUTPUT_JSON = ROOT / "data" / "top_apartments.json"
 MAPS_DESTINATION = "1 Manhattan West, 395 9th Ave, New York, NY 10001"
 
 TARGET_RENT = 2350
-STRETCH_RENT = 2800
+STRETCH_RENT = 2350
 OUTPUT_COUNT = 10
 FETCH_MODE = os.environ.get("STREETEASY_FETCH_MODE", "reader-first").lower().replace("_", "-")
 # Randomized to avoid fingerprint patterns; all confirmed working against StreetEasy
