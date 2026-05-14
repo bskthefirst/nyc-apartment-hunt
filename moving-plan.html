@@ -4,544 +4,305 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>UIUC → NYC 이사 계획</title>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;700&family=IBM+Plex+Sans:wght@400;500;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
-body{margin:0;background:#f3efe6;color:#17130F;font-family:"IBM Plex Sans KR","IBM Plex Sans",sans-serif;line-height:1.6;font-size:15px}
-a{color:#234a33;text-decoration-thickness:1.5px;text-underline-offset:3px}
-strong{font-weight:700}
+body{margin:0;background:#f2ede4;color:#17130F;font-family:"IBM Plex Sans KR","IBM Plex Sans",sans-serif;line-height:1.6;font-size:15px}
+a{color:#234a33}
+.wrap{max-width:860px;margin:0 auto;padding:22px 18px 72px}
 
-.wrap{max-width:1000px;margin:0 auto;padding:24px 18px 80px}
-
-/* topbar */
-.topbar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:24px;flex-wrap:wrap}
-.btn{display:inline-flex;align-items:center;gap:6px;border:1px solid #8C836F;border-radius:999px;padding:8px 14px;background:#fffdfa;color:#17130F;text-decoration:none;font-weight:700;font-size:13px;transition:.18s ease}
-.btn:hover{background:#17130F;color:#F5F0E3;border-color:#17130F}
-.mono{font-family:"JetBrains Mono",monospace}
+/* nav */
+.nav{display:flex;gap:8px;margin-bottom:28px;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;border:1px solid #a09880;border-radius:999px;padding:7px 14px;background:#fdfaf4;color:#17130F;text-decoration:none;font:700 12px/1 "JetBrains Mono",monospace;letter-spacing:.04em;transition:.15s}
+.btn:hover{background:#17130F;color:#f2ede4;border-color:#17130F}
 
 /* hero */
-.hero{padding:4px 0 20px}
-.eyebrow{font:700 11px/1 "JetBrains Mono",monospace;letter-spacing:.14em;text-transform:uppercase;color:#8a6320;margin:0 0 10px}
-h1{font-size:clamp(28px,5.5vw,50px);line-height:1.04;letter-spacing:-.04em;margin:0 0 14px;max-width:720px}
-.lead{font-size:16px;max-width:780px;color:#433b31;margin:0}
+.eyebrow{font:700 11px/1 "JetBrains Mono",monospace;letter-spacing:.14em;text-transform:uppercase;color:#8a6320;margin:0 0 8px}
+h1{font-size:clamp(26px,5vw,44px);line-height:1.06;letter-spacing:-.04em;margin:0 0 22px}
 
 /* countdown */
-.countdown-bar{background:#1a0f00;color:#f5efe0;border-radius:16px;padding:18px 22px;margin:22px 0 20px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
-.countdown-bar .label{font:700 11px/1 "JetBrains Mono",monospace;letter-spacing:.1em;text-transform:uppercase;color:#b8965a;margin-bottom:4px}
-.countdown-bar .deadline-text{font-size:15px;color:#e8d9b8}
-.countdown-units{display:flex;gap:12px}
+.countdown{background:#17130F;color:#f0e8d4;border-radius:16px;padding:18px 22px;display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;margin-bottom:18px}
+.cd-label{font:700 10px/1 "JetBrains Mono",monospace;letter-spacing:.1em;text-transform:uppercase;color:#a08850;margin-bottom:5px}
+.cd-sub{font-size:13px;color:#b8a882}
+.cd-units{display:flex;gap:14px}
 .cu{text-align:center}
-.cu-num{font:700 32px/1 "JetBrains Mono",monospace;color:#f5b942;display:block}
-.cu-label{font:600 10px/1 "JetBrains Mono",monospace;letter-spacing:.1em;text-transform:uppercase;color:#9e8760;margin-top:3px;display:block}
-.countdown-bar.urgent .cu-num{color:#ff6b35}
+.cu span:first-child{font:700 30px/1 "JetBrains Mono",monospace;color:#f5b942;display:block}
+.cu span:last-child{font:600 9px/1 "JetBrains Mono",monospace;letter-spacing:.1em;text-transform:uppercase;color:#7a6a48;display:block;margin-top:3px}
+.countdown.hot .cu span:first-child{color:#ff6b35}
 
-/* pills */
-.summary-strip{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:24px}
-.pill{background:#fffdfa;border:1px solid #ddd1b5;border-radius:14px;padding:14px 16px}
-.pill-label{font:700 10px/1 "JetBrains Mono",monospace;letter-spacing:.08em;text-transform:uppercase;color:#7a7364;margin-bottom:6px}
-.pill strong{display:block;font-size:17px;line-height:1.25}
-.pill.urgent{border-color:#d4651a;background:#fff8f2}
-.pill.urgent .pill-label{color:#c05918}
-.pill.urgent strong{color:#b84d10}
+/* key dates */
+.dates{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:28px}
+.date-pill{background:#fdfaf4;border:1px solid #d8cfb8;border-radius:12px;padding:12px 14px}
+.date-pill .dl{font:700 10px/1 "JetBrains Mono",monospace;letter-spacing:.08em;text-transform:uppercase;color:#7a7060;margin-bottom:5px}
+.date-pill strong{display:block;font-size:16px;line-height:1.2}
+.date-pill.hard{border-color:#c05500;background:#fff6ee}
+.date-pill.hard .dl{color:#b04500}
+.date-pill.hard strong{color:#993d00}
 
-/* layout */
-.layout{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(260px,.72fr);gap:16px;align-items:start}
-.stack{display:grid;gap:16px}
+/* section */
+h2{font-size:17px;letter-spacing:-.02em;margin:0 0 14px;padding-bottom:8px;border-bottom:1px solid #ddd0b4}
+.section{margin-bottom:32px}
 
-/* sections */
-.section{background:#fffdfa;border:1px solid #ded4b8;border-radius:18px;padding:20px}
-.section h2{font-size:18px;letter-spacing:-.02em;margin:0 0 4px}
-.section-intro{font-size:13px;color:#62594a;margin:0 0 14px;line-height:1.5}
-.section.dark{background:#1a1208;border-color:#3a2e18;color:#e8d9b8}
-.section.dark h2{color:#f5efe0}
-.section.dark .section-intro{color:#b8a888}
+/* neighborhood cards */
+.hood-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.hood{background:#fdfaf4;border:1px solid #d8cfb8;border-radius:16px;overflow:hidden}
+.hood-head{padding:14px 16px 10px;border-bottom:1px solid #ede3ca}
+.hood-rank{font:700 10px/1 "JetBrains Mono",monospace;letter-spacing:.1em;text-transform:uppercase;color:#8a6320;margin-bottom:4px}
+.hood-name{font:700 18px/1.1 "IBM Plex Sans","IBM Plex Sans KR",sans-serif;letter-spacing:-.02em;margin-bottom:6px}
+.hood-commute{font:700 12px/1 "JetBrains Mono",monospace;color:#234a33}
+.hood-body{padding:12px 16px}
+.hood-traits{font-size:12.5px;color:#4a4030;margin-bottom:12px;line-height:1.55}
+.price-row{display:flex;justify-content:space-between;align-items:baseline;padding:5px 0;border-bottom:1px solid #ede3ca}
+.price-row:last-child{border-bottom:0}
+.price-type{font:700 10px/1 "JetBrains Mono",monospace;letter-spacing:.07em;text-transform:uppercase;color:#7a7060}
+.price-vals{text-align:right}
+.price-usd{font:700 14px/1 "JetBrains Mono",monospace;color:#17130F}
+.price-krw{font:500 11px/1 "JetBrains Mono",monospace;color:#7a7060;display:block;margin-top:2px}
+.hood-note{font-size:11.5px;color:#7a6a4a;background:#f7f0e2;border-radius:8px;padding:7px 10px;margin-top:10px;line-height:1.5}
 
-/* mini grid */
-.mini-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
-.mini-card{border:1px solid #e5dac0;border-radius:12px;background:#fbf6ea;padding:13px;font-size:14px}
-.mini-card strong{display:block;margin-bottom:4px;font-size:14px;color:#17130F}
-.mini-card.warn{border-color:#e8b87a;background:#fff8ee}
-.mini-card.warn strong{color:#8a4d00}
-
-/* timeline */
-.timeline{display:grid;gap:0}
-.step{display:grid;grid-template-columns:110px 1fr;gap:14px;padding:13px 0;border-top:1px solid #ede3cb;position:relative}
-.step:first-child{padding-top:0;border-top:0}
-.step-date{font:700 11px/1.4 "JetBrains Mono",monospace;letter-spacing:.04em;text-transform:uppercase;padding-top:2px}
-.step-date.past{color:#a89880}
-.step-date.active{color:#1a6e2e}
-.step-date.upcoming{color:#8c5e0a}
-.step-date.urgent{color:#c43d00}
-.step-copy{font-size:14px}
-.step-copy strong{display:block;margin-bottom:3px;font-size:14px;color:#17130F}
-.step.past .step-copy strong{color:#a0968a}
-.step.past .step-copy{color:#a0968a}
-.step-badge{display:inline-block;font:700 9px/1 "JetBrains Mono",monospace;letter-spacing:.08em;text-transform:uppercase;border-radius:999px;padding:2px 7px;margin-bottom:5px}
-.badge-past{background:#e8e0d4;color:#7a7060}
-.badge-active{background:#d4ead9;color:#1a5c28}
-.badge-upcoming{background:#fef0da;color:#8a5200}
-.badge-urgent{background:#ffe8dc;color:#c43d00}
-
-/* EY vendors */
-.vendor-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:14px}
-.vendor-card{border:1px solid #e0d4b4;border-radius:14px;background:#fdf9f0;padding:14px}
-.vendor-card .vtag{font:700 10px/1 "JetBrains Mono",monospace;letter-spacing:.09em;text-transform:uppercase;color:#9C6A0C;border:1px solid #e0a840;border-radius:999px;padding:2px 8px;display:inline-block;margin-bottom:8px}
-.vendor-card strong{display:block;font-size:15px;margin-bottom:5px}
-.vendor-card p{font-size:13px;color:#4a4030;margin:0 0 8px;line-height:1.5}
-.vendor-card .contact{font-size:12px;color:#5a4f3a;background:#f5efd8;border-radius:8px;padding:8px 10px;margin-top:8px}
-.vendor-card .contact a{font-size:12px}
-.vendor-warning{background:#fff8ee;border:1px solid #e8c070;border-radius:12px;padding:12px 14px;font-size:13px;color:#6a4800;margin-bottom:14px}
-
-/* apartment criteria table */
-table{width:100%;border-collapse:collapse;font-size:13px}
-th,td{text-align:left;padding:10px 12px;border-bottom:1px solid #e8dfc6;vertical-align:top;line-height:1.5}
-th{background:#f5edd8;color:#6a6050;text-transform:uppercase;font:700 10px/1 "JetBrains Mono",monospace;letter-spacing:.08em}
-tr:last-child td{border-bottom:0}
-.criteria-table{background:#fffdfa;border:1px solid #ded4b8;border-radius:14px;overflow:hidden}
+/* vendors */
+.vendor-table{width:100%;border-collapse:collapse;font-size:13px}
+.vendor-table th{font:700 10px/1 "JetBrains Mono",monospace;letter-spacing:.08em;text-transform:uppercase;color:#6a6050;background:#f5edd8;padding:9px 12px;text-align:left;border-bottom:1px solid #ddd0b4}
+.vendor-table td{padding:10px 12px;border-bottom:1px solid #e8dfca;vertical-align:top;line-height:1.5}
+.vendor-table tr:last-child td{border-bottom:0}
+.vendor-table .code{font:700 12px/1 "JetBrains Mono",monospace;color:#234a33}
+.vtag{display:inline-block;font:700 10px/1 "JetBrains Mono",monospace;letter-spacing:.07em;text-transform:uppercase;border:1px solid #c8a040;color:#8a5c00;border-radius:999px;padding:2px 7px;margin-bottom:4px}
+.vendor-wrap{background:#fdfaf4;border:1px solid #d8cfb8;border-radius:14px;overflow:hidden;margin-bottom:10px}
+.warn-box{background:#fff8ee;border:1px solid #e8b870;border-radius:10px;padding:10px 14px;font-size:12.5px;color:#6a4800;line-height:1.5;margin-bottom:14px}
 
 /* checklist */
-.phase-group{margin-bottom:18px}
-.phase-label{font:700 11px/1 "JetBrains Mono",monospace;letter-spacing:.1em;text-transform:uppercase;color:#8c5e0a;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid #e5d9be}
-.checklist-items{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
-.check-item{display:flex;gap:9px;align-items:flex-start;padding:8px 10px;border-radius:10px;background:#fbf6ea;border:1px solid #e5dac0;cursor:pointer;transition:.15s ease;user-select:none;font-size:13px;line-height:1.45}
-.check-item:hover{background:#f5edd8;border-color:#d4c4a0}
-.check-item input[type=checkbox]{margin:2px 0 0;flex-shrink:0;accent-color:#234a33;width:15px;height:15px;cursor:pointer}
-.check-item.done{background:#edf5ee;border-color:#b4d4b8;color:#5a7a5e}
-.check-item.done label{text-decoration:line-through;color:#7a9a7e}
-.check-item label{cursor:pointer}
+.checks{display:grid;grid-template-columns:repeat(2,1fr);gap:6px}
+.ci{display:flex;gap:9px;align-items:flex-start;background:#fdfaf4;border:1px solid #ddd0b4;border-radius:9px;padding:8px 10px;font-size:13px;line-height:1.45;cursor:pointer;transition:.15s}
+.ci:hover{background:#f5edd8}
+.ci input{margin:2px 0 0;flex-shrink:0;accent-color:#234a33;width:14px;height:14px;cursor:pointer}
+.ci.done{background:#eef5ef;border-color:#b4d4b8;color:#607a62}
+.ci.done label{text-decoration:line-through;color:#7a9a7e;cursor:pointer}
+.ci label{cursor:pointer}
+.phase{font:700 10px/1 "JetBrains Mono",monospace;letter-spacing:.1em;text-transform:uppercase;color:#8a6320;margin:16px 0 7px}
+.phase:first-child{margin-top:0}
 
-/* sources */
-.sources{font-size:13px;color:#514A39}
-.sources ul{margin:8px 0 0;padding-left:18px}
-.sources li{margin:5px 0}
-
-/* responsive */
-@media(max-width:780px){
-  .summary-strip,.layout,.mini-grid,.vendor-grid,.checklist-items{grid-template-columns:1fr}
-  .step{grid-template-columns:1fr;gap:4px}
-  .step-date{padding:0 0 2px}
-  .btn{font-size:12px;padding:7px 12px}
-  .countdown-units{gap:8px}
-  .cu-num{font-size:24px !important}
+@media(max-width:700px){
+  .hood-grid,.dates,.checks{grid-template-columns:1fr}
+  .cd-units{gap:10px}
+  .cu span:first-child{font-size:22px !important}
 }
 </style>
 </head>
 <body>
 <main class="wrap">
 
-  <div class="topbar">
+  <div class="nav">
     <a class="btn" href="index.html">← 동네 점수표</a>
-    <a class="btn" href="https://bskthefirst.github.io/nyc-apartment-hunt/" target="_blank">Top 10 매물 보기 ↗</a>
+    <a class="btn" href="https://bskthefirst.github.io/nyc-apartment-hunt/" target="_blank">Top 10 매물 ↗</a>
   </div>
 
-  <section class="hero">
-    <p class="eyebrow">UIUC → NYC Moving Guide · 2026</p>
-    <h1>6월 25일 정오까지<br>짐과 키, 전부 빠져야 합니다</h1>
-    <p class="lead">기본 플랜: <strong>6/25 퇴거 → 짐은 storage hold → NYC/NJ 단기 체류 → 직접 투어 후 신청 → 새 주소 확정 후 최종 배송.</strong> 최종 주소가 나오기 전에는 짐을 아파트로 바로 보내지 않습니다.</p>
-  </section>
+  <p class="eyebrow">UIUC → NYC · 2026 이사 계획</p>
+  <h1>6월 25일 정오,<br>짐과 키 전부 빠집니다</h1>
 
-  <!-- countdown -->
-  <div class="countdown-bar" id="countdown-bar">
+  <div class="countdown" id="cdbar">
     <div>
-      <div class="label">Move-out deadline</div>
-      <div class="deadline-text">June 25, 2026 · 12:00 PM Champaign (CDT)</div>
+      <div class="cd-label">Move-out deadline</div>
+      <div class="cd-sub">Jun 25, 2026 · 12:00 PM Champaign (CDT)</div>
     </div>
-    <div class="countdown-units" id="countdown-units">
-      <div class="cu"><span class="cu-num" id="cd-days">--</span><span class="cu-label">days</span></div>
-      <div class="cu"><span class="cu-num" id="cd-hours">--</span><span class="cu-label">hrs</span></div>
-      <div class="cu"><span class="cu-num" id="cd-mins">--</span><span class="cu-label">min</span></div>
-      <div class="cu"><span class="cu-num" id="cd-secs">--</span><span class="cu-label">sec</span></div>
-    </div>
-  </div>
-
-  <!-- summary pills -->
-  <div class="summary-strip">
-    <div class="pill urgent">
-      <div class="pill-label">Move-out</div>
-      <strong>6/25 noon</strong>
-    </div>
-    <div class="pill">
-      <div class="pill-label">Tour window</div>
-      <strong>6/25 → 7/7</strong>
-    </div>
-    <div class="pill">
-      <div class="pill-label">Bridge</div>
-      <strong>Storage hold</strong>
-    </div>
-    <div class="pill">
-      <div class="pill-label">EY Day 1</div>
-      <strong>July 8 🔒</strong>
+    <div class="cd-units">
+      <div class="cu"><span id="cd-d">--</span><span>days</span></div>
+      <div class="cu"><span id="cd-h">--</span><span>hrs</span></div>
+      <div class="cu"><span id="cd-m">--</span><span>min</span></div>
+      <div class="cu"><span id="cd-s">--</span><span>sec</span></div>
     </div>
   </div>
 
-  <div class="layout">
-    <div class="stack">
+  <div class="dates">
+    <div class="date-pill hard"><div class="dl">Move-out</div><strong>Jun 25 noon</strong></div>
+    <div class="date-pill"><div class="dl">Tour window</div><strong>Jun 25 → Jul 7</strong></div>
+    <div class="date-pill"><div class="dl">Target move-in</div><strong>Jul 1–15</strong></div>
+    <div class="date-pill hard"><div class="dl">EY Day 1</div><strong>Jul 8 🔒</strong></div>
+  </div>
 
-      <!-- recommended plan -->
-      <section class="section">
-        <h2>추천 플랜 요약</h2>
-        <p class="section-intro">마감 먼저, 물류 두 번째, 집 찾기 세 번째 순서입니다.</p>
-        <div class="mini-grid">
-          <div class="mini-card">
-            <strong>지금 ~ 5월 말</strong>
-            신청 서류 PDF 폴더 완성. 계약 확정이 아니라 shortlist 압축 단계입니다.
-          </div>
-          <div class="mini-card">
-            <strong>6월 초 ~ 퇴거 전</strong>
-            계약보다 퇴거·짐 처리 우선. 6/25 정오 기준으로 물류를 먼저 잠급니다.
-          </div>
-          <div class="mini-card warn">
-            <strong>6/25 이후 ~ 7/7</strong>
-            단기 숙소 + storage hold 상태에서 NYC/NJ 현장 투어, 괜찮으면 당일 신청.
-          </div>
-          <div class="mini-card">
-            <strong>기본값</strong>
-            가구가 많지 않으면 팔고, 박스만 storage hold → signed lease → 최종 배송.
-          </div>
+  <!-- top 3 neighborhoods -->
+  <div class="section">
+    <h2>Top 3 동네 — $2,350 예산 기준</h2>
+    <div class="hood-grid">
+
+      <div class="hood">
+        <div class="hood-head">
+          <div class="hood-rank">#1 · 통근 최단</div>
+          <div class="hood-name">Jackson Heights</div>
+          <div class="hood-commute">🚇 28분 · 7 train → Times Sq</div>
         </div>
-      </section>
-
-      <!-- timeline -->
-      <section class="section">
-        <h2>날짜별 실행표</h2>
-        <div class="timeline">
-          <div class="step" data-from="2026-05-09" data-to="2026-05-12">
-            <div class="step-date upcoming">5/9 – 5/12</div>
-            <div class="step-copy">
-              <strong>퇴거 마감 캘린더 고정</strong>
-              6/25 낮 12시 키 반납을 최종 마감으로 캘린더에 박습니다. 짐 픽업 → 청소 → 사진 촬영 → 키 반납 순서를 역산해서 각각 날짜를 잡아둡니다.
+        <div class="hood-body">
+          <div class="hood-traits">퀸즈 다양성의 중심지. 방글라데시·인도·멕시코 식당과 시장 밀집. Roosevelt Ave 상권. 생활비 NYC 최저 수준. 다소 번잡하고 번화가 느낌.</div>
+          <div class="price-row">
+            <span class="price-type">Studio</span>
+            <div class="price-vals">
+              <span class="price-usd">$1,950</span>
+              <span class="price-krw">₩2,691,000</span>
             </div>
           </div>
-          <div class="step" data-from="2026-05-09" data-to="2026-05-15">
-            <div class="step-date upcoming">5/9 – 5/15</div>
-            <div class="step-copy">
-              <strong>신청 서류 폴더 완성</strong>
-              ID, offer letter, bank statements, credit check 동의서, 신청비·보증금 결제 수단을 하나의 PDF 폴더로 묶습니다. 이전 임대인 reference와 guarantor는 전제로 두지 않습니다.
+          <div class="price-row">
+            <span class="price-type">1 BD</span>
+            <div class="price-vals">
+              <span class="price-usd">$2,200</span>
+              <span class="price-krw">₩3,036,000</span>
             </div>
           </div>
-          <div class="step" data-from="2026-05-12" data-to="2026-06-20">
-            <div class="step-date upcoming">5/12 – 6/20</div>
-            <div class="step-copy">
-              <strong>후보 압축 (원격 리서치)</strong>
-              StreetEasy, Zillow, building site 알림 켭니다. 목표는 계약이 아니라 동네·건물·세탁·수수료·1MW 통근·40x 조건 필터링입니다. 화상투어는 참고용 — 직접 보기 전에는 큰돈을 보내지 않습니다.
-            </div>
-          </div>
-          <div class="step" data-from="2026-06-01" data-to="2026-06-14">
-            <div class="step-date upcoming">6/1 – 6/14</div>
-            <div class="step-copy">
-              <strong>물류 확정</strong>
-              MiniMoves, Penske EY10, Corporate Living, National Corporate Housing, CORT 중 필요한 옵션 견적을 비교합니다. 기준은 하나: <strong>6/25 12pm 전에 짐이 빠지는가.</strong> 새 주소가 없으면 storage hold 가능 여부를 먼저 확인합니다.
-            </div>
-          </div>
-          <div class="step" data-from="2026-06-10" data-to="2026-06-18">
-            <div class="step-date upcoming">6/10 – 6/18</div>
-            <div class="step-copy">
-              <strong>가구 결론</strong>
-              가져갈지 팔지 결정합니다. NYC walk-up, elevator reservation, truck parking 비용까지 포함해서 판단합니다. 기본값은 팔고 박스만 이동입니다.
-            </div>
-          </div>
-          <div class="step" data-from="2026-06-18" data-to="2026-06-22">
-            <div class="step-date upcoming">6/18 – 6/22</div>
-            <div class="step-copy">
-              <strong>주소·공과금 정리</strong>
-              전기, 가스, 인터넷 해지/이전 · USPS forwarding · 은행·학교·보험 주소 변경 · renters insurance 처리.
-            </div>
-          </div>
-          <div class="step" data-from="2026-06-22" data-to="2026-06-24">
-            <div class="step-date upcoming">6/22 – 6/24</div>
-            <div class="step-copy">
-              <strong>포장 마감</strong>
-              짐은 이 구간에 끝냅니다. 6/24 밤에는 바닥·욕실·주방 청소, 사진·영상 기록, mailbox·storage·bike area 비우기까지 완료합니다.
-            </div>
-          </div>
-          <div class="step" data-from="2026-06-25" data-to="2026-06-25">
-            <div class="step-date urgent">6/25 AM</div>
-            <div class="step-copy">
-              <strong>키 반납만 남기기 — 12:00 PM HARD STOP</strong>
-              최종 walkthrough, 쓰레기 배출, 사진 몇 장, key-return proof 확보. 새 일을 만들지 않습니다. 이후 NYC/NJ로 이동합니다.
-            </div>
-          </div>
-          <div class="step" data-from="2026-06-26" data-to="2026-07-07">
-            <div class="step-date upcoming">6/26 – 7/7</div>
-            <div class="step-copy">
-              <strong>현장 투어 집중</strong>
-              하루 4–6개씩 직접 보고, 괜찮은 집은 당일 신청합니다. 현실적인 목표 입주는 <strong>7/1–7/15</strong>입니다. 짐은 signed lease 나올 때까지 storage hold 유지.
-            </div>
-          </div>
-        </div>
-      </section>
-
-    </div><!-- /main stack -->
-
-    <div class="stack">
-
-      <!-- bottom line -->
-      <section class="section dark">
-        <h2>Bottom line</h2>
-        <p>최종 NYC 주소가 없으면 짐을 바로 새 아파트로 보내는 방식은 불안정합니다.</p>
-        <p><strong>Storage hold → 단기 체류 → 현장 투어 → signed lease → final delivery.</strong></p>
-        <p style="color:#c8a868;font-size:13px;margin:12px 0 0">⚠ EY brochure vendor는 대부분 할인 또는 무료 locator입니다. 자동 reimbursement가 아닙니다. Offer letter에 없는 비용은 환급 전제로 지출하지 않습니다.</p>
-      </section>
-
-      <!-- quick filters -->
-      <section class="section">
-        <h2>Quick filters</h2>
-        <p class="section-intro">매물 볼 때 즉시 거르는 기준입니다.</p>
-        <div class="mini-grid" style="grid-template-columns:1fr;gap:8px">
-          <div class="mini-card warn"><strong>주소 미확정</strong>박스는 storage hold 가능한 옵션만 비교합니다.</div>
-          <div class="mini-card warn"><strong>보증인 없음</strong>guarantor / landlord reference를 요구하지 않는 매물을 우선합니다.</div>
-          <div class="mini-card warn"><strong>투어 타이밍</strong>현장 투어는 6/25 이후 NYC/NJ 체류 구간에 몰아넣습니다.</div>
-          <div class="mini-card warn"><strong>사기 필터</strong>실물 확인 전 큰 선입금 요구, 비정상적으로 싼 매물은 즉시 중단.</div>
-        </div>
-      </section>
-
-      <!-- apartment criteria -->
-      <section class="section">
-        <h2>집 구하기 기준</h2>
-        <table class="criteria-table" style="margin-top:4px">
-          <thead><tr><th>항목</th><th>기준</th></tr></thead>
-          <tbody>
-            <tr><td><strong>예산 상한</strong></td><td><strong>$2,350/월 하드캡.</strong> 40x 기준 연봉 약 $94,000입니다.</td></tr>
-            <tr><td><strong>입주일</strong></td><td>6/25 이후 직접 투어 → 현실적 목표 입주 <strong>7/1–7/15.</strong></td></tr>
-            <tr><td><strong>배송</strong></td><td>최종 주소 확정 전에는 final delivery 대신 <strong>storage hold.</strong></td></tr>
-            <tr><td><strong>단기 숙소</strong></td><td>National Corp. Housing 또는 Corporate Living. 후자는 최대 15% 할인.</td></tr>
-            <tr><td><strong>NYC 수수료</strong></td><td>FARE Act(2025-06-11~) 이후 집주인 고용 broker fee는 tenant 청구 원칙 금지.</td></tr>
-            <tr><td><strong>NY 신청비</strong></td><td>$20/인 상한. 초과 청구 시 근거 확인 먼저.</td></tr>
-            <tr><td><strong>NY 보증금</strong></td><td>1개월치 상한. 초과 요구 시 예외 사유 검토.</td></tr>
-            <tr><td><strong>NJ 보증금</strong></td><td>1.5개월치 상한 기준.</td></tr>
-          </tbody>
-        </table>
-      </section>
-
-    </div><!-- /sidebar stack -->
-  </div><!-- /layout -->
-
-  <!-- EY vendors -->
-  <section class="section" style="margin-top:16px">
-    <h2>EY Relocation Brochure — 벤더 가이드</h2>
-    <p class="section-intro">EY New Hire Relocation Assistance brochure (March 2026) 기준. "free services are noted where applicable" — 그 외는 할인이고 reimbursement 대상이 아닐 수 있습니다.</p>
-    <div class="vendor-warning">
-      ⚠ Offer letter 또는 relocation policy에 명시되지 않은 비용은 환급 전제로 지출하지 마세요. 아래 벤더는 자동 reimbursement가 아니라 <strong>EY 계약 할인 또는 무료 리소스</strong>입니다.
-    </div>
-    <div class="vendor-grid">
-
-      <div class="vendor-card">
-        <span class="vtag">추천 1순위 · 소량 짐</span>
-        <strong>MiniMoves</strong>
-        <p>방 하나, 박스 몇 개, 소형 가구처럼 작은 짐에 최적화된 EY 할인 무버입니다. <strong>새 주소 확정 전이면 storage hold 또는 나중 delivery 가능 여부를 먼저 확인하세요.</strong></p>
-        <div class="contact">minimoves.com/ey</div>
-      </div>
-
-      <div class="vendor-card">
-        <span class="vtag">임시 숙소 · 브릿지</span>
-        <strong>National Corporate Housing</strong>
-        <p>6/25 이후 현장 투어 기간 동안 furnished apartment / temporary housing 견적을 먼저 봅니다. 짐 final delivery 전까지 기본 체류 옵션입니다.</p>
-        <div class="contact">
-          Michelle "Missy" Gobrecht<br>
-          <a href="tel:+12676645748">+1 267 664 5748</a><br>
-          <a href="mailto:mgobrecht@nationalcorporatehousing.com">mgobrecht@nationalcorporatehousing.com</a>
+          <div class="hood-note">강도 1.49/1K (보통). 7호선 Roosevelt Ave 역 주변 야간 주의.</div>
         </div>
       </div>
 
-      <div class="vendor-card">
-        <span class="vtag">임시 숙소 · 최대 15% 할인</span>
-        <strong>Corporate Living</strong>
-        <p>furnished temporary housing, brochure상 최대 15% 할인. National Corporate Housing과 함께 견적을 비교합니다.</p>
-        <div class="contact">
-          Valerie Mercier<br>
-          <a href="mailto:valerie.mercier@corporateliving.com">valerie.mercier@corporateliving.com</a><br>
-          corporateliving.com/apartment-locator
+      <div class="hood">
+        <div class="hood-head">
+          <div class="hood-rank">#2 · 조용한 주거지</div>
+          <div class="hood-name">Sunnyside</div>
+          <div class="hood-commute">🚇 29분 · 7 train → Times Sq</div>
+        </div>
+        <div class="hood-body">
+          <div class="hood-traits">아일랜드·한국·그리스계 주거 중심지. Jackson Heights보다 조용하고 안전한 느낌. 4·10·40번가 7호선 바로 연결. 아기자기한 카페·바 골목.</div>
+          <div class="price-row">
+            <span class="price-type">Studio</span>
+            <div class="price-vals">
+              <span class="price-usd">$2,250</span>
+              <span class="price-krw">₩3,105,000</span>
+            </div>
+          </div>
+          <div class="price-row">
+            <span class="price-type">1 BD</span>
+            <div class="price-vals">
+              <span class="price-usd">$2,600</span>
+              <span class="price-krw">₩3,588,000</span>
+            </div>
+          </div>
+          <div class="hood-note">강도 1.37/1K (보통). Studio는 예산 내, 1BR은 예산 초과 경우 多.</div>
         </div>
       </div>
 
-      <div class="vendor-card">
-        <span class="vtag">아파트 locator · 투어 지원</span>
-        <strong>PorchLight / CORT Locator</strong>
-        <p>PorchLight: rental tours, area tours, settling-in service. CORT: free apartment locator + destination service. 현장 투어 전 후보 좁힐 때 보조로 씁니다.</p>
-        <div class="contact">
-          porchlightinsidetrak.com/clients/ey<br>
-          cort.com/ernstyoung
+      <div class="hood">
+        <div class="hood-head">
+          <div class="hood-rank">#3 · 치안 최우수</div>
+          <div class="hood-name">Jersey City<br><span style="font-size:13px;font-weight:500">(Journal Square)</span></div>
+          <div class="hood-commute">🚌 48분 · PATH + bus → 1MW</div>
         </div>
-      </div>
-
-      <div class="vendor-card">
-        <span class="vtag">가구 렌탈 · 10% 할인</span>
-        <strong>CORT Furniture</strong>
-        <p>초기에 가구를 다 사기 싫을 때 렌탈 또는 구매 10% EY discount. 뉴욕 입주 직후 가구 없이 시작할 때만 봅니다.</p>
-        <div class="contact">cort.com/ernstyoung</div>
-      </div>
-
-      <div class="vendor-card">
-        <span class="vtag">직접 운전</span>
-        <strong>Penske Truck Rental</strong>
-        <p>정말 직접 운전해서 옮길 때. One-way, unlimited miles.</p>
-        <div class="contact">Promo code: <strong>EY10</strong><br>pensketruckrental.com</div>
-      </div>
-
-      <div class="vendor-card">
-        <span class="vtag">대형 이사 · 가구 많을 때만</span>
-        <strong>Budd Van Lines</strong>
-        <p>가구를 많이 가져가기로 결정했을 때만 EY 할인 household goods mover 견적을 받습니다. 기본값은 아닙니다.</p>
-        <div class="contact">
-          Doug Ketzer<br>
-          <a href="mailto:dketzer@buddvanlines.com">dketzer@buddvanlines.com</a>
-        </div>
-      </div>
-
-      <div class="vendor-card">
-        <span class="vtag">대형 이사 · 가구 많을 때만</span>
-        <strong>Mills Van Lines</strong>
-        <p>Budd와 함께 비교 견적용. 가구를 많이 가져갈 때만.</p>
-        <div class="contact">
-          <a href="mailto:ey@millsvanlines.com">ey@millsvanlines.com</a>
+        <div class="hood-body">
+          <div class="hood-traits">빠르게 젠트리파이 중. 뉴욕보다 훨씬 저렴. NJ 거주 시 NYC 소득세 없음 → 연 $2,000–3,000 절감. PATH 24시간 운행(주말 포함).</div>
+          <div class="price-row">
+            <span class="price-type">Studio</span>
+            <div class="price-vals">
+              <span class="price-usd">$2,100</span>
+              <span class="price-krw">₩2,898,000</span>
+            </div>
+          </div>
+          <div class="price-row">
+            <span class="price-type">1 BD</span>
+            <div class="price-vals">
+              <span class="price-usd">$2,450</span>
+              <span class="price-krw">₩3,381,000</span>
+            </div>
+          </div>
+          <div class="hood-note">강도 0.77/1K (매우 낮음). 1BR은 예산 소폭 초과 경우 있음. 환율 1,380원/$ 기준.</div>
         </div>
       </div>
 
     </div>
-  </section>
+  </div>
+
+  <!-- logistics -->
+  <div class="section">
+    <h2>EY 이사 브로셔 — 핵심 벤더</h2>
+    <div class="warn-box">⚠ 아래는 할인 또는 무료 리소스입니다. 자동 reimbursement가 아닙니다. Offer letter에 없는 비용은 환급 전제로 지출 금지.</div>
+    <div class="vendor-wrap">
+      <table class="vendor-table">
+        <thead><tr><th>용도</th><th>벤더</th><th>연락처 / 코드</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><span class="vtag">소량 짐</span><br>박스·소형 shipment</td>
+            <td><strong>MiniMoves</strong></td>
+            <td>minimoves.com/ey<br><span style="font-size:12px;color:#5a4f3a">새 주소 없으면 storage hold 가능 여부 먼저 확인</span></td>
+          </tr>
+          <tr>
+            <td><span class="vtag">임시 숙소</span><br>6/25 이후 단기 체류</td>
+            <td><strong>National Corporate<br>Housing</strong></td>
+            <td>Michelle "Missy" Gobrecht<br><a href="tel:+12676645748">+1 267 664 5748</a><br><a href="mailto:mgobrecht@nationalcorporatehousing.com" style="font-size:12px">mgobrecht@nationalcorporatehousing.com</a></td>
+          </tr>
+          <tr>
+            <td><span class="vtag">임시 숙소 -15%</span><br>단기 furnished apt</td>
+            <td><strong>Corporate Living</strong></td>
+            <td><a href="mailto:valerie.mercier@corporateliving.com" style="font-size:12px">valerie.mercier@corporateliving.com</a><br>corporateliving.com/apartment-locator</td>
+          </tr>
+          <tr>
+            <td><span class="vtag">아파트 locator</span><br>투어·정착 지원</td>
+            <td><strong>CORT / PorchLight</strong></td>
+            <td>cort.com/ernstyoung<br>porchlightinsidetrak.com/clients/ey</td>
+          </tr>
+          <tr>
+            <td><span class="vtag">직접 운전</span><br>one-way unlimited miles</td>
+            <td><strong>Penske</strong></td>
+            <td>Promo code: <span class="code">EY10</span><br>pensketruckrental.com</td>
+          </tr>
+          <tr>
+            <td><span class="vtag">가구 렌탈 -10%</span><br>입주 초기 가구 필요 시</td>
+            <td><strong>CORT Furniture</strong></td>
+            <td>cort.com/ernstyoung</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="font-size:12.5px;color:#6a5a40;line-height:1.5">기본값: UIUC → <strong>storage hold</strong> → signed lease → final delivery. 최종 NYC 주소 확정 전에는 짐을 직접 보내지 않습니다.</p>
+  </div>
 
   <!-- checklist -->
-  <section class="section" style="margin-top:16px">
+  <div class="section">
     <h2>체크리스트</h2>
-    <p class="section-intro">항목을 클릭하면 완료 표시됩니다. 새로 고침해도 유지됩니다.</p>
 
-    <div class="phase-group">
-      <div class="phase-label">지금 — 5월 말</div>
-      <div class="checklist-items">
-        <label class="check-item" data-key="cl1"><input type="checkbox" id="cl1"><label for="cl1">6/25 12:00 PM 키 반납 캘린더에 고정</label></label>
-        <label class="check-item" data-key="cl2"><input type="checkbox" id="cl2"><label for="cl2">ID, offer letter, bank statements PDF 폴더 완성</label></label>
-        <label class="check-item" data-key="cl3"><input type="checkbox" id="cl3"><label for="cl3">신청비·보증금 결제 수단 준비</label></label>
-        <label class="check-item" data-key="cl4"><input type="checkbox" id="cl4"><label for="cl4">StreetEasy / Zillow 알림 설정</label></label>
-      </div>
+    <div class="phase">지금 — 5월 말</div>
+    <div class="checks">
+      <label class="ci" data-k="c1"><input type="checkbox" id="c1"><label for="c1">6/25 12:00 PM 키 반납 캘린더 고정</label></label>
+      <label class="ci" data-k="c2"><input type="checkbox" id="c2"><label for="c2">서류 폴더 완성 (ID, offer letter, bank statements)</label></label>
+      <label class="ci" data-k="c3"><input type="checkbox" id="c3"><label for="c3">StreetEasy / Zillow 알림 설정</label></label>
+      <label class="ci" data-k="c4"><input type="checkbox" id="c4"><label for="c4">신청비·보증금 결제 수단 준비</label></label>
     </div>
 
-    <div class="phase-group">
-      <div class="phase-label">6월 초 — 퇴거 전</div>
-      <div class="checklist-items">
-        <label class="check-item" data-key="cl5"><input type="checkbox" id="cl5"><label for="cl5">물류 옵션 확정 (MiniMoves or Penske EY10)</label></label>
-        <label class="check-item" data-key="cl6"><input type="checkbox" id="cl6"><label for="cl6">가구 팔지 / 가져갈지 결론</label></label>
-        <label class="check-item" data-key="cl7"><input type="checkbox" id="cl7"><label for="cl7">임시 숙소 견적 확인 (NCH 또는 Corporate Living)</label></label>
-        <label class="check-item" data-key="cl8"><input type="checkbox" id="cl8"><label for="cl8">전기·가스·인터넷 해지 또는 이전 신청</label></label>
-        <label class="check-item" data-key="cl9"><input type="checkbox" id="cl9"><label for="cl9">USPS forwarding 설정</label></label>
-        <label class="check-item" data-key="cl10"><input type="checkbox" id="cl10"><label for="cl10">은행·학교·보험 주소 변경</label></label>
-      </div>
+    <div class="phase">6월 — 퇴거 전</div>
+    <div class="checks">
+      <label class="ci" data-k="c5"><input type="checkbox" id="c5"><label for="c5">물류 확정 (MiniMoves 또는 Penske EY10)</label></label>
+      <label class="ci" data-k="c6"><input type="checkbox" id="c6"><label for="c6">가구 팔지 / 가져갈지 결론</label></label>
+      <label class="ci" data-k="c7"><input type="checkbox" id="c7"><label for="c7">임시 숙소 견적 (NCH / Corporate Living)</label></label>
+      <label class="ci" data-k="c8"><input type="checkbox" id="c8"><label for="c8">전기·가스·인터넷 해지, USPS forwarding 설정</label></label>
+      <label class="ci" data-k="c9"><input type="checkbox" id="c9"><label for="c9">은행·학교·보험 주소 변경</label></label>
+      <label class="ci" data-k="c10"><input type="checkbox" id="c10"><label for="c10">6/24 밤까지 청소·사진·포장 완료</label></label>
     </div>
 
-    <div class="phase-group">
-      <div class="phase-label">6/22 – 6/24 · 포장 마감</div>
-      <div class="checklist-items">
-        <label class="check-item" data-key="cl11"><input type="checkbox" id="cl11"><label for="cl11">전체 짐 포장 완료</label></label>
-        <label class="check-item" data-key="cl12"><input type="checkbox" id="cl12"><label for="cl12">바닥·욕실·주방 청소</label></label>
-        <label class="check-item" data-key="cl13"><input type="checkbox" id="cl13"><label for="cl13">청소 후 사진·영상 기록</label></label>
-        <label class="check-item" data-key="cl14"><input type="checkbox" id="cl14"><label for="cl14">Mailbox · storage · bike area 비우기</label></label>
-      </div>
+    <div class="phase">6/25 당일 → 입주</div>
+    <div class="checks">
+      <label class="ci" data-k="c11"><input type="checkbox" id="c11"><label for="c11">최종 walkthrough + key-return proof 확보</label></label>
+      <label class="ci" data-k="c12"><input type="checkbox" id="c12"><label for="c12">하루 4–6개 현장 투어, 괜찮으면 당일 신청</label></label>
+      <label class="ci" data-k="c13"><input type="checkbox" id="c13"><label for="c13">Signed lease → storage hold 해제 → final delivery</label></label>
+      <label class="ci" data-k="c14"><input type="checkbox" id="c14"><label for="c14">Renters insurance 가입</label></label>
     </div>
-
-    <div class="phase-group">
-      <div class="phase-label">6/25 당일 — 12:00 PM 전</div>
-      <div class="checklist-items">
-        <label class="check-item" data-key="cl15"><input type="checkbox" id="cl15"><label for="cl15">최종 walkthrough</label></label>
-        <label class="check-item" data-key="cl16"><input type="checkbox" id="cl16"><label for="cl16">쓰레기 배출 완료</label></label>
-        <label class="check-item" data-key="cl17"><input type="checkbox" id="cl17"><label for="cl17">추가 사진 몇 장 촬영</label></label>
-        <label class="check-item" data-key="cl18"><input type="checkbox" id="cl18"><label for="cl18">Key-return proof 확보 (이메일 or 영수증)</label></label>
-        <label class="check-item" data-key="cl19"><input type="checkbox" id="cl19"><label for="cl19">NYC/NJ로 출발</label></label>
-      </div>
-    </div>
-
-    <div class="phase-group">
-      <div class="phase-label">NYC 도착 후</div>
-      <div class="checklist-items">
-        <label class="check-item" data-key="cl20"><input type="checkbox" id="cl20"><label for="cl20">Mover tracking · deposit correspondence 보관</label></label>
-        <label class="check-item" data-key="cl21"><input type="checkbox" id="cl21"><label for="cl21">하루 4–6개 아파트 직접 투어</label></label>
-        <label class="check-item" data-key="cl22"><input type="checkbox" id="cl22"><label for="cl22">Signed lease → storage hold 해제 → final delivery</label></label>
-        <label class="check-item" data-key="cl23"><input type="checkbox" id="cl23"><label for="cl23">Renters insurance 가입</label></label>
-        <label class="check-item" data-key="cl24"><input type="checkbox" id="cl24"><label for="cl24">필수품 가방 별도 보관: ID, 노트북, 충전기, 약, 세면도구</label></label>
-      </div>
-    </div>
-  </section>
-
-  <!-- sources -->
-  <section class="section sources" style="margin-top:16px">
-    <h2>Sources</h2>
-    <ul>
-      <li><a href="https://housing.illinois.edu/MyHousing/Apartments/Move-Out">UIUC University Housing — Apartment Move-Out</a></li>
-      <li><a href="https://portal.311.nyc.gov/article/?kanumber=KA-03665">NYC311 Broker Fees / FARE Act</a></li>
-      <li><a href="https://www.nyc.gov/site/dca/about/FAQ-Broker-Fees.page">NYC DCWP FAQ — Broker Fees / FARE Act</a></li>
-      <li><a href="https://ag.ny.gov/resources/individuals/tenants-homeowners/tenants">New York Attorney General — Tenant Rights</a></li>
-      <li><a href="https://www.njcourts.gov/self-help/landlord-tenant">New Jersey Courts — Landlord/Tenant Guidance</a></li>
-      <li><a href="https://streeteasy.com/blog/how-much-rent-can-i-afford-in-nyc/">StreetEasy — 40x Affordability</a></li>
-      <li>EY New Hire Relocation Assistance brochure, March 2026, pp. 2–3</li>
-    </ul>
-  </section>
+  </div>
 
 </main>
-
 <script>
-// Countdown to June 25, 2026 12:00 PM CDT (UTC-5)
-const deadline = new Date('2026-06-25T17:00:00Z');
-function updateCountdown() {
-  const now = new Date();
-  const diff = deadline - now;
-  if (diff <= 0) {
-    document.getElementById('countdown-bar').style.background = '#5a0000';
-    ['cd-days','cd-hours','cd-mins','cd-secs'].forEach(id => document.getElementById(id).textContent = '00');
-    return;
-  }
-  const days  = Math.floor(diff / 86400000);
-  const hours = Math.floor((diff % 86400000) / 3600000);
-  const mins  = Math.floor((diff % 3600000) / 60000);
-  const secs  = Math.floor((diff % 60000) / 1000);
-  document.getElementById('cd-days').textContent  = String(days).padStart(2,'0');
-  document.getElementById('cd-hours').textContent = String(hours).padStart(2,'0');
-  document.getElementById('cd-mins').textContent  = String(mins).padStart(2,'0');
-  document.getElementById('cd-secs').textContent  = String(secs).padStart(2,'0');
-  if (days < 14) document.getElementById('countdown-bar').classList.add('urgent');
+const dl = new Date('2026-06-25T17:00:00Z');
+function tick() {
+  const d = dl - Date.now();
+  if (d <= 0) return;
+  const pad = n => String(Math.floor(n)).padStart(2,'0');
+  document.getElementById('cd-d').textContent = pad(d/86400000);
+  document.getElementById('cd-h').textContent = pad((d%86400000)/3600000);
+  document.getElementById('cd-m').textContent = pad((d%3600000)/60000);
+  document.getElementById('cd-s').textContent = pad((d%60000)/1000);
+  if (d < 14*86400000) document.getElementById('cdbar').classList.add('hot');
 }
-updateCountdown();
-setInterval(updateCountdown, 1000);
+tick(); setInterval(tick, 1000);
 
-// Timeline: auto-mark past / active / upcoming
-document.querySelectorAll('.step[data-from]').forEach(step => {
-  const from = new Date(step.dataset.from);
-  const to   = new Date(step.dataset.to + 'T23:59:59');
-  const now  = new Date();
-  const dateEl = step.querySelector('.step-date');
-  if (to < now) {
-    step.classList.add('past');
-    dateEl.classList.remove('upcoming','urgent');
-    dateEl.classList.add('past');
-    const badge = document.createElement('div');
-    badge.className = 'step-badge badge-past';
-    badge.textContent = 'DONE';
-    step.querySelector('.step-copy').prepend(badge);
-  } else if (from <= now && now <= to) {
-    dateEl.classList.remove('upcoming','urgent');
-    dateEl.classList.add('active');
-    const badge = document.createElement('div');
-    badge.className = 'step-badge badge-active';
-    badge.textContent = 'NOW';
-    step.querySelector('.step-copy').prepend(badge);
-  }
-});
-
-// Checklist: persist with localStorage
-document.querySelectorAll('.check-item').forEach(item => {
-  const key = item.dataset.key;
-  const cb = item.querySelector('input[type=checkbox]');
+document.querySelectorAll('.ci').forEach(el => {
+  const k = el.dataset.k, cb = el.querySelector('input');
   if (!cb) return;
-  if (localStorage.getItem('move_' + key) === '1') {
-    cb.checked = true;
-    item.classList.add('done');
-  }
+  if (localStorage.getItem('mv_'+k)==='1'){cb.checked=true;el.classList.add('done')}
   cb.addEventListener('change', () => {
-    if (cb.checked) {
-      localStorage.setItem('move_' + key, '1');
-      item.classList.add('done');
-    } else {
-      localStorage.removeItem('move_' + key);
-      item.classList.remove('done');
-    }
+    el.classList.toggle('done', cb.checked);
+    cb.checked ? localStorage.setItem('mv_'+k,'1') : localStorage.removeItem('mv_'+k);
   });
 });
 </script>
