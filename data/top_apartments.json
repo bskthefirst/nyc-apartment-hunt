@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-05-20 16:01 UTC",
+  "updated_at": "2026-05-21 04:49 UTC",
   "criteria": {
     "target_rent": 2350,
     "stretch_rent": 2350,
@@ -14,10 +14,10 @@
     "verified_count": 4,
     "partial_count": 1,
     "fallback_count": 0,
-    "laundry_confirmed_count": 5,
-    "backup_count": 0,
+    "laundry_confirmed_count": 4,
+    "backup_count": 1,
     "fetch_sources": {
-      "jina_html": 43
+      "jina_html": 40
     }
   },
   "apartments": [
@@ -99,7 +99,7 @@
         "availability unconfirmed"
       ],
       "summary": "Studio in Jersey City (Journal Sq) · 출근 약 48분 · 아파트 공용 세탁기 있음 · 수수료 조건 확인 필요",
-      "listing_url": "https://streeteasy.com/building/9-homestead-place-jersey_city/1311",
+      "listing_url": "https://streeteasy.com/building/9-homestead-place-jersey_city/1410",
       "search_url": "https://streeteasy.com/for-rent/journal-square?beds=0&price=-2350",
       "route_url": "https://www.google.com/maps/dir/?api=1&origin=9+Homestead+Place%2C+Journal+Square%2C+NJ&destination=1+Manhattan+West%2C+395+9th+Ave%2C+New+York%2C+NY+10001&travelmode=transit",
       "available": "check listing",
@@ -174,13 +174,12 @@
       "listing_verification": "verified",
       "neighborhood_confidence": "medium",
       "search_parse_source": "html_jsonld",
-      "detail_parse_source": "jina_fallback",
+      "detail_parse_source": "missing",
       "price_source": "jsonld_property",
       "availability_source": "unknown",
       "availability_confirmed": false,
-      "fallback_used": true,
+      "fallback_used": false,
       "verification_notes": [
-        "detail fallback used",
         "availability unconfirmed"
       ],
       "summary": "Studio in Flushing · 출근 약 51분 · 아파트 공용 세탁기 있음 · 수수료 조건 확인 필요",
@@ -203,30 +202,30 @@
       "beds": "Studio",
       "price": 2295,
       "rent_status": "target",
-      "laundry": "아파트 공용 세탁기 있음",
-      "laundry_kind": "building",
-      "laundry_confirmed": true,
+      "laundry": "세탁기 있음 여부 확인",
+      "laundry_kind": "unknown",
+      "laundry_confirmed": false,
       "no_fee": false,
       "commute_minutes": 36,
       "effective_cost": 2447,
       "transit_cost": 152,
       "tax_credit": 0,
-      "score": 75.7,
+      "score": 45.7,
       "neighborhood_score": 45.7,
-      "listing_confidence": "medium",
+      "listing_confidence": "low",
       "listing_verification": "partially_verified",
       "neighborhood_confidence": "medium",
       "search_parse_source": "html_jsonld",
-      "detail_parse_source": "jina_fallback",
+      "detail_parse_source": "missing",
       "price_source": "jsonld_property",
       "availability_source": "unknown",
       "availability_confirmed": false,
-      "fallback_used": true,
+      "fallback_used": false,
       "verification_notes": [
-        "detail fallback used",
+        "laundry unconfirmed",
         "availability unconfirmed"
       ],
-      "summary": "Studio in Forest Hills · 출근 약 36분 · 아파트 공용 세탁기 있음 · 수수료 조건 확인 필요",
+      "summary": "Studio in Forest Hills · 출근 약 36분 · 세탁기 있음 여부 확인 · 수수료 조건 확인 필요",
       "listing_url": "https://streeteasy.com/building/111_50-76-road-forest_hills/s",
       "search_url": "https://streeteasy.com/for-rent/forest-hills?beds=0&price=-2350",
       "route_url": "https://www.google.com/maps/dir/?api=1&origin=111-50+76th+Road%2C+Forest+Hills%2C+NY&destination=1+Manhattan+West%2C+395+9th+Ave%2C+New+York%2C+NY+10001&travelmode=transit",
