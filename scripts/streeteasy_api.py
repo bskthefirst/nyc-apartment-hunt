@@ -949,18 +949,15 @@ class StreetEasyAPI:
         )
         confidence = (hood.get("data_confidence") or "medium").lower()
         fit_status = "target" if price <= self.target_rent else "stretch"
-        # If StreetEasy's laundry_in_building=1 filter was applied, the listing is
-        # already server-side verified to have laundry — trust the filter when the
-        # detail page can't be scraped to confirm the specific type.
         filter_verified_laundry = "laundry_in_building=1" in candidate.search_url
         if laundry_info:
             laundry_text, laundry_kind = laundry_info
             laundry_confirmed = True
-        elif filter_verified_laundry:
-            laundry_text, laundry_kind = "아파트 공용 세탁기 있음", "building"
-            laundry_confirmed = True
         else:
-            laundry_text, laundry_kind = "세탁기 있음 여부 확인", "unknown"
+            # Search filter alone is not ground truth — detail page must explicitly
+            # mention laundry to count as confirmed. Filter misses happen (e.g. listings
+            # with "No info on building amenities" slip through).
+            laundry_text, laundry_kind = "세탁기 있음 여부 확인 필요", "unknown"
             laundry_confirmed = False
         final_search_url = self._search_url_for_listing(candidate.search_slug, candidate.beds, price) or candidate.search_url
         availability_confirmed = candidate.available != "check listing"
@@ -979,9 +976,7 @@ class StreetEasyAPI:
         direct_detail = detail_parse_source == "direct_html"
         fallback_search = candidate.search_parse_source == "jina_markdown"
         fallback_detail = detail_parse_source == "jina_fallback"
-        # laundry_in_building=1 is a server-side StreetEasy filter — counts as verified proof
-        filter_verified = filter_verified_laundry and laundry_confirmed
-        if direct_search and laundry_confirmed and (direct_detail or filter_verified):
+        if direct_search and laundry_confirmed and direct_detail:
             listing_verification = "verified"
             listing_confidence = "high"
         elif direct_search or direct_detail:
