@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-05-25 04:57 UTC",
+  "updated_at": "2026-05-25 15:32 UTC",
   "criteria": {
     "target_rent": 2350,
     "stretch_rent": 2350,
@@ -17,7 +17,7 @@
     "laundry_confirmed_count": 3,
     "backup_count": 0,
     "fetch_sources": {
-      "jina_html": 48
+      "jina_html": 43
     }
   },
   "apartments": [
@@ -101,7 +101,7 @@
         "availability unconfirmed"
       ],
       "summary": "Studio in Jersey City (Journal Sq) · 출근 약 48분 · 방 안 세탁기 있음 · 수수료 조건 확인 필요",
-      "listing_url": "https://streeteasy.com/building/9-homestead-place-jersey_city/1410",
+      "listing_url": "https://streeteasy.com/building/9-homestead-place-jersey_city/1110",
       "search_url": "https://streeteasy.com/for-rent/journal-square?beds=0&price=-2350",
       "route_url": "https://www.google.com/maps/dir/?api=1&origin=9+Homestead+Place%2C+Journal+Square%2C+NJ&destination=1+Manhattan+West%2C+395+9th+Ave%2C+New+York%2C+NY+10001&travelmode=transit",
       "available": "check listing",
