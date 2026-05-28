@@ -15,7 +15,7 @@
   "leads": [
     {
       "rank": 1,
-      "status": "inquiry_sent",
+      "status": "in_contract_2026-05-27 — backup waitlist requested",
       "address": "35-25 29th St #B1",
       "neighborhood": "Astoria",
       "url": "https://streeteasy.com/building/35_25-29-street-astoria/b1",
@@ -260,6 +260,31 @@
       "neighborhood": "Astoria (NYCHA-adjacent)",
       "rent": 2200,
       "verdict": "SKIP - NYCHA-adjacent location, far from subway, no amenities"
+    },
+    {
+      "rank": "SKIP",
+      "status": "rejected",
+      "address": "24-60 27th St #1",
+      "neighborhood": "Astoria",
+      "rent": 1950,
+      "type": "1BR (heat included)",
+      "hpd_open": 104,
+      "hpd_recent": 73,
+      "verdict": "HARD SKIP - SLUMLORD",
+      "rejection_reason": "104 HPD violations / 73 recent. Home by Choice LLC broker. Listed 2026-05-27."
+    },
+    {
+      "rank": "SKIP",
+      "status": "rejected",
+      "address": "21-31 27th St #A1",
+      "neighborhood": "Astoria",
+      "rent": 2300,
+      "type": "1BR ground floor",
+      "broker": "Voro LLC",
+      "hpd_open": 25,
+      "hpd_recent": 4,
+      "verdict": "SKIP - ground floor + active mold/water leak documented Aug 2023",
+      "rejection_reason": "1st floor (Voro confirms), mold + water leak in apt C3, fire escape blocked"
     },
     {
       "rank": "SKIP",
