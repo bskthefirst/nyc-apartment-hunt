@@ -1,6 +1,6 @@
 {
   "_meta": {
-    "last_updated": "2026-05-27",
+    "last_updated": "2026-05-28",
     "owner": "Bill Kim",
     "destination": "1 Manhattan West, 395 9th Ave, New York, NY 10001",
     "move_in_target": "2026-06-26",
@@ -10,9 +10,70 @@
     "salary": 94000,
     "tax_status": "F1 OPT NRA",
     "monthly_takehome_nyc": 5889,
-    "monthly_takehome_nj": 6135
+    "monthly_takehome_nj": 6135,
+    "ground_floor_ok": true,
+    "preference_note": "As of 2026-05-28: Bill is OK with ground floor units - cannot be picky given timeline. Do NOT auto-reject for ground floor anymore.",
+    "applicant_profile": {
+      "no_us_credit_history": true,
+      "no_fico_score": true,
+      "ead_card": "just received (OPT work authorization)",
+      "no_prior_us_income": true,
+      "qualification_strategy": "Cannot provide FICO/credit. Lead with: signed EY offer letter ($94k), US-citizen guarantor meeting 80x rent, proof of savings, willingness to prepay. Target owner-direct/small landlords who make judgment calls - corporate buildings auto-reject no-credit applicants.",
+      "note": "As of 2026-05-28: International first-time renter. Guarantor is the key card. Do NOT put a credit score in applications - address no-credit honestly + offset with guarantor upfront."
+    },
+    "filter_rules": "Skip on sight: CO-OP/CONDO (board approval = timeline death + no-credit reject), co-living/room-shares (SharedEasy), student dorms (EHS), 100+ HPD or 30+ Class C (slumlord), Assist NJ/Zara/Nooklyn-bad-buildings. Target: owner-direct rentals, 12-month lease, no board.",
+    "tool": "node ~/Downloads/nyc-apartment-hunt/scripts/aptcheck.cjs '<url>' = scrape+HPD+commute+verdict in one command. Note: takes Routes API default route (may lowball best commute - cross-check Google Maps for fastest option)."
   },
   "leads": [
+    {
+      "rank": "ACTIVE",
+      "status": "contacting 2026-05-28 - text (516) 776-8393",
+      "address": "21-13/21-25 25th Rd",
+      "neighborhood": "Downtown Astoria",
+      "url": "apartments.com (21-13-21-25-25th-rd)",
+      "rent": 1950,
+      "type": "1BR",
+      "floor": "2nd floor (entry on 2nd)",
+      "built": 1970,
+      "heat_hot_water_included": true,
+      "laundry": "unknown - ask",
+      "ac": "No central AC - baseboard heat, window unit needed (non-issue)",
+      "pets": "cats OK",
+      "commute_min": 46,
+      "hpd_open": 0,
+      "hpd_note": "Complex (21-13 to 21-25). All serious-clean - worst sub-bldg (21-15) has only Class A/admin, 0 C/0 B",
+      "broker": "Wolves Den Realty (OneKey MLS) - broker=credit check, lead with guarantor",
+      "no_fee_fare_act": true,
+      "true_monthly_estimate": 2480,
+      "verdict": "STRONG - cheapest 1BR besides Woodside, clean, heat incl, 12-mo lease, 2nd floor, Downtown Astoria, 46min. Broker credit check is the hurdle.",
+      "concerns": [
+        "broker credit check (need guarantor)",
+        "no AC (window unit)",
+        "sqft not listed - ask"
+      ]
+    },
+    {
+      "rank": "ACTIVE",
+      "status": "pre-screener submitted 2026-05-28 (TurboTenant, owner-direct)",
+      "address": "439 54th St (garden floor)",
+      "neighborhood": "Sunset Park, Brooklyn",
+      "url": "apartments.com (439-54th-st-brooklyn)",
+      "rent": 2300,
+      "type": "1BR, 800 sqft, entire garden floor of townhouse",
+      "floor": "garden (ground)",
+      "heat_hot_water_included": "ALL utilities included (gas/water/electric/heat/trash/sewer)",
+      "laundry": "in-unit W/D",
+      "commute_min": 50,
+      "hpd_open": 0,
+      "broker": "owner-direct (TurboTenant), NO broker fee",
+      "true_monthly_estimate": 2770,
+      "verdict": "STRONG - most space/amenities, all utils, in-unit W/D, owner-direct (guarantor-friendly), June 1. Only catch: 50min commute (at cap).",
+      "concerns": [
+        "50 min commute (2 trains)",
+        "garden floor light - verify on video tour",
+        "verify owner has keys before any money"
+      ]
+    },
     {
       "rank": 1,
       "status": "in_contract_2026-05-27 — backup waitlist requested",
@@ -35,7 +96,10 @@
       "no_fee_fare_act": true,
       "true_monthly_estimate": 2705,
       "verdict": "BEST LONG-TERM PICK - rent stabilized compounds value",
-      "concerns": ["confirm B1 = 2nd floor not basement", "no in-unit laundry"]
+      "concerns": [
+        "confirm B1 = 2nd floor not basement",
+        "no in-unit laundry"
+      ]
     },
     {
       "rank": 2,
@@ -57,7 +121,11 @@
       "no_fee_fare_act": true,
       "true_monthly_estimate": 2825,
       "verdict": "STRONG - only 0-violation building with sub-40min commute that is a 1BR. Elevator. $375/mo premium over Woodside.",
-      "concerns": ["no laundry listed", "heat/utilities TBD", "$300+/mo more than Woodside"]
+      "concerns": [
+        "no laundry listed",
+        "heat/utilities TBD",
+        "$300+/mo more than Woodside"
+      ]
     },
     {
       "rank": 4,
@@ -81,7 +149,11 @@
       "no_fee_fare_act": true,
       "true_monthly_estimate": 2450,
       "verdict": "BEST CASH PLAY - cheapest 1BR, owner-direct, no broker games",
-      "concerns": ["walkup", "no laundry", "need pest/heat questions"]
+      "concerns": [
+        "walkup",
+        "no laundry",
+        "need pest/heat questions"
+      ]
     },
     {
       "rank": 3,
@@ -105,7 +177,9 @@
       "no_fee_fare_act": true,
       "true_monthly_estimate": 2365,
       "verdict": "CHEAPEST OPTION - modern 1990 building, fresh listing",
-      "concerns": ["briefly off-market 5/21 then re-listed 5/23 - ask why"]
+      "concerns": [
+        "briefly off-market 5/21 then re-listed 5/23 - ask why"
+      ]
     },
     {
       "rank": "SKIP",
@@ -245,15 +319,15 @@
       "rejection_reason": "$75 amenity + $75 gas/water/sewer = $2,425+ effective. Commute 50-55 min. Queens wins on cash."
     },
     {
-      "rank": "SKIP",
-      "status": "rejected",
+      "rank": "ACTIVE",
+      "status": "prescreener submitted 2026-05-28 (Howard Hanna broker - flagged guarantor)",
       "address": "37-56 80th St #3D",
       "neighborhood": "Jackson Heights",
       "url": "https://streeteasy.com/building/37_56-80-street-jackson_heights/3d",
       "rent": 2000,
       "type": "Studio",
       "hpd_open": 0,
-      "verdict": "SKIP - previous contract fell through twice, no laundry, two brokers in 2 years",
+      "verdict": "ACTIVE LEAD - clean building, $2000 studio, 34min. Broker=credit check, guarantor flagged.",
       "rejection_reason": "Owner switches brokers (Elegran -> Howard Hanna), previous contract failed within days, repeated cycle suggests issue"
     },
     {
@@ -353,33 +427,131 @@
       "hpd_open": 14,
       "verdict": "SKIP - ground floor (G1) + corporate broker + at 40x cap",
       "rejection_reason": "Voro Purple LLC, FL-based corporate broker. Ground floor dealbreaker."
+    },
+    {
+      "rank": "SKIP",
+      "status": "rejected",
+      "address": "345 Baldwin #609 (CMPND-style, Rose Assoc)",
+      "neighborhood": "Jersey City",
+      "verdict": "SKIP - 53min commute (over cap), studio, concession-pricing/13% vacancy. Not predatory but worse than Queens leads."
+    },
+    {
+      "rank": "SKIP",
+      "status": "rejected",
+      "address": "118 Corbin Ave #303",
+      "neighborhood": "Jersey City",
+      "verdict": "SKIP - CONDO (board approval), 54min commute. Heat incl but board kills timeline."
+    },
+    {
+      "rank": "SKIP",
+      "status": "rejected",
+      "address": "110-20 71st Ave (The Majestic) #11B",
+      "neighborhood": "Forest Hills",
+      "verdict": "SKIP - CO-OP board approval confirmed by phone. Great 35min commute but board=dead."
+    },
+    {
+      "rank": "SKIP",
+      "status": "rejected",
+      "address": "35-35 75th St #625",
+      "neighborhood": "Jackson Heights",
+      "verdict": "SKIP - CO-OP (board approval+interview). 655sqft, 32min one-seat E, clean-ish, but co-op=dead."
+    },
+    {
+      "rank": "SKIP",
+      "status": "rejected",
+      "address": "30-60 Crescent St #1E",
+      "neighborhood": "Astoria",
+      "verdict": "SKIP - 38 HPD (13 Class C, 8 recent): mice/roaches/no-hot-water apt 6B Jan 2026. Rent stab but recent neglect."
+    },
+    {
+      "rank": "SKIP",
+      "status": "rejected",
+      "address": "32-15 93rd St #B9",
+      "neighborhood": "East Elmhurst",
+      "verdict": "SKIP - SLUMLORD 180 HPD (50 Class C), mice/roaches Apr 2026 + 53min bus commute."
+    },
+    {
+      "rank": "SKIP",
+      "status": "rejected",
+      "address": "84-49 Elmhurst Ave #3E",
+      "neighborhood": "Elmhurst",
+      "verdict": "SKIP - SLUMLORD 77 HPD (22 Class C, 62 recent)."
+    },
+    {
+      "rank": "SKIP",
+      "status": "rejected",
+      "address": "32-86 33rd St",
+      "neighborhood": "Astoria",
+      "verdict": "SKIP - SLUMLORD 185 HPD (35 Class C, 45 recent). 446sqft tiny."
+    },
+    {
+      "rank": "SKIP",
+      "status": "rejected",
+      "address": "80 La Salle St #11B (Morningside Gardens)",
+      "neighborhood": "Manhattan",
+      "verdict": "SKIP - CO-OP sublet, board approval + available Sept 1 (too late). 29min commute wasted."
+    },
+    {
+      "rank": "SKIP",
+      "status": "rejected",
+      "address": "26A Scholes St",
+      "neighborhood": "Brooklyn (Williamsburg)",
+      "verdict": "SKIP - CO-LIVING room-share (SharedEasy), 80-150sqft bedroom, shared kitchen/bath w/ mixed-gender roommates."
+    },
+    {
+      "rank": "SKIP",
+      "status": "rejected",
+      "address": "EHS Hudson Yards Campus",
+      "neighborhood": "Manhattan",
+      "verdict": "SKIP - STUDENT DORM only (.edu email required, proof of enrollment). Bill doesn't qualify."
+    },
+    {
+      "rank": "SKIP",
+      "status": "rejected",
+      "address": "90-32 53rd Ave",
+      "neighborhood": "Elmhurst",
+      "verdict": "SKIP - check (was in search, B1 ground-floor Elmhurst, likely slumlord-area)."
     }
   ],
   "predatory_brokers": [
     {
       "name": "Assist New Jersey",
       "pattern": "Requires NJ-resident parents only as guarantor with 72x rent income, forces TheGuarantors.com fee ($1,400-$2,200) if can't comply",
-      "buildings_seen": ["253 Academy St (Moxie)", "28 Cottage St (MRK)", "632 Newark Ave (CMPND)"]
+      "buildings_seen": [
+        "253 Academy St (Moxie)",
+        "28 Cottage St (MRK)",
+        "632 Newark Ave (CMPND)"
+      ]
     },
     {
       "name": "Nooklyn NYC LLC",
       "pattern": "Markets units in buildings with 100+ HPD violations as 'luxury'",
-      "buildings_seen": ["32-42 33rd St Astoria (328 HPD)", "44-08 47th Ave Woodside (107 HPD)", "30-49 Crescent St Astoria"]
+      "buildings_seen": [
+        "32-42 33rd St Astoria (328 HPD)",
+        "44-08 47th Ave Woodside (107 HPD)",
+        "30-49 Crescent St Astoria"
+      ]
     },
     {
       "name": "Zara Realty Holding Corp",
       "pattern": "NOTORIOUS - sued by NY Attorney General for tenant harassment, illegal fees, deceptive leases. Charges tenants for legally-required safety equipment (smoke/CO detectors, window guards). Targets immigrant/first-time Queens renters.",
-      "buildings_seen": ["94-25 57th Ave Elmhurst (500+ HPD violations, 157 Class C)"]
+      "buildings_seen": [
+        "94-25 57th Ave Elmhurst (500+ HPD violations, 157 Class C)"
+      ]
     },
     {
       "name": "Voro NYC / Voro Purple / Voro LLC",
       "pattern": "Mixed - flagged the 103-10 Queens Blvd 302-violation building, but also lists clean buildings",
-      "buildings_seen": ["103-10 Queens Blvd Forest Hills (302 HPD - SLUMLORD)", "35-25 29th St Astoria (15 HPD - clean - TOP PICK)", "31-28 29th St Astoria"]
+      "buildings_seen": [
+        "103-10 Queens Blvd Forest Hills (302 HPD - SLUMLORD)",
+        "35-25 29th St Astoria (15 HPD - clean - TOP PICK)",
+        "31-28 29th St Astoria"
+      ]
     }
   ],
   "verified_costs_2026": {
     "path_per_ride": 3.25,
-    "path_tapp_40trip_per_ride": 3.10,
+    "path_tapp_40trip_per_ride": 3.1,
     "path_monthly_typical": 124,
     "omny_weekly_cap": 35,
     "omny_monthly_typical": 140,
