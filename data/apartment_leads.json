@@ -310,6 +310,11 @@
       "buildings_seen": ["32-42 33rd St Astoria (328 HPD)", "44-08 47th Ave Woodside (107 HPD)", "30-49 Crescent St Astoria"]
     },
     {
+      "name": "Zara Realty Holding Corp",
+      "pattern": "NOTORIOUS - sued by NY Attorney General for tenant harassment, illegal fees, deceptive leases. Charges tenants for legally-required safety equipment (smoke/CO detectors, window guards). Targets immigrant/first-time Queens renters.",
+      "buildings_seen": ["94-25 57th Ave Elmhurst (500+ HPD violations, 157 Class C)"]
+    },
+    {
       "name": "Voro NYC / Voro Purple / Voro LLC",
       "pattern": "Mixed - flagged the 103-10 Queens Blvd 302-violation building, but also lists clean buildings",
       "buildings_seen": ["103-10 Queens Blvd Forest Hills (302 HPD - SLUMLORD)", "35-25 29th St Astoria (15 HPD - clean - TOP PICK)", "31-28 29th St Astoria"]
