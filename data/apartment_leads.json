@@ -22,7 +22,9 @@
       "note": "As of 2026-05-28: International first-time renter. Guarantor is the key card. Do NOT put a credit score in applications - address no-credit honestly + offset with guarantor upfront."
     },
     "filter_rules": "Skip on sight: CO-OP/CONDO (board approval = timeline death + no-credit reject), co-living/room-shares (SharedEasy), student dorms (EHS), 100+ HPD or 30+ Class C (slumlord), Assist NJ/Zara/Nooklyn-bad-buildings. Target: owner-direct rentals, 12-month lease, no board.",
-    "tool": "node ~/Downloads/nyc-apartment-hunt/scripts/aptcheck.cjs '<url>' = scrape+HPD+commute+verdict in one command. Note: takes Routes API default route (may lowball best commute - cross-check Google Maps for fastest option)."
+    "tool": "node ~/Downloads/nyc-apartment-hunt/scripts/aptcheck.cjs '<url>' = scrape+HPD+commute+verdict in one command. Note: takes Routes API default route (may lowball best commute - cross-check Google Maps for fastest option).",
+    "nj_listings_rule": "NJ has no HPD. ALWAYS run Google reviews + Reddit BEFORE recommending any NJ building (134 Baldwin looked great but Google reviews showed deposit theft + no security). A nice listing with bad tenant reviews = bad apartment.",
+    "jc_commute_pattern": "Jersey City consistently 47-54min to 1MW (far from PATH or needs PATH+subway transfer). JC does NOT beat Queens (39-46) or West Harlem (30-32) on commute. Stop chasing JC unless literally on top of JSQ PATH + one-seat."
   },
   "leads": [
     {
@@ -558,6 +560,34 @@
       "address": "90-32 53rd Ave",
       "neighborhood": "Elmhurst",
       "verdict": "SKIP - check (was in search, B1 ground-floor Elmhurst, likely slumlord-area)."
+    },
+    {
+      "rank": "SKIP",
+      "status": "rejected",
+      "address": "134 Baldwin Ave (Carlos/owner)",
+      "neighborhood": "Jersey City - Journal Square",
+      "verdict": "SKIP - DEPOSIT THEFT reviews. Google: Local Guide (87 rev) says deposit not returned + mgmt ghosts after lease; another says no security/packages stolen. Looked great on paper (owner-direct, no fees, modern, in-unit W/D) but tenant reviews damning. Also 52min commute + electric heat."
+    },
+    {
+      "rank": "SKIP",
+      "status": "rejected",
+      "address": "3033 JFK Blvd #36 (Kennedy West Condos)",
+      "neighborhood": "Jersey City",
+      "verdict": "SKIP - worn/dated 500sqft condo, 47min, condo approval + Zillow credit check friction. Looks rough in photos."
+    },
+    {
+      "rank": "SKIP",
+      "status": "rejected",
+      "address": "201 Saint Pauls Ave #2M",
+      "neighborhood": "Jersey City",
+      "verdict": "SKIP - 54min commute (bus-dependent, far from PATH), over cap."
+    },
+    {
+      "rank": "SKIP",
+      "status": "rejected",
+      "address": "345 Baldwin #609 (Rose Assoc)",
+      "neighborhood": "Jersey City",
+      "verdict": "SKIP - Unit 609 available Aug 1 (too late for June move-in), 345sqft tiny, 53min commute."
     }
   ],
   "predatory_brokers": [
