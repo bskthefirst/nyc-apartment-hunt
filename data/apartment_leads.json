@@ -27,6 +27,30 @@
   "leads": [
     {
       "rank": "ACTIVE",
+      "status": "to contact - text (551) 230-7201 (346 Realty)",
+      "address": "555 Edgecombe Ave #15H",
+      "neighborhood": "Sugar Hill, Washington Heights, Manhattan",
+      "url": "346realty.com/.../555-edgecombe-avenue/1761",
+      "rent": 2000,
+      "type": "Studio",
+      "floor": "15H (high, skyline/river views)",
+      "heat_hot_water_included": "unknown - ask",
+      "laundry": "laundry facilities in building",
+      "pets": "dogs allowed",
+      "commute_min": 32,
+      "hpd_open": 3,
+      "hpd_note": "3 open (0C/3B), 0 recent - clean",
+      "broker": "346 Realty (WaHi rental broker), $20 app fee (compliant). Broker=credit check, lead w/ guarantor.",
+      "lease_type": "LIKELY straight rental NOT co-op sublet (no board language, simple 1st+deposit move-in) - CONFIRM no board",
+      "verdict": "STRONG if no board - clean famous bldg (Paul Robeson/Triple Nickel), 32min commute, $2000, pet-friendly. Sugar Hill = good part of WaHi.",
+      "concerns": [
+        "confirm direct rental not co-op sublet (no board)",
+        "Sugar Hill moderate crime - not Astoria-safe",
+        "broker credit check"
+      ]
+    },
+    {
+      "rank": "ACTIVE",
       "status": "contacting 2026-05-28 - text (516) 776-8393",
       "address": "21-13/21-25 25th Rd",
       "neighborhood": "Downtown Astoria",
