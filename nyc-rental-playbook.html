@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NYC Rental Playbook — Bill's Apartment Search</title>
+<style>
+  :root{--bg:#f4f1ea;--card:#fff;--ink:#1d2330;--muted:#5a6473;--accent:#1a47b8;--good:#1a7f4b;--bad:#b81a2e;--warn:#b8731a;--line:#e3ddd0;}
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:'IBM Plex Sans',-apple-system,system-ui,sans-serif;line-height:1.55;}
+  .wrap{max-width:920px;margin:0 auto;padding:32px 20px 80px;}
+  header{border-bottom:3px solid var(--accent);padding-bottom:18px;margin-bottom:28px;}
+  h1{font-size:30px;margin:0 0 6px;letter-spacing:-.5px;}
+  .sub{color:var(--muted);font-size:14px;}
+  h2{font-size:21px;margin:34px 0 12px;padding-top:10px;border-top:1px solid var(--line);letter-spacing:-.3px;}
+  h3{font-size:16px;margin:18px 0 6px;color:var(--accent);}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px 20px;margin:14px 0;}
+  ul{margin:6px 0 6px;padding-left:20px;}
+  li{margin:4px 0;}
+  .tag{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px;margin-right:6px;}
+  .t-good{background:#e3f3ea;color:var(--good);}
+  .t-bad{background:#f7e3e6;color:var(--bad);}
+  .t-warn{background:#f7eede;color:var(--warn);}
+  table{border-collapse:collapse;width:100%;margin:10px 0;font-size:14px;}
+  th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top;}
+  th{background:#ece6da;font-size:12px;text-transform:uppercase;letter-spacing:.5px;}
+  code{background:#ece6da;padding:1px 5px;border-radius:4px;font-size:13px;}
+  .toc a{color:var(--accent);text-decoration:none;font-size:14px;display:block;padding:2px 0;}
+  .toc{columns:2;}
+  .key{border-left:4px solid var(--accent);background:#eef2fc;padding:12px 16px;border-radius:0 8px 8px 0;margin:12px 0;}
+  .danger{border-left:4px solid var(--bad);background:#fceef0;padding:12px 16px;border-radius:0 8px 8px 0;margin:12px 0;}
+  .win{border-left:4px solid var(--good);background:#eef7f1;padding:12px 16px;border-radius:0 8px 8px 0;margin:12px 0;}
+  footer{margin-top:40px;color:var(--muted);font-size:12px;border-top:1px solid var(--line);padding-top:16px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <h1>NYC Rental Playbook</h1>
+  <div class="sub">Compiled for Bill Kim's apartment search · F1-OPT, no US credit, $94k EY offer (start Jul 8), guarantor-backed · Move-in target Jun 26, 2026<br>
+  Sources: NY Magazine "31 Ideas for Renting," r/AskNYC + r/NYCapartments megathreads, applied to Bill's situation.</div>
+</header>
+
+<div class="toc card">
+  <a href="#bill">0 · Bill's situation & hard rules</a>
+  <a href="#vetting">1 · Vetting a listing (checklist)</a>
+  <a href="#scams">2 · Scam / red-flag detection</a>
+  <a href="#money">3 · Money rules (40x, NER, fees, deposits)</a>
+  <a href="#credit">4 · No-credit / guarantor strategy</a>
+  <a href="#channels">5 · Where to actually find deals</a>
+  <a href="#visit">6 · What to check at a viewing</a>
+  <a href="#docs">7 · Document folder to pre-stage</a>
+  <a href="#lease">8 · Lease & negotiation</a>
+  <a href="#decision">9 · Bill's decision framework</a>
+</div>
+
+<h2 id="bill">0 · Bill's situation & hard rules</h2>
+<div class="key">
+<strong>Profile:</strong> F1-OPT (just got EAD), <strong>no US credit history</strong>, no prior US income, $94k EY offer (signed, starts Jul 8). US-citizen guarantor = family friend, agreed but at 80x a $2k rent = needs $160k+ income; confirm they clear the bar. Move-out of Urbana Jun 25, move-in NYC ~Jun 26.
+</div>
+<table>
+<tr><th>Rule</th><th>Value</th></tr>
+<tr><td>Hard rent cap (40x)</td><td>$2,350 (= $94k ÷ 40)</td></tr>
+<tr><td>Comfortable rent (30% take-home)</td><td>~$1,767 — anything above means lean budget</td></tr>
+<tr><td>Commute cap</td><td>≤ 50 min to 1 Manhattan West (395 9th Ave)</td></tr>
+<tr><td>Ground floor</td><td>OK (can't be picky given timeline)</td></tr>
+<tr><td>Lease type</td><td>Rental only — <strong>NO co-op / condo</strong> (board approval = timeline death + no-credit reject)</td></tr>
+<tr><td>Priority</td><td>Cheap + fast commute (Woodside, 21-13 25th Rd) over space</td></tr>
+</table>
+
+<h2 id="vetting">1 · Vetting a listing (the checklist)</h2>
+<div class="win"><strong>The tool does this in one shot:</strong> <code>node ~/Downloads/nyc-apartment-hunt/scripts/aptcheck.cjs "&lt;url&gt;"</code> → scrapes listing + HPD + commute + verdict. (Cross-check commute on Google Maps — the tool takes the API's default route, which can lowball the fastest option.)</div>
+<ul>
+<li><strong>HPD violations</strong> — look up the building. NYC OpenData <code>wvxf-dwi5</code>. Open count + Class C (immediately hazardous) + how recent. <span class="tag t-bad">30+ Class C or 100+ open = slumlord</span> <span class="tag t-good">0-5 open = clean</span></li>
+<li><strong>Bed-bug registry</strong> — bedbugregistry.com/metro/nyc</li>
+<li><strong>Listing history on StreetEasy</strong> — nice apartments lease fast (few days on market). Long/repeated relisting = something's off. A big unexplained price drop = bait or defect.</li>
+<li><strong>Read the description, not the metadata</strong> — scummy brokers tag a studio as "1BR." Photos labeled "same line" aren't the actual unit.</li>
+<li><strong>Rent-stabilization check</strong> — you can't sign away the right. Cross-check the building list (hcr.ny.gov). Stabilized = capped increases + renewal right. 4 years to dispute.</li>
+<li><strong>Management company / landlord</strong> — Google them. Owner-direct &amp; small landlords &gt;&gt; big corporate brokers for a no-credit applicant.</li>
+</ul>
+
+<h2 id="scams">2 · Scam / red-flag detection</h2>
+<div class="danger">
+<strong>If it's too good to be true, it's 99% a scam.</strong> NEVER rent without physically (or via live video) seeing the unit. Never wire money / Venmo / Western Union / MoneyGram before a verified tour.
+</div>
+<ul>
+<li><span class="tag t-bad">SCAM</span> "Owner is abroad, check it through the windows, mail a deposit and I'll send keys."</li>
+<li><span class="tag t-bad">SCAM</span> Generic Gmail + YouTube-Shorts videos + no address + demands exact credit score/income upfront = lead-harvesting (e.g. the rentalsny21@gmail.com one).</li>
+<li><span class="tag t-warn">BAIT &amp; SWITCH</span> Broker won't give the exact address, wants to meet at an intersection, then "that one just rented, but I have others."</li>
+<li><span class="tag t-warn">WATCH</span> Broker asks you to sign paperwork at the showing giving them exclusive right to charge a fee. Read it.</li>
+<li><span class="tag t-warn">WATCH</span> Eager, fast-responding broker on a cheap listing — the <em>good</em> buildings have 50 applicants and don't chase you. Fast chasers are often the bad ones.</li>
+<li><strong>Verify ownership</strong> before any money: live video walkthrough showing them inside the unit with keys.</li>
+</ul>
+
+<h2 id="money">3 · Money rules</h2>
+<table>
+<tr><th>Item</th><th>Rule (NY law / norm)</th></tr>
+<tr><td>40x rule</td><td>Annual income ≥ 40× monthly rent. $2,350 rent → $94k. Qualifies on <strong>GROSS</strong> rent, not NER.</td></tr>
+<tr><td>Guarantor</td><td>Must make <strong>80x</strong> rent. Can be relative or friend (most owner-direct accept friends; some corp require relatives).</td></tr>
+<tr><td>Security deposit</td><td>Capped at <strong>1 month</strong> (NY law). Returned within 14 days of move-out.</td></tr>
+<tr><td>Application fee</td><td>Capped at <strong>$20</strong> by law. Credit report should be ≤$30. $150 ask = run.</td></tr>
+<tr><td>Rent increase notice</td><td>Landlord must give 30 days' notice for increases over 5%.</td></tr>
+<tr><td>Broker fee (FARE Act, NYC)</td><td>Whoever <em>hires</em> the broker pays. Landlord-hired = no tenant fee. <strong>NJ has no FARE Act</strong> — JC brokers can charge you.</td></tr>
+<tr><td>NER (net effective rent)</td><td>"2 months free on 13-mo lease." You pay GROSS in non-free months; 40x &amp; renewal use GROSS, not the discounted NER. Don't sign NER if you can't afford the gross.</td></tr>
+</table>
+
+<h2 id="credit">4 · No-credit / guarantor strategy (Bill-critical)</h2>
+<div class="key">Bill has no US credit. The credit field is his weak spot. Strategy: <strong>lead with income + guarantor, never volunteer "no credit" without the offset in the same breath.</strong></div>
+<ul>
+<li><strong>Offsets to offer:</strong> signed EY offer letter ($94k), US-citizen guarantor at 80x, bank statements / proof of funds, willingness to prepay extra months.</li>
+<li><strong>Target owner-direct landlords</strong> — they make judgment calls. Corporate brokers run rigid credit filters that auto-reject empty credit.</li>
+<li><strong>Backup if guarantor rejected:</strong> Insurent / TheGuarantors (institutional guarantor, ~70-110% of one month's rent, one-time fee).</li>
+<li><strong>Alt paths for no-credit/no-guarantor:</strong> NYFSC senior home-sharing program (one renter used it explicitly because "no credit history or guarantors"); co-living (Common, Outpost, Tribe — usually no guarantor/credit req, furnished, 30-day min) — but pricier &amp; room-share.</li>
+<li><strong>Pre-stage guarantor docs NOW</strong> — when an owner says yes you have ~24-48h. Have their pay stubs + 1040 + bank statement + ID ready.</li>
+</ul>
+
+<h2 id="channels">5 · Where to actually find deals (beyond StreetEasy)</h2>
+<table>
+<tr><th>Channel</th><th>Why / note</th></tr>
+<tr><td><strong>Apartments.com</strong></td><td>More owner-direct + TurboTenant listings → more responsive than StreetEasy brokers. Bill's replies came from here.</td></tr>
+<tr><td>For-rent signs (walk the blocks)</td><td>Best deals often aren't online. Small landlords just put a sign in the window. Pick target blocks, walk them.</td></tr>
+<tr><td>Niche Facebook groups</td><td>Gypsy Housing (~250k), Queer Housing NYC, community-specific groups. No brokers, profile-vetted.</td></tr>
+<tr><td>Listings Project</td><td>Weekly vetted email (artists, since 2009).</td></tr>
+<tr><td>LeaseBreak / Flip.lease</td><td>Lease takeovers — leaseholders desperate to fill = below-market rents.</td></tr>
+<tr><td>Craigslist "short-term sublets"</td><td>Higher quality, less competition; take over the lease when it's up.</td></tr>
+<tr><td>Go straight to mgmt companies</td><td>Stonehenge, UDR, Stuy Town — skip broker fee, apply on their site directly.</td></tr>
+<tr><td>Housing lotteries (Housing Connect)</td><td>80/20 program; long shot, low rent ($1,050 South Bronx studio in one story). Apply to many.</td></tr>
+<tr><td>Doorman / super of a building you want</td><td>They know what's opening before it lists. One renter got $500 under asking this way.</td></tr>
+<tr><td>r/NYCapartments — u/tmm224</td><td>Resident broker (Todd) answers questions.</td></tr>
+</table>
+
+<h2 id="visit">6 · What to check at a viewing (video or in person)</h2>
+<ul>
+<li><strong>Water pressure</strong> — turn on the shower. Don't be shy.</li>
+<li><strong>Flush + shower temperature</strong> test.</li>
+<li><strong>Electric meter access</strong> — make sure ConEd can read it (retail-below story: estimate-bill nightmare).</li>
+<li><strong>Super</strong> — on-site or live-in? Or 30 min away covering 10 buildings (= slow repairs)?</li>
+<li><strong>VISIT AT NIGHT &amp; ON WEEKENDS</strong> — neighborhood changes. (For Bill: ask current tenants / check at different times via video.)</li>
+<li><strong>Construction/demolition</strong> nearby? If yes, ask for a discount.</li>
+<li><strong>Cell service</strong> (check your bars), nearest laundromat/bodega/train, mattress fit, closet space.</li>
+<li><strong>Photos/video of everything on move-in</strong> — protects your deposit.</li>
+<li><strong>1st floor vs ground floor:</strong> "1st floor" can be above a ground-level lobby (fine). True ground/garden = noise + security + light concerns, but can mean a backyard. Verify which.</li>
+</ul>
+
+<h2 id="docs">7 · Document folder to pre-stage</h2>
+<div class="key">Keep multiple copies (PDF in Google Drive) ready to send instantly:</div>
+<ul>
+<li>Signed EY offer letter (income proof — Bill's substitute for pay stubs)</li>
+<li>Bank statements (3 recent) — proof of funds</li>
+<li>Passport / EAD card / I-20</li>
+<li>Guarantor packet: their pay stubs (3), 1040 tax return, bank statement, ID</li>
+<li>(When employed) W2, pay stubs, employment letter, prior-landlord reference</li>
+</ul>
+
+<h2 id="lease">8 · Lease &amp; negotiation</h2>
+<ul>
+<li><strong>Demand a 2nd-year option at a predetermined rent</strong> (1yr + option). Don't trust "landlord will offer option later." Protects against increases. If they refuse, you dodged a bullet.</li>
+<li><strong>Negotiate the landlord to cover 50% of extra fees</strong> — they sometimes do it as good faith.</li>
+<li><strong>Keep applying while your app is out</strong> — leverage; landlords play apps against each other.</li>
+<li><strong>You're choosing a landlord, not just an apartment</strong> — owner-direct condos/small landlords want stable long-term tenants and squeeze less.</li>
+<li><strong>Read every clause; get verbal promises in writing</strong> ("if it's not written down, it doesn't exist"). Scan &amp; store 2 copies + cloud.</li>
+</ul>
+
+<h2 id="decision">9 · Bill's decision framework</h2>
+<div class="win"><strong>Filter on sight:</strong> rental (not co-op/condo) · 12-month lease · ≤$2,350 gross · owner-direct preferred · clean HPD (run aptcheck) · ≤50 min commute · guarantor accepted.</div>
+<div class="danger"><strong>Auto-skip:</strong> co-op/condo (board) · co-living room-share (unless desperate) · student dorms (EHS) · 100+ HPD or 30+ Class C · predatory brokers (Assist NJ, Zara Realty, Nooklyn-bad-buildings) · Elmhurst/East Elmhurst (slumlord-dense + bus commute) · NER you can't afford at gross.</div>
+<p><strong>When choosing between finalists:</strong> owner-direct + clean + fast commute wins, because approval ease (guarantor) matters more than amenities given the no-credit situation. A 1BR at studio price (Woodside $1,895, 21-13 25th Rd $1,950) beats a bigger/fancier place you can't get approved for or that's 50+ min away.</p>
+
+<footer>
+Compiled 2026-05-28. Living reference — update as the search evolves. Companion files in this folder: <code>data/apartment_leads.json</code> (live leads + rejects), <code>data/APARTMENTS.md</code> (readable summary), <code>scripts/aptcheck.cjs</code> (vetting tool).
+</footer>
+</div>
+</body>
+</html>
