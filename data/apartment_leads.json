@@ -27,6 +27,29 @@
   "leads": [
     {
       "rank": "ACTIVE",
+      "status": "to contact - confirm 551 vs 553 building first",
+      "address": "553 W 148th St #3",
+      "neighborhood": "Hamilton Heights / Central Harlem, Manhattan",
+      "url": "apartments.com/553-w-148th-st",
+      "rent": 1985,
+      "type": "Studio",
+      "heat_hot_water_included": "water/sewer/heat included (pay electric)",
+      "laundry": "laundry facility in building",
+      "pets": "no pets",
+      "commute_min": 30,
+      "hpd_open": 24,
+      "hpd_note": "553=clean (0C/1B). BUT listing body says 551 (52 open, 11C). CONFIRM building # with broker.",
+      "broker": "broker listing, NO broker fee, $1985 all-in",
+      "lease_type": "12-month rental, June 1",
+      "verdict": "STRONG - cheapest all-in ($1985), fastest commute (30min 1-seat A), no fee, utils incl, clean (if 553). Tied w/ 555 Edgecombe, edges it on price+commute.",
+      "concerns": [
+        "confirm 551 vs 553 (HPD differs hugely)",
+        "Hamilton Heights moderate safety",
+        "broker credit check - lead w/ guarantor"
+      ]
+    },
+    {
+      "rank": "ACTIVE",
       "status": "to contact - text (551) 230-7201 (346 Realty)",
       "address": "555 Edgecombe Ave #15H",
       "neighborhood": "Sugar Hill, Washington Heights, Manhattan",
