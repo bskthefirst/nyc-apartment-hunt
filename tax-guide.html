@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>세금 가이드 · F1 OPT / NJ 거주 / NYC 근무</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;700&family=IBM+Plex+Sans:wght@400;500;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:#f2ede4;color:#17130F;font-family:"IBM Plex Sans KR","IBM Plex Sans",sans-serif;line-height:1.6;font-size:15px}
+a{color:#234a33}
+.wrap{max-width:860px;margin:0 auto;padding:22px 18px 72px}
+
+/* nav */
+.nav{display:flex;gap:8px;margin-bottom:28px;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;border:1px solid #a09880;border-radius:999px;padding:7px 14px;background:#fdfaf4;color:#17130F;text-decoration:none;font:700 12px/1 "JetBrains Mono",monospace;letter-spacing:.04em;transition:.15s}
+.btn:hover{background:#17130F;color:#f2ede4;border-color:#17130F}
+
+/* hero */
+.eyebrow{font:700 11px/1 "JetBrains Mono",monospace;letter-spacing:.14em;text-transform:uppercase;color:#8a6320;margin:0 0 8px}
+h1{font-size:clamp(26px,5vw,44px);line-height:1.06;letter-spacing:-.04em;margin:0 0 22px}
+
+/* status banner */
+.status{background:#17130F;color:#f0e8d4;border-radius:16px;padding:18px 22px;display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;margin-bottom:18px}
+.st-label{font:700 10px/1 "JetBrains Mono",monospace;letter-spacing:.1em;text-transform:uppercase;color:#a08850;margin-bottom:5px}
+.st-big{font:700 22px/1.1 "JetBrains Mono",monospace;color:#f5b942}
+.st-sub{font-size:13px;color:#b8a882;margin-top:4px}
+.st-cliff{text-align:right}
+.st-cliff .st-big{color:#ff6b35}
+
+/* key facts pills */
+.dates{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:28px}
+.date-pill{background:#fdfaf4;border:1px solid #d8cfb8;border-radius:12px;padding:12px 14px}
+.date-pill .dl{font:700 10px/1 "JetBrains Mono",monospace;letter-spacing:.08em;text-transform:uppercase;color:#7a7060;margin-bottom:5px}
+.date-pill strong{display:block;font-size:16px;line-height:1.2}
+.date-pill.good{border-color:#5a8a5e;background:#eef5ef}
+.date-pill.good .dl{color:#3a7040}
+.date-pill.good strong{color:#234a33}
+
+/* section */
+h2{font-size:17px;letter-spacing:-.02em;margin:0 0 14px;padding-bottom:8px;border-bottom:1px solid #ddd0b4}
+.section{margin-bottom:32px}
+.lead{font-size:13.5px;color:#4a4030;margin:-4px 0 14px;line-height:1.55}
+
+/* tables */
+.tbl-wrap{background:#fdfaf4;border:1px solid #d8cfb8;border-radius:14px;overflow:hidden;margin-bottom:12px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{font:700 10px/1 "JetBrains Mono",monospace;letter-spacing:.08em;text-transform:uppercase;color:#6a6050;background:#f5edd8;padding:9px 12px;text-align:left;border-bottom:1px solid #ddd0b4}
+td{padding:9px 12px;border-bottom:1px solid #e8dfca;vertical-align:top;line-height:1.45}
+tr:last-child td{border-bottom:0}
+.mono{font:700 12px/1.3 "JetBrains Mono",monospace;color:#17130F}
+.muted{color:#9a9078}
+tr.hl td{background:#fff6e6}
+tr.hl .mono{color:#8a5c00}
+.yes{color:#234a33;font-weight:700}
+.no{color:#b04500;font-weight:700}
+.tag{display:inline-block;font:700 9px/1 "JetBrains Mono",monospace;letter-spacing:.06em;text-transform:uppercase;border-radius:999px;padding:3px 7px;white-space:nowrap}
+.tag.on{border:1px solid #5a8a5e;color:#234a33;background:#eef5ef}
+.tag.off{border:1px solid #c8a040;color:#8a5c00;background:#fdf6e6}
+
+/* effective breakdown */
+.eff{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:8px}
+.eff-card{background:#fdfaf4;border:1px solid #d8cfb8;border-radius:14px;padding:14px 16px}
+.eff-card .ek{font:700 10px/1 "JetBrains Mono",monospace;letter-spacing:.08em;text-transform:uppercase;color:#7a7060;margin-bottom:6px}
+.eff-card .ev{font:700 26px/1 "JetBrains Mono",monospace;color:#17130F}
+.eff-card .es{font-size:11.5px;color:#7a6a4a;margin-top:5px;line-height:1.45}
+.eff-card.dark{background:#17130F;border-color:#17130F}
+.eff-card.dark .ek{color:#a08850}
+.eff-card.dark .ev{color:#f5b942}
+.eff-card.dark .es{color:#b8a882}
+
+/* note boxes */
+.box{border-radius:10px;padding:11px 14px;font-size:12.5px;line-height:1.55;margin-bottom:12px}
+.box.warn{background:#fff8ee;border:1px solid #e8b870;color:#6a4800}
+.box.good{background:#eef5ef;border:1px solid #b4d4b8;color:#2a5230}
+.box.info{background:#f1f0e6;border:1px solid #cdc7b0;color:#4a4636}
+.box b{color:inherit}
+
+/* compare strip */
+.compare{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.comp{flex:1;min-width:200px;background:#fdfaf4;border:1px solid #d8cfb8;border-radius:14px;padding:14px 16px}
+.comp .ck{font:700 10px/1 "JetBrains Mono",monospace;letter-spacing:.06em;text-transform:uppercase;color:#7a7060;margin-bottom:8px}
+.comp .crow{display:flex;justify-content:space-between;padding:3px 0;font-size:12.5px}
+.comp .crow b{font:700 12px/1.3 "JetBrains Mono",monospace}
+.comp.you{border-color:#c05500;background:#fff6ee}
+.comp.you .ck{color:#b04500}
+
+/* action list */
+.acts{display:grid;gap:8px}
+.act{display:flex;gap:11px;align-items:flex-start;background:#fdfaf4;border:1px solid #ddd0b4;border-radius:10px;padding:11px 14px;font-size:13px;line-height:1.5}
+.act .an{font:700 13px/1.3 "JetBrains Mono",monospace;color:#8a6320;flex-shrink:0}
+.act b{color:#17130F}
+
+footer{margin-top:36px;padding-top:16px;border-top:1px solid #ddd0b4;font-size:11.5px;color:#8a8068;line-height:1.6}
+
+@media(max-width:700px){
+  .dates,.eff{grid-template-columns:1fr 1fr}
+  .status{flex-direction:column;align-items:flex-start}
+  .st-cliff{text-align:left}
+}
+</style>
+</head>
+<body>
+<main class="wrap">
+
+  <div class="nav">
+    <a class="btn" href="index.html">← 동네 점수표</a>
+    <a class="btn" href="moving-plan.html">이사 계획</a>
+    <a class="btn" href="https://bskthefirst.github.io/nyc-apartment-hunt/" target="_blank">Top 10 매물 ↗</a>
+  </div>
+
+  <p class="eyebrow">F1 OPT · NJ 거주 · NYC 근무 · 2026</p>
+  <h1>세금 가이드 —<br>$94k 기준, 내가 실제로 내는 세금</h1>
+
+  <div class="status">
+    <div>
+      <div class="st-label">현재 세무 신분</div>
+      <div class="st-big">NRA · FICA 면제</div>
+      <div class="st-sub">F1 시작 2025년 5월 → 2025–2029 비거주외국인(NRA)</div>
+    </div>
+    <div class="st-cliff">
+      <div class="st-label">FICA 절벽</div>
+      <div class="st-big">2030. 1. 1</div>
+      <div class="st-sub">거주외국인 전환 → FICA 7.65% 시작 (≈ -$600/월)</div>
+    </div>
+  </div>
+
+  <div class="dates">
+    <div class="date-pill good"><div class="dl">FICA</div><strong>면제 ✓</strong></div>
+    <div class="date-pill good"><div class="dl">NYC 세금</div><strong>$0 ✓</strong></div>
+    <div class="date-pill good"><div class="dl">NJ 주세</div><strong>≈ $0 (크레딧)</strong></div>
+    <div class="date-pill"><div class="dl">표준공제</div><strong>불가 (NRA)</strong></div>
+  </div>
+
+  <!-- effective summary -->
+  <div class="section">
+    <h2>한눈에 — 실효세율</h2>
+    <div class="eff">
+      <div class="eff-card">
+        <div class="ek">한계세율</div>
+        <div class="ev">~28.4%</div>
+        <div class="es">다음 1달러(보너스·초과근무)에 붙는 세율. 22% 연방 + 6% NY + ~0.4% PFL.</div>
+      </div>
+      <div class="eff-card dark">
+        <div class="ek">실효세율</div>
+        <div class="ev">~21.7%</div>
+        <div class="es">$94k 전체 기준. 낮은 구간이 낮은 세율로 과세되기 때문.</div>
+      </div>
+      <div class="eff-card">
+        <div class="ek">연 총 세금</div>
+        <div class="ev">~$20.4k</div>
+        <div class="es">연방 ~$15.4k + NY ~$4.6k + SDI/PFL ~$0.4k. 약 $1,700/월.</div>
+      </div>
+    </div>
+    <div class="box good">✅ <b>나를 유리하게 만드는 3가지 (잃지 말 것):</b> ① FICA 면제 ≈ <b>$7,191/년</b> 절감 (2029년까지) · ② NYC 거주세 없음 ≈ <b>$2,950/년</b> 절감 (NJ 거주 유지 시) · ③ NJ 주세는 NY 납부분 크레딧으로 ≈ $0.</div>
+  </div>
+
+  <!-- active taxes -->
+  <div class="section">
+    <h2>지금 나에게 적용되는 세금</h2>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>세금</th><th>한계세율</th><th>적용?</th><th>비고</th></tr></thead>
+        <tbody>
+          <tr class="hl"><td><b>연방 소득세</b></td><td class="mono">22%</td><td><span class="tag on">적용</span></td><td>$94k는 22% 구간 (상한 $105,700)</td></tr>
+          <tr class="hl"><td><b>NY 주세</b> (비거주)</td><td class="mono">6.0%</td><td><span class="tag on">적용</span></td><td>NY 근무 → IT-203 비거주 신고</td></tr>
+          <tr><td>NJ 주세 (거주)</td><td class="mono">6.37%</td><td><span class="tag on">적용</span></td><td>NY 납부분 크레딧으로 실질 ≈ $0</td></tr>
+          <tr><td>NYC 소득세</td><td class="mono">3.876%</td><td><span class="tag off">미적용</span></td><td>NJ 거주자는 면제</td></tr>
+          <tr><td>FICA (SS+Medicare)</td><td class="mono">7.65%</td><td><span class="tag off">미적용</span></td><td>F1 NRA — 2030년부터 적용</td></tr>
+          <tr><td>NY SDI + PFL</td><td class="mono">~0.4%</td><td><span class="tag on">적용</span></td><td>합산 ~$32/월 수준 (소액)</td></tr>
+          <tr><td>장기 양도세</td><td class="mono">15%</td><td><span class="tag off">투자 시</span></td><td>NRA 30% 함정 주의 (아래)</td></tr>
+          <tr><td>단기 양도세</td><td class="mono">22%</td><td><span class="tag off">매매 시</span></td><td>1년 미만 보유 = 일반소득 세율</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- federal brackets -->
+  <div class="section">
+    <h2>1 · 연방 소득세 구간 (2026, 싱글)</h2>
+    <p class="lead">공식 IRS 2026 구간 (Rev. Proc. 2025-32). $94k는 22% 구간에 안착 — 보너스가 $11k를 넘지 않는 한 24%로 올라가지 않음.</p>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>세율</th><th>소득 구간</th><th>나의 상태</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">10%</td><td class="mono">$0 – $12,400</td><td>✓ 과세</td></tr>
+          <tr><td class="mono">12%</td><td class="mono">$12,400 – $50,400</td><td>✓ 과세</td></tr>
+          <tr class="hl"><td class="mono">22%</td><td class="mono">$50,400 – $105,700</td><td><span class="yes">✓ 내 한계구간 — $94k</span></td></tr>
+          <tr><td class="mono">24%</td><td class="mono">$105,700 – $201,775</td><td class="muted">✗ 아직 아님</td></tr>
+          <tr><td class="mono">32%</td><td class="mono">$201,775 – $256,225</td><td class="muted">✗</td></tr>
+          <tr><td class="mono">35%</td><td class="mono">$256,225 – $640,600</td><td class="muted">✗</td></tr>
+          <tr><td class="mono">37%</td><td class="mono">$640,600+</td><td class="muted">✗</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="box info">계산: 10%×$12,400 + 12%×$38,000 + 22%×$43,600 = <b>≈ $15,392/년</b> (실효 16.4%). 표준공제 없이 전액 과세.</div>
+  </div>
+
+  <!-- standard deduction -->
+  <div class="section">
+    <h2>2 · 표준공제 — 왜 못 받나</h2>
+    <p class="lead">한국 NRA는 표준공제($16,100, 2026)를 받을 수 없음. 강제로 <b>항목별 공제(itemized)</b>만 가능. 인도-미국 조약(Article 21(2))만 학생에게 표준공제를 허용 — 한국은 해당 조항 없음.</p>
+    <div class="compare">
+      <div class="comp">
+        <div class="ck">미국 시민 ($94k)</div>
+        <div class="crow"><span>소득</span><b>$94,000</b></div>
+        <div class="crow"><span>− 표준공제</span><b>−$16,100</b></div>
+        <div class="crow"><span>과세표준</span><b>$77,900</b></div>
+        <div class="crow"><span>연방세</span><b>≈ $11,850</b></div>
+      </div>
+      <div class="comp you">
+        <div class="ck">나 (한국 NRA)</div>
+        <div class="crow"><span>소득</span><b>$94,000</b></div>
+        <div class="crow"><span>− 표준공제</span><b>$0</b></div>
+        <div class="crow"><span>− 항목별(SALT)</span><b>−$4,600</b></div>
+        <div class="crow"><span>연방세</span><b>≈ $14,500</b></div>
+      </div>
+    </div>
+    <div class="box warn">⚠ NRA라는 이유만으로 같은 소득의 시민보다 연 <b>~$3,500 더</b> 냄. 단, <b>항목별 공제는 반드시 챙길 것</b> — NY 주세 납부분(~$4,600, SALT $10k 한도 내)을 Schedule A(1040-NR)에 올리면 ~$1,000 절감.</div>
+  </div>
+
+  <!-- NY / NJ -->
+  <div class="section">
+    <h2>3 · NY 주세 (비거주) &amp; NJ 주세 (거주)</h2>
+    <p class="lead">NY에서 일하므로 NY 비거주 신고(IT-203). NJ 거주자이므로 NJ-1040도 신고하지만, NJ가 NY 납부분을 크레딧으로 빼주어 실질 NJ 납부는 ≈ $0.</p>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>NY 비거주 구간 (요약)</th><th>세율</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">$0 – $80,650</td><td class="mono">4.0% → 5.5% 누진</td></tr>
+          <tr class="hl"><td class="mono">$80,650 – $215,400</td><td class="mono">6.0% ← 내 한계 (소액)</td></tr>
+          <tr><td class="mono">$215,400 – $1.07M</td><td class="mono">6.85%</td></tr>
+          <tr><td class="mono">$1.07M+</td><td class="mono">9.65% – 10.9%</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="box good">NY는 $8,000 표준공제 허용 → NY 세금이 "겨우" ~<b>$4,600/년</b>. NJ 세금은 NY 크레딧으로 거의 전액 상쇄 (NY세 ≈ NJ에서 냈을 세금).</div>
+    <div class="box warn">⚠ <b>NJ 거주가 핵심.</b> NYC로 이사하면 NYC 거주세(~$2,950/년) + 보통 더 높은 월세까지 추가. 이사 전 반드시 계산.</div>
+  </div>
+
+  <!-- investing traps -->
+  <div class="section">
+    <h2>4 · 투자 시 함정 (NRA 특이사항)</h2>
+    <div class="box warn"><b>양도세 30% 함정 (검증 필요):</b> 미국 체류 183일 이상인 NRA의 <b>미국 원천 양도차익</b>은 15%가 아니라 <b>30% 단일세율</b>이 적용될 수 있음 (IRC §871(a)(2)). F1 "면제 개인"의 일수 산정은 논쟁 여지가 있어, <b>거주외국인(2030) 되기 전엔 미국 주식 데이트레이딩 자제</b>. 실제 적용은 세무 전문가 확인.</div>
+    <div class="box info"><b>배당 원천징수:</b> 미국 원천 배당은 한국-미국 조약으로 <b>15%</b> 자동 원천징수 (W-8BEN 제출 시; 미제출 시 기본 30%). 증권사(Fidelity 등)가 자동 처리.</div>
+    <div class="box info"><b>장기 양도세 우대(시민 기준):</b> 2026년 싱글 15% 구간은 ~$49,450 초과부터. NRA에겐 위 30% 함정이 우선할 수 있음.</div>
+  </div>
+
+  <!-- actions -->
+  <div class="section">
+    <h2>5 · 할 일 &amp; 기회</h2>
+    <div class="acts">
+      <div class="act"><span class="an">01</span><div><b>EY 무료 세무대행 확인.</b> Big 4는 F1 OPT 1040-NR 신고에 익숙. Mobility(Karleen Smith) 또는 relocation 브로셔에서 무료 제공 여부 확인 — 본인 부담 금지.</div></div>
+      <div class="act"><span class="an">02</span><div><b>1040-NR로 신고.</b> 일반 1040 아님. Schedule OI + Schedule A(NRA, SALT 항목별) + Form 8843. <b>TurboTax 금지</b> (거주자 양식 강제 → NRA 신분 오류). Sprintax 권장.</div></div>
+      <div class="act"><span class="an">03</span><div><b>401(k) 최대 납입</b> (EY 매칭 시작 시). 한계세율 28.4% → $1 납입당 ~$0.28 절세.</div></div>
+      <div class="act"><span class="an">04</span><div><b>세전 통근 혜택(~$325/월)</b> + <b>HSA/FSA</b> 활용 — 연방 22% + NY 6% 과세소득에서 차감.</div></div>
+      <div class="act"><span class="an">05</span><div><b>한국-미국 조약 Article 21 학생 면제($2,000)</b> OPT 중 적용 여부를 EY 세무대행에 문의 — 적용되면 ~$440/년 절감 (적용 불확실).</div></div>
+      <div class="act"><span class="an">06</span><div><b>2030 절벽 대비.</b> 거주외국인 전환 → FICA 시작 (~$600/월 실수령 감소). 전환 연도는 이중신분(dual-status) 신고 가능성.</div></div>
+    </div>
+  </div>
+
+  <footer>
+    출처: IRS 2026 구간(Rev. Proc. 2025-32) · Tax Foundation 2026 데이터. 기준소득 $94k 싱글, F1 시작 2025년 5월, 한국 시민, NJ 거주 / NY 근무 가정.<br>
+    ⚠ 본 페이지는 추정치이며 세무·법률 자문이 아님. 실제 신고 전 반드시 EY 세무대행 또는 공인 세무사(CPA/EA) 확인. 최종 업데이트 2026-06-09.
+  </footer>
+
+</main>
+</body>
+</html>
