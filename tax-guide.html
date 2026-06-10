@@ -38,6 +38,17 @@ h1{font-size:clamp(26px,5vw,44px);line-height:1.06;letter-spacing:-.04em;margin:
 .date-pill.good .dl{color:#3a7040}
 .date-pill.good strong{color:#234a33}
 
+/* contents */
+.toc{background:#fdfaf4;border:1px solid #d8cfb8;border-radius:18px;padding:18px 20px;margin:0 0 30px;box-shadow:0 10px 24px rgba(50,39,20,.06)}
+.toc-title{font-size:24px;line-height:1.1;letter-spacing:-.04em;margin:0 0 12px;padding-bottom:12px;border-bottom:2px solid #e6dcc3}
+.toc-list{list-style:none;margin:0;padding:0;display:grid;gap:7px}
+.toc-list li{display:flex;align-items:flex-start;gap:9px}
+.toc-list li::before{content:"";width:7px;height:7px;border-right:2px solid #234a33;border-bottom:2px solid #234a33;transform:rotate(-45deg);margin-top:10px;flex-shrink:0;opacity:.75}
+.toc a{font-weight:700;font-size:17px;line-height:1.35;text-decoration:none;color:#245f43}
+.toc a:hover{text-decoration:underline;text-underline-offset:3px}
+.toc-sub{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 2px;padding-left:18px}
+.toc-sub a{font-size:12px;border:1px solid #d6c89f;border-radius:999px;padding:4px 8px;background:#fbf4df;color:#6f4d0b;font-family:"JetBrains Mono",monospace;letter-spacing:-.02em}
+
 /* section */
 h2{font-size:17px;letter-spacing:-.02em;margin:0 0 14px;padding-bottom:8px;border-bottom:1px solid #ddd0b4}
 .section{margin-bottom:32px}
@@ -98,6 +109,10 @@ footer{margin-top:36px;padding-top:16px;border-top:1px solid #ddd0b4;font-size:1
   .dates,.eff{grid-template-columns:1fr 1fr}
   .status{flex-direction:column;align-items:flex-start}
   .st-cliff{text-align:left}
+  .toc{padding:16px;margin-bottom:24px}
+  .toc-title{font-size:22px}
+  .toc a{font-size:16px}
+  .toc-sub{padding-left:0}
 }
 </style>
 </head>
@@ -133,9 +148,31 @@ footer{margin-top:36px;padding-top:16px;border-top:1px solid #ddd0b4;font-size:1
     <div class="date-pill"><div class="dl">표준공제</div><strong>불가 (NRA)</strong></div>
   </div>
 
+  <nav class="toc" aria-label="Contents">
+    <h2 class="toc-title">Contents</h2>
+    <ol class="toc-list">
+      <li><a href="#effective-rate">한눈에 — 실효세율</a></li>
+      <li><a href="#active-taxes">지금 나에게 적용되는 세금</a></li>
+      <li><a href="#federal-brackets">1 · 연방 소득세 구간</a></li>
+      <li>
+        <div>
+          <a href="#standard-deduction">2 · 표준공제 — 왜 못 받나</a>
+          <div class="toc-sub">
+            <a href="#standard-strategy">2b · Standard deduction strategy</a>
+            <a href="#deductions">Schedule A</a>
+            <a href="#pretax-strategies">Pre-tax moves</a>
+          </div>
+        </div>
+      </li>
+      <li><a href="#ny-nj-tax">3 · NY/NJ 주세</a></li>
+      <li><a href="#investing-traps">4 · 투자 시 함정</a></li>
+      <li><a href="#actions">5 · 할 일 &amp; 기회</a></li>
+    </ol>
+  </nav>
+
   <!-- effective summary -->
   <div class="section">
-    <h2>한눈에 — 실효세율</h2>
+    <h2 id="effective-rate">한눈에 — 실효세율</h2>
     <div class="eff">
       <div class="eff-card">
         <div class="ek">한계세율</div>
@@ -158,7 +195,7 @@ footer{margin-top:36px;padding-top:16px;border-top:1px solid #ddd0b4;font-size:1
 
   <!-- active taxes -->
   <div class="section">
-    <h2>지금 나에게 적용되는 세금</h2>
+    <h2 id="active-taxes">지금 나에게 적용되는 세금</h2>
     <div class="tbl-wrap">
       <table>
         <thead><tr><th>세금</th><th>한계세율</th><th>적용?</th><th>비고</th></tr></thead>
@@ -178,7 +215,7 @@ footer{margin-top:36px;padding-top:16px;border-top:1px solid #ddd0b4;font-size:1
 
   <!-- federal brackets -->
   <div class="section">
-    <h2>1 · 연방 소득세 구간 (2026, 싱글)</h2>
+    <h2 id="federal-brackets">1 · 연방 소득세 구간 (2026, 싱글)</h2>
     <p class="lead">공식 IRS 2026 구간 (Rev. Proc. 2025-32). $94k는 22% 구간에 안착 — 보너스가 $11k를 넘지 않는 한 24%로 올라가지 않음.</p>
     <div class="tbl-wrap">
       <table>
@@ -199,7 +236,7 @@ footer{margin-top:36px;padding-top:16px;border-top:1px solid #ddd0b4;font-size:1
 
   <!-- standard deduction -->
   <div class="section">
-    <h2>2 · 표준공제 — 왜 못 받나</h2>
+    <h2 id="standard-deduction">2 · 표준공제 — 왜 못 받나</h2>
     <p class="lead">한국 NRA는 표준공제($16,100, 2026)를 받을 수 없음. 강제로 <b>항목별 공제(itemized)</b>만 가능. 인도-미국 조약(Article 21(2))만 학생에게 표준공제를 허용 — 한국은 해당 조항 없음.</p>
     <div class="compare">
       <div class="comp">
@@ -223,7 +260,7 @@ footer{margin-top:36px;padding-top:16px;border-top:1px solid #ddd0b4;font-size:1
   <!-- standard deduction deep dive (EN) -->
   <div class="section">
     <p class="eyebrow" style="margin-top:6px">In English · Standard deduction &amp; strategy</p>
-    <h2>2b · Why no standard deduction — and what to do instead</h2>
+    <h2 id="standard-strategy">2b · Why no standard deduction — and what to do instead</h2>
     <p class="lead">Short answer: <b>you cannot take the standard deduction</b> while you are a nonresident alien (NRA), which is every year from 2025 through 2029. Two rules stack:</p>
     <div class="box info"><b>1. The tax code bars NRAs from the standard deduction.</b> Form 1040-NR has no standard-deduction line — itemizing is the <i>only</i> way to reduce taxable income. &nbsp;<b>2. You're classified NRA</b> because F1 students are "exempt individuals" whose days don't count toward the Substantial Presence Test for the first <b>5 calendar years</b>. The only carve-out is the <b>US–India treaty</b> (Art. 21(2)); Korea has no such clause.</div>
 
@@ -242,7 +279,7 @@ footer{margin-top:36px;padding-top:16px;border-top:1px solid #ddd0b4;font-size:1
     </div>
     <div class="box good">OPT doesn't change this — OPT is just work authorization under F1 status, so you stay an exempt individual inside the 5-year window. In <b>2030</b> you flip to resident alien: you <b>gain</b> the standard deduction but <b>lose</b> the FICA exemption.</div>
 
-    <h2 style="margin-top:26px">What you CAN deduct — Schedule A (Form 1040-NR)</h2>
+    <h2 id="deductions" style="margin-top:26px">What you CAN deduct — Schedule A (Form 1040-NR)</h2>
     <p class="lead">The NRA Schedule A is far narrower than the resident version. Realistic picture for you:</p>
     <div class="tbl-wrap">
       <table>
@@ -257,10 +294,10 @@ footer{margin-top:36px;padding-top:16px;border-top:1px solid #ddd0b4;font-size:1
     </div>
     <div class="box warn">⚠ <b>Always file Schedule A for the NY state tax (~$4,600).</b> It drops federal taxable income from $94k → ~$89.4k, saving ~$1,000/yr. Skip it and you're taxed on the full $94k.</div>
 
-    <h2 style="margin-top:26px">Above-the-line adjustments (not "itemized," but stack on top)</h2>
+    <h2 id="above-line" style="margin-top:26px">Above-the-line adjustments (not "itemized," but stack on top)</h2>
     <div class="box info">NRAs can <b>also</b> take these on Schedule 1, <i>in addition to</i> itemizing: <b>student loan interest</b> (up to $2,500, qualifying US loans) · <b>HSA contributions</b> (if EY offers an HSA-eligible plan) · <b>Traditional IRA</b> (if eligible) · <b>US–Korea treaty exclusions</b> (Art. 21 student item — excludes income rather than deducting; confirm with EY's provider).</div>
 
-    <h2 style="margin-top:26px">Strategies — your real lever is pre-tax, not deductions</h2>
+    <h2 id="pretax-strategies" style="margin-top:26px">Strategies — your real lever is pre-tax, not deductions</h2>
     <p class="lead">Because you're denied the $16,100 standard deduction, the biggest tax savings come from <b>shrinking taxable income before it's taxed</b>. Every pre-tax dollar saves you ~28% (your marginal rate: 22% federal + 6% NY).</p>
     <div class="acts">
       <div class="act"><span class="an">S1</span><div><b>Max your 401(k).</b> Pre-tax contributions cut both federal and NY taxable income — your single most powerful move as an NRA. ~$0.28 saved per $1. Bonus: EY match once eligible.</div></div>
@@ -278,7 +315,7 @@ footer{margin-top:36px;padding-top:16px;border-top:1px solid #ddd0b4;font-size:1
 
   <!-- NY / NJ -->
   <div class="section">
-    <h2>3 · NY 주세 (비거주) &amp; NJ 주세 (거주)</h2>
+    <h2 id="ny-nj-tax">3 · NY 주세 (비거주) &amp; NJ 주세 (거주)</h2>
     <p class="lead">NY에서 일하므로 NY 비거주 신고(IT-203). NJ 거주자이므로 NJ-1040도 신고하지만, NJ가 NY 납부분을 크레딧으로 빼주어 실질 NJ 납부는 ≈ $0.</p>
     <div class="tbl-wrap">
       <table>
@@ -297,7 +334,7 @@ footer{margin-top:36px;padding-top:16px;border-top:1px solid #ddd0b4;font-size:1
 
   <!-- investing traps -->
   <div class="section">
-    <h2>4 · 투자 시 함정 (NRA 특이사항)</h2>
+    <h2 id="investing-traps">4 · 투자 시 함정 (NRA 특이사항)</h2>
     <div class="box warn"><b>양도세 30% 함정 (검증 필요):</b> 미국 체류 183일 이상인 NRA의 <b>미국 원천 양도차익</b>은 15%가 아니라 <b>30% 단일세율</b>이 적용될 수 있음 (IRC §871(a)(2)). F1 "면제 개인"의 일수 산정은 논쟁 여지가 있어, <b>거주외국인(2030) 되기 전엔 미국 주식 데이트레이딩 자제</b>. 실제 적용은 세무 전문가 확인.</div>
     <div class="box info"><b>배당 원천징수:</b> 미국 원천 배당은 한국-미국 조약으로 <b>15%</b> 자동 원천징수 (W-8BEN 제출 시; 미제출 시 기본 30%). 증권사(Fidelity 등)가 자동 처리.</div>
     <div class="box info"><b>장기 양도세 우대(시민 기준):</b> 2026년 싱글 15% 구간은 ~$49,450 초과부터. NRA에겐 위 30% 함정이 우선할 수 있음.</div>
@@ -305,7 +342,7 @@ footer{margin-top:36px;padding-top:16px;border-top:1px solid #ddd0b4;font-size:1
 
   <!-- actions -->
   <div class="section">
-    <h2>5 · 할 일 &amp; 기회</h2>
+    <h2 id="actions">5 · 할 일 &amp; 기회</h2>
     <div class="acts">
       <div class="act"><span class="an">01</span><div><b>EY 무료 세무대행 확인.</b> Big 4는 F1 OPT 1040-NR 신고에 익숙. Mobility(Karleen Smith) 또는 relocation 브로셔에서 무료 제공 여부 확인 — 본인 부담 금지.</div></div>
       <div class="act"><span class="an">02</span><div><b>1040-NR로 신고.</b> 일반 1040 아님. Schedule OI + Schedule A(NRA, SALT 항목별) + Form 8843. <b>TurboTax 금지</b> (거주자 양식 강제 → NRA 신분 오류). Sprintax 권장.</div></div>
