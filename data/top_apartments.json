@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-06-21 05:22 UTC",
+  "updated_at": "2026-06-22 05:35 UTC",
   "criteria": {
     "target_rent": 2350,
     "stretch_rent": 2350,
@@ -48,13 +48,12 @@
       "listing_verification": "partially_verified",
       "neighborhood_confidence": "medium",
       "search_parse_source": "html_jsonld",
-      "detail_parse_source": "jina_fallback",
+      "detail_parse_source": "missing",
       "price_source": "jsonld_property",
       "availability_source": "unknown",
       "availability_confirmed": false,
-      "fallback_used": true,
+      "fallback_used": false,
       "verification_notes": [
-        "detail fallback used",
         "laundry unconfirmed",
         "availability unconfirmed"
       ],
@@ -136,13 +135,12 @@
       "listing_verification": "partially_verified",
       "neighborhood_confidence": "medium",
       "search_parse_source": "html_jsonld",
-      "detail_parse_source": "jina_fallback",
+      "detail_parse_source": "missing",
       "price_source": "jsonld_property",
       "availability_source": "unknown",
       "availability_confirmed": false,
-      "fallback_used": true,
+      "fallback_used": false,
       "verification_notes": [
-        "detail fallback used",
         "laundry unconfirmed",
         "availability unconfirmed"
       ],
